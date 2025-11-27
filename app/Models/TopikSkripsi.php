@@ -47,6 +47,14 @@ class TopikSkripsi extends Model
     }
 
     /**
+     * Alias for usulanPembimbing (plural form).
+     */
+    public function usulanPembimbings(): HasMany
+    {
+        return $this->hasMany(UsulanPembimbing::class, 'topik_id');
+    }
+
+    /**
      * Get bimbingan.
      */
     public function bimbingan(): HasMany

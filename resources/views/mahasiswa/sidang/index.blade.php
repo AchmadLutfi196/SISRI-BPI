@@ -1,15 +1,24 @@
 <x-app-layout>
     <div class="max-w-7xl mx-auto">
         @php
-            $seminarProposal = $pendaftarans->where('jenis', 'seminar_proposal')->first();
-            $sidangSkripsi = $pendaftarans->where('jenis', 'sidang_skripsi')->first();
+            // Ambil pendaftaran TERBARU untuk setiap jenis (agar tidak ambil yang lama/ditolak)
+            $seminarProposal = $pendaftarans->where('jenis', 'seminar_proposal')->sortByDesc('id')->first();
+            $sidangSkripsi = $pendaftarans->where('jenis', 'sidang_skripsi')->sortByDesc('id')->first();
+            
+            // Pendaftaran aktif (tidak ditolak) untuk cek bisa daftar atau tidak
+            $seminarProposalActive = $seminarProposal && !$seminarProposal->isRejected() ? $seminarProposal : null;
+            $sidangSkripsiActive = $sidangSkripsi && !$sidangSkripsi->isRejected() ? $sidangSkripsi : null;
+            
+            // Cek rejected (dari pendaftaran terbaru)
+            $seminarRejected = $seminarProposal && $seminarProposal->isRejected();
+            $sidangRejected = $sidangSkripsi && $sidangSkripsi->isRejected();
             
             // Cek apakah sudah lulus sempro (punya nilai)
-            $lulusSempro = $seminarProposal && $seminarProposal->pelaksanaanSidang && $seminarProposal->pelaksanaanSidang->nilai;
+            $lulusSempro = $seminarProposalActive && $seminarProposalActive->pelaksanaanSidang && $seminarProposalActive->pelaksanaanSidang->nilai;
             
             // Status untuk progress
             $seminarStatus = 'pending';
-            if ($seminarProposal) {
+            if ($seminarProposalActive) {
                 if ($lulusSempro) {
                     $seminarStatus = 'completed';
                 } else {
@@ -18,8 +27,8 @@
             }
             
             $sidangStatus = 'pending';
-            if ($sidangSkripsi) {
-                if ($sidangSkripsi->pelaksanaanSidang && $sidangSkripsi->pelaksanaanSidang->nilai) {
+            if ($sidangSkripsiActive) {
+                if ($sidangSkripsiActive->pelaksanaanSidang && $sidangSkripsiActive->pelaksanaanSidang->nilai) {
                     $sidangStatus = 'completed';
                 } else {
                     $sidangStatus = 'active';
@@ -34,25 +43,25 @@
                 <p class="text-gray-600">Kelola pendaftaran seminar dan sidang skripsi Anda</p>
             </div>
             <div class="mt-4 md:mt-0 flex gap-2">
-                @if(!$seminarProposal)
+                @if(!$seminarProposalActive)
                 <a href="{{ route('mahasiswa.sidang.create', ['jenis' => 'seminar_proposal']) }}" 
                    class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
-                    Daftar Seminar
+                    {{ $seminarRejected ? 'Daftar Ulang Seminar' : 'Daftar Seminar' }}
                 </a>
                 @endif
                 
-                @if($lulusSempro && !$sidangSkripsi)
+                @if($lulusSempro && !$sidangSkripsiActive)
                 <a href="{{ route('mahasiswa.sidang.create', ['jenis' => 'sidang_skripsi']) }}" 
                    class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
-                    Daftar Sidang
+                    {{ $sidangRejected ? 'Daftar Ulang Sidang' : 'Daftar Sidang' }}
                 </a>
-                @elseif(!$lulusSempro && !$sidangSkripsi)
+                @elseif(!$lulusSempro && !$sidangSkripsiActive)
                 <button disabled
                    class="inline-flex items-center px-4 py-2 bg-gray-400 text-white rounded-lg cursor-not-allowed" title="Lulus seminar proposal terlebih dahulu">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -184,9 +193,7 @@
                             if ($seminarProposal->status_pembimbing_2 === 'disetujui') $approvedCount++;
                             if ($seminarProposal->status_koordinator === 'disetujui') $approvedCount++;
                             
-                            $isRejected = $seminarProposal->status_pembimbing_1 === 'ditolak' || 
-                                          $seminarProposal->status_pembimbing_2 === 'ditolak' || 
-                                          $seminarProposal->status_koordinator === 'ditolak';
+                            $isRejected = $seminarProposal->isRejected();
                             
                             $seminarStatusText = $isRejected ? 'Ditolak' : ($approvedCount === 3 ? 'Disetujui' : 'Menunggu (' . $approvedCount . '/3)');
                             $seminarStatusClass = $isRejected ? 'bg-red-100 text-red-800' : ($approvedCount === 3 ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800');
@@ -199,6 +206,22 @@
                                     {{ $seminarStatusText }}
                                 </span>
                             </div>
+                            
+                            @if($isRejected)
+                            <!-- Alasan Ditolak -->
+                            <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                                <p class="text-sm font-medium text-red-800 mb-2">Alasan Penolakan:</p>
+                                @if($seminarProposal->status_pembimbing_1 === 'ditolak' && $seminarProposal->catatan_pembimbing_1)
+                                <p class="text-sm text-red-700">• Pembimbing 1: {{ $seminarProposal->catatan_pembimbing_1 }}</p>
+                                @endif
+                                @if($seminarProposal->status_pembimbing_2 === 'ditolak' && $seminarProposal->catatan_pembimbing_2)
+                                <p class="text-sm text-red-700">• Pembimbing 2: {{ $seminarProposal->catatan_pembimbing_2 }}</p>
+                                @endif
+                                @if($seminarProposal->status_koordinator === 'ditolak' && $seminarProposal->catatan_koordinator)
+                                <p class="text-sm text-red-700">• Koordinator: {{ $seminarProposal->catatan_koordinator }}</p>
+                                @endif
+                            </div>
+                            @endif
                             
                             <!-- Jadwal -->
                             <div class="flex items-center justify-between">
@@ -231,11 +254,17 @@
                             @endif
                         </div>
                         
-                        <div class="mt-6 pt-4 border-t">
+                        <div class="mt-6 pt-4 border-t flex gap-2">
                             <a href="{{ route('mahasiswa.sidang.show', $seminarProposal) }}" 
-                               class="w-full inline-flex items-center justify-center px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors">
+                               class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors">
                                 Lihat Detail
                             </a>
+                            @if($isRejected)
+                            <a href="{{ route('mahasiswa.sidang.create', ['jenis' => 'seminar_proposal']) }}" 
+                               class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                Daftar Ulang
+                            </a>
+                            @endif
                         </div>
                     @else
                         <div class="text-center py-8">
@@ -270,9 +299,7 @@
                             if ($sidangSkripsi->status_pembimbing_2 === 'disetujui') $approvedCount++;
                             if ($sidangSkripsi->status_koordinator === 'disetujui') $approvedCount++;
                             
-                            $isRejected = $sidangSkripsi->status_pembimbing_1 === 'ditolak' || 
-                                          $sidangSkripsi->status_pembimbing_2 === 'ditolak' || 
-                                          $sidangSkripsi->status_koordinator === 'ditolak';
+                            $isRejected = $sidangSkripsi->isRejected();
                             
                             $sidangStatusText = $isRejected ? 'Ditolak' : ($approvedCount === 3 ? 'Disetujui' : 'Menunggu (' . $approvedCount . '/3)');
                             $sidangStatusClass = $isRejected ? 'bg-red-100 text-red-800' : ($approvedCount === 3 ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800');
@@ -285,6 +312,22 @@
                                     {{ $sidangStatusText }}
                                 </span>
                             </div>
+                            
+                            @if($isRejected)
+                            <!-- Alasan Ditolak -->
+                            <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                                <p class="text-sm font-medium text-red-800 mb-2">Alasan Penolakan:</p>
+                                @if($sidangSkripsi->status_pembimbing_1 === 'ditolak' && $sidangSkripsi->catatan_pembimbing_1)
+                                <p class="text-sm text-red-700">• Pembimbing 1: {{ $sidangSkripsi->catatan_pembimbing_1 }}</p>
+                                @endif
+                                @if($sidangSkripsi->status_pembimbing_2 === 'ditolak' && $sidangSkripsi->catatan_pembimbing_2)
+                                <p class="text-sm text-red-700">• Pembimbing 2: {{ $sidangSkripsi->catatan_pembimbing_2 }}</p>
+                                @endif
+                                @if($sidangSkripsi->status_koordinator === 'ditolak' && $sidangSkripsi->catatan_koordinator)
+                                <p class="text-sm text-red-700">• Koordinator: {{ $sidangSkripsi->catatan_koordinator }}</p>
+                                @endif
+                            </div>
+                            @endif
                             
                             <!-- Jadwal -->
                             <div class="flex items-center justify-between">
@@ -307,11 +350,17 @@
                             @endif
                         </div>
                         
-                        <div class="mt-6 pt-4 border-t">
+                        <div class="mt-6 pt-4 border-t flex gap-2">
                             <a href="{{ route('mahasiswa.sidang.show', $sidangSkripsi) }}" 
-                               class="w-full inline-flex items-center justify-center px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
+                               class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
                                 Lihat Detail
                             </a>
+                            @if($isRejected)
+                            <a href="{{ route('mahasiswa.sidang.create', ['jenis' => 'sidang_skripsi']) }}" 
+                               class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                Daftar Ulang
+                            </a>
+                            @endif
                         </div>
                     @else
                         <div class="text-center py-8">

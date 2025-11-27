@@ -21,6 +21,7 @@ use App\Http\Controllers\Dosen\DashboardController as DosenDashboardController;
 use App\Http\Controllers\Dosen\ValidasiUsulanController;
 use App\Http\Controllers\Dosen\BimbinganController as DosenBimbinganController;
 use App\Http\Controllers\Dosen\NilaiController;
+use App\Http\Controllers\Dosen\PersetujuanSidangController;
 
 // Koordinator Controllers
 use App\Http\Controllers\Koordinator\DashboardController as KoordinatorDashboardController;
@@ -121,9 +122,15 @@ Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->grou
     
     // Penilaian Sidang
     Route::get('/nilai', [NilaiController::class, 'index'])->name('nilai.index');
-    Route::get('/nilai/{pelaksanaan}', [NilaiController::class, 'show'])->name('nilai.show');
+    Route::get('/nilai/{pelaksanaan}/create', [NilaiController::class, 'create'])->name('nilai.create');
     Route::post('/nilai/{pelaksanaan}', [NilaiController::class, 'store'])->name('nilai.store');
     Route::put('/nilai/{nilai}', [NilaiController::class, 'update'])->name('nilai.update');
+    
+    // Persetujuan Sidang
+    Route::get('/persetujuan-sidang', [PersetujuanSidangController::class, 'index'])->name('persetujuan-sidang.index');
+    Route::get('/persetujuan-sidang/{pendaftaran}', [PersetujuanSidangController::class, 'show'])->name('persetujuan-sidang.show');
+    Route::post('/persetujuan-sidang/{pendaftaran}/approve', [PersetujuanSidangController::class, 'approve'])->name('persetujuan-sidang.approve');
+    Route::post('/persetujuan-sidang/{pendaftaran}/reject', [PersetujuanSidangController::class, 'reject'])->name('persetujuan-sidang.reject');
 });
 
 // ==================== KOORDINATOR ROUTES ====================

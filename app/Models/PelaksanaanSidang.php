@@ -61,6 +61,26 @@ class PelaksanaanSidang extends Model
     }
 
     /**
+     * Alias for nilai (plural form for convenience).
+     */
+    public function nilais(): HasMany
+    {
+        return $this->hasMany(Nilai::class);
+    }
+
+    /**
+     * Get jadwal sidang (alias for backward compatibility).
+     */
+    public function jadwalSidang()
+    {
+        return (object)[
+            'tanggal' => $this->tanggal_sidang,
+            'waktu_mulai' => $this->tanggal_sidang ? $this->tanggal_sidang->format('H:i') : null,
+            'waktu_selesai' => $this->tanggal_sidang ? $this->tanggal_sidang->copy()->addHours(2)->format('H:i') : null,
+        ];
+    }
+
+    /**
      * Scope for scheduled.
      */
     public function scopeScheduled($query)

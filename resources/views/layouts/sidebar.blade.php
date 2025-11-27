@@ -100,17 +100,23 @@
             <x-sidebar-link :href="route('dosen.dashboard')" :active="request()->routeIs('dosen.dashboard')" icon="home">
                 Beranda
             </x-sidebar-link>
-            <x-sidebar-dropdown label="Proposal" icon="document" :active="request()->routeIs('dosen.validasi-usulan.*') || (request()->routeIs('dosen.bimbingan.*') && request('jenis') === 'proposal')">
+            <x-sidebar-dropdown label="Proposal" icon="document" :active="request()->routeIs('dosen.validasi-usulan.*') || (request()->routeIs('dosen.bimbingan.*') && request('jenis') === 'proposal') || (request()->routeIs('dosen.persetujuan-sidang.*') && request('jenis') === 'proposal')">
                 <x-sidebar-dropdown-link :href="route('dosen.validasi-usulan.index')" :active="request()->routeIs('dosen.validasi-usulan.*')">
                     Validasi Usulan
                 </x-sidebar-dropdown-link>
                 <x-sidebar-dropdown-link :href="route('dosen.bimbingan.index', ['jenis' => 'proposal'])" :active="request()->routeIs('dosen.bimbingan.*') && request('jenis') === 'proposal'">
                     Bimbingan Proposal
                 </x-sidebar-dropdown-link>
+                <x-sidebar-dropdown-link :href="route('dosen.persetujuan-sidang.index', ['jenis' => 'proposal'])" :active="request()->routeIs('dosen.persetujuan-sidang.*') && request('jenis') === 'proposal'">
+                    Persetujuan Seminar
+                </x-sidebar-dropdown-link>
             </x-sidebar-dropdown>
-            <x-sidebar-dropdown label="Skripsi" icon="book" :active="request()->routeIs('dosen.bimbingan.*') && request('jenis') === 'skripsi'">
+            <x-sidebar-dropdown label="Skripsi" icon="book" :active="(request()->routeIs('dosen.bimbingan.*') && request('jenis') === 'skripsi') || (request()->routeIs('dosen.persetujuan-sidang.*') && request('jenis') === 'skripsi')">
                 <x-sidebar-dropdown-link :href="route('dosen.bimbingan.index', ['jenis' => 'skripsi'])" :active="request()->routeIs('dosen.bimbingan.*') && request('jenis') === 'skripsi'">
                     Bimbingan Skripsi
+                </x-sidebar-dropdown-link>
+                <x-sidebar-dropdown-link :href="route('dosen.persetujuan-sidang.index', ['jenis' => 'skripsi'])" :active="request()->routeIs('dosen.persetujuan-sidang.*') && request('jenis') === 'skripsi'">
+                    Persetujuan Sidang
                 </x-sidebar-dropdown-link>
             </x-sidebar-dropdown>
             <x-sidebar-dropdown label="Nilai" icon="chart" :active="request()->routeIs('dosen.nilai.*')">

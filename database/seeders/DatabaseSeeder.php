@@ -12,6 +12,9 @@ use App\Models\Periode;
 use App\Models\JadwalSidang;
 use App\Models\TopikSkripsi;
 use App\Models\UsulanPembimbing;
+use App\Models\PendaftaranSidang;
+use App\Models\PelaksanaanSidang;
+use App\Models\PengujiSidang;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -49,6 +52,9 @@ class DatabaseSeeder extends Seeder
         
         // Create Sample Topik Skripsi (for testing)
         $this->createSampleTopik($units);
+        
+        // Create Sample Sidang yang sudah dijadwalkan (for testing nilai)
+        $this->createSampleSidang($units);
     }
 
     private function createRoles(): void
@@ -430,4 +436,66 @@ class DatabaseSeeder extends Seeder
             'catatan' => null,
         ]);
     }
-}
+    
+//     private function createSampleSidang(array $units): void
+//     {
+//         // Get mahasiswa Budi (yang sudah punya topik approved)
+//         $mahasiswaBudi = Mahasiswa::where('nim', '2021001')->first();
+//         $topikBudi = TopikSkripsi::where('mahasiswa_id', $mahasiswaBudi->id)->first();
+        
+//         // Get dosen
+//         $dosenAgus = Dosen::where('nip', '197001011995121001')->first();
+//         $dosenDewi = Dosen::where('nip', '198005152005012001')->first();
+//         $dosenHendra = Dosen::where('nip', '196808081994031002')->first();
+        
+//         // Get jadwal sidang
+//         $jadwalSeminar = JadwalSidang::where('jenis', 'seminar_proposal')->first();
+        
+//         // Buat pendaftaran sidang untuk Budi - Seminar Proposal (sudah disetujui semua)
+//         $pendaftaranBudi = PendaftaranSidang::create([
+//             'topik_id' => $topikBudi->id,
+//             'jadwal_sidang_id' => $jadwalSeminar->id,
+//             'jenis' => 'seminar_proposal',
+//             'status_pembimbing_1' => 'disetujui',
+//             'status_pembimbing_2' => 'disetujui',
+//             'status_koordinator' => 'disetujui',
+//             'catatan_pembimbing_1' => 'Sudah siap untuk seminar',
+//             'catatan_pembimbing_2' => 'Disetujui',
+//             'catatan_koordinator' => 'Disetujui untuk seminar proposal',
+//         ]);
+        
+//         // Buat pelaksanaan sidang - Status SELESAI (untuk testing input nilai)
+//         $pelaksanaanBudi = PelaksanaanSidang::create([
+//             'pendaftaran_sidang_id' => $pendaftaranBudi->id,
+//             'tanggal_sidang' => now()->subDays(3), // 3 hari yang lalu
+//             'tempat' => 'Ruang Sidang A - Gedung Teknik Lt. 3',
+//             'status' => 'selesai',
+//             'berita_acara' => 'Mahasiswa telah melaksanakan seminar proposal dengan baik.',
+//         ]);
+        
+//         // Tambah penguji sidang (pembimbing 1 & 2 + 1 penguji)
+//         PengujiSidang::create([
+//             'pelaksanaan_sidang_id' => $pelaksanaanBudi->id,
+//             'dosen_id' => $dosenAgus->id,
+//             'role' => 'pembimbing_1',
+//             'ttd_berita_acara' => true,
+//             'tanggal_ttd' => now()->subDays(3),
+//         ]);
+        
+//         PengujiSidang::create([
+//             'pelaksanaan_sidang_id' => $pelaksanaanBudi->id,
+//             'dosen_id' => $dosenDewi->id,
+//             'role' => 'pembimbing_2',
+//             'ttd_berita_acara' => true,
+//             'tanggal_ttd' => now()->subDays(3),
+//         ]);
+        
+//         PengujiSidang::create([
+//             'pelaksanaan_sidang_id' => $pelaksanaanBudi->id,
+//             'dosen_id' => $dosenHendra->id,
+//             'role' => 'penguji_1',
+//             'ttd_berita_acara' => true,
+//             'tanggal_ttd' => now()->subDays(3),
+//         ]);
+//     }
+// }

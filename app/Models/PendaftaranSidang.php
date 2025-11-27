@@ -60,6 +60,16 @@ class PendaftaranSidang extends Model
     }
 
     /**
+     * Check if rejected by any party.
+     */
+    public function isRejected(): bool
+    {
+        return $this->status_pembimbing_1 === 'ditolak' 
+            || $this->status_pembimbing_2 === 'ditolak' 
+            || $this->status_koordinator === 'ditolak';
+    }
+
+    /**
      * Scope for approved.
      */
     public function scopeApproved($query)
@@ -67,5 +77,27 @@ class PendaftaranSidang extends Model
         return $query->where('status_pembimbing_1', 'disetujui')
             ->where('status_pembimbing_2', 'disetujui')
             ->where('status_koordinator', 'disetujui');
+    }
+
+    /**
+     * Scope for rejected.
+     */
+    public function scopeRejected($query)
+    {
+        return $query->where(function ($q) {
+            $q->where('status_pembimbing_1', 'ditolak')
+              ->orWhere('status_pembimbing_2', 'ditolak')
+              ->orWhere('status_koordinator', 'ditolak');
+        });
+    }
+
+    /**
+     * Scope for active (not rejected).
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status_pembimbing_1', '!=', 'ditolak')
+            ->where('status_pembimbing_2', '!=', 'ditolak')
+            ->where('status_koordinator', '!=', 'ditolak');
     }
 }

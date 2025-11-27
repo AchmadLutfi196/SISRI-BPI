@@ -237,9 +237,23 @@
                 @endif
 
                 <!-- Nilai (if exists) -->
-                @if($pendaftaran->pelaksanaanSidang && $pendaftaran->pelaksanaanSidang->nilai)
+                @if($pendaftaran->pelaksanaanSidang && $pendaftaran->pelaksanaanSidang->nilai->isNotEmpty())
                 @php
-                    $nilai = $pendaftaran->pelaksanaanSidang->nilai;
+                    $nilaiCollection = $pendaftaran->pelaksanaanSidang->nilai;
+                    $totalNilai = $nilaiCollection->avg('nilai');
+                    
+                    // Hitung nilai huruf berdasarkan rata-rata
+                    $nilaiHuruf = match(true) {
+                        $totalNilai >= 85 => 'A',
+                        $totalNilai >= 80 => 'A-',
+                        $totalNilai >= 75 => 'B+',
+                        $totalNilai >= 70 => 'B',
+                        $totalNilai >= 65 => 'B-',
+                        $totalNilai >= 60 => 'C+',
+                        $totalNilai >= 55 => 'C',
+                        $totalNilai >= 50 => 'D',
+                        default => 'E',
+                    };
                 @endphp
                 <div class="bg-white rounded-lg shadow-sm overflow-hidden">
                     <div class="px-6 py-4 border-b bg-green-50">
@@ -249,46 +263,29 @@
                         <div class="flex items-center justify-center mb-6">
                             <div class="text-center">
                                 <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center mb-3">
-                                    <span class="text-3xl font-bold text-white">{{ $nilai->nilai_huruf ?? '-' }}</span>
+                                    <span class="text-3xl font-bold text-white">{{ $nilaiHuruf }}</span>
                                 </div>
-                                <p class="text-3xl font-bold text-gray-800">{{ number_format($nilai->nilai_akhir ?? 0, 2) }}</p>
-                                <p class="text-sm text-gray-500">Nilai Akhir</p>
+                                <p class="text-3xl font-bold text-gray-800">{{ number_format($totalNilai, 2) }}</p>
+                                <p class="text-sm text-gray-500">Nilai Rata-rata</p>
                             </div>
                         </div>
                         
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t">
-                            @if($nilai->nilai_pembimbing_1)
-                            <div class="text-center p-3 bg-gray-50 rounded-lg">
-                                <p class="text-lg font-bold text-gray-800">{{ number_format($nilai->nilai_pembimbing_1, 2) }}</p>
-                                <p class="text-xs text-gray-500">Pembimbing 1</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+                            @foreach($nilaiCollection as $n)
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-gray-500">{{ $n->dosen->nama ?? 'Dosen' }}</p>
+                                        <p class="text-xs text-gray-400">{{ ucfirst(str_replace('_', ' ', $n->jenis_nilai)) }}</p>
+                                    </div>
+                                    <p class="text-xl font-bold text-gray-800">{{ number_format($n->nilai, 2) }}</p>
+                                </div>
+                                @if($n->catatan)
+                                <p class="text-xs text-gray-600 mt-2">{{ $n->catatan }}</p>
+                                @endif
                             </div>
-                            @endif
-                            @if($nilai->nilai_pembimbing_2)
-                            <div class="text-center p-3 bg-gray-50 rounded-lg">
-                                <p class="text-lg font-bold text-gray-800">{{ number_format($nilai->nilai_pembimbing_2, 2) }}</p>
-                                <p class="text-xs text-gray-500">Pembimbing 2</p>
-                            </div>
-                            @endif
-                            @if($nilai->nilai_penguji_1)
-                            <div class="text-center p-3 bg-gray-50 rounded-lg">
-                                <p class="text-lg font-bold text-gray-800">{{ number_format($nilai->nilai_penguji_1, 2) }}</p>
-                                <p class="text-xs text-gray-500">Penguji 1</p>
-                            </div>
-                            @endif
-                            @if($nilai->nilai_penguji_2)
-                            <div class="text-center p-3 bg-gray-50 rounded-lg">
-                                <p class="text-lg font-bold text-gray-800">{{ number_format($nilai->nilai_penguji_2, 2) }}</p>
-                                <p class="text-xs text-gray-500">Penguji 2</p>
-                            </div>
-                            @endif
+                            @endforeach
                         </div>
-                        
-                        @if($nilai->catatan)
-                        <div class="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                            <p class="text-sm font-medium text-blue-800 mb-1">Catatan</p>
-                            <p class="text-sm text-blue-700">{{ $nilai->catatan }}</p>
-                        </div>
-                        @endif
                     </div>
                 </div>
                 @endif
@@ -386,7 +383,7 @@
                         </div>
                         @endif
                         
-                        @if($pendaftaran->pelaksanaanSidang && $pendaftaran->pelaksanaanSidang->nilai)
+                        @if($pendaftaran->pelaksanaanSidang && $pendaftaran->pelaksanaanSidang->nilai->isNotEmpty())
                         <div class="flex gap-3">
                             <div class="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
                                 <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
@@ -396,7 +393,7 @@
                             </div>
                             <div>
                                 <p class="text-sm font-medium text-gray-800">Nilai diumumkan</p>
-                                <p class="text-xs text-gray-500">{{ $pendaftaran->pelaksanaanSidang->nilai->created_at->format('d M Y, H:i') }}</p>
+                                <p class="text-xs text-gray-500">{{ $pendaftaran->pelaksanaanSidang->nilai->first()->created_at->format('d M Y, H:i') }}</p>
                             </div>
                         </div>
                         @endif

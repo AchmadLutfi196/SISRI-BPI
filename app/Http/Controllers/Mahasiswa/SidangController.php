@@ -56,9 +56,10 @@ class SidangController extends Controller
 
         $jenis = $request->get('jenis', 'seminar_proposal');
 
-        // Cek apakah sudah mendaftar untuk jenis sidang ini
+        // Cek apakah sudah mendaftar untuk jenis sidang ini (yang belum ditolak)
         $existingPendaftaran = PendaftaranSidang::where('topik_id', $topik->id)
             ->where('jenis', $jenis)
+            ->active() // Hanya cek yang statusnya tidak ditolak
             ->exists();
 
         if ($existingPendaftaran) {
@@ -112,9 +113,10 @@ class SidangController extends Controller
                 ->with('error', 'Anda belum memiliki topik yang disetujui.');
         }
 
-        // Cek apakah sudah mendaftar
+        // Cek apakah sudah mendaftar (yang belum ditolak)
         $existingPendaftaran = PendaftaranSidang::where('topik_id', $topik->id)
             ->where('jenis', $request->jenis)
+            ->active() // Hanya cek yang statusnya tidak ditolak
             ->exists();
 
         if ($existingPendaftaran) {
@@ -141,6 +143,29 @@ class SidangController extends Controller
             return back()->with('error', 'Jadwal pendaftaran sudah ditutup.');
         }
 
+        // Cek apakah ada pendaftaran yang ditolak sebelumnya untuk di-update
+        $rejectedPendaftaran = PendaftaranSidang::where('topik_id', $topik->id)
+            ->where('jenis', $request->jenis)
+            ->rejected()
+            ->first();
+
+        if ($rejectedPendaftaran) {
+            // Update pendaftaran yang ditolak, reset status persetujuan
+            $rejectedPendaftaran->update([
+                'jadwal_sidang_id' => $request->jadwal_sidang_id,
+                'status_pembimbing_1' => 'menunggu',
+                'status_pembimbing_2' => 'menunggu',
+                'status_koordinator' => 'menunggu',
+                'catatan_pembimbing_1' => null,
+                'catatan_pembimbing_2' => null,
+                'catatan_koordinator' => null,
+            ]);
+
+            return redirect()->route('mahasiswa.sidang.index')
+                ->with('success', 'Pendaftaran sidang berhasil diajukan ulang.');
+        }
+
+        // Jika belum pernah mendaftar, buat baru
         PendaftaranSidang::create([
             'topik_id' => $topik->id,
             'jadwal_sidang_id' => $request->jadwal_sidang_id,

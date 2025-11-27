@@ -15,7 +15,7 @@ class NilaiController extends Controller
         $dosen = auth()->user()->dosen;
 
         $pengujiSidangs = PengujiSidang::where('dosen_id', $dosen->id)
-            ->with(['pelaksanaanSidang.pendaftaranSidang.topik.mahasiswa'])
+            ->with(['pelaksanaanSidang.pendaftaranSidang.topik.mahasiswa', 'pelaksanaanSidang.nilais'])
             ->whereHas('pelaksanaanSidang', function ($query) {
                 $query->where('status', 'selesai');
             })
