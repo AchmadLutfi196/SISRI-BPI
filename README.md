@@ -112,9 +112,11 @@ Setelah menjalankan seeder, gunakan akun berikut untuk login:
 | Role | Email | Password |
 |------|-------|----------|
 | Admin | admin@sisri.test | password |
-| Koordinator | koordinator@sisri.test | password |
-| Dosen | dosen@sisri.test | password |
-| Mahasiswa | mahasiswa@sisri.test | password |
+| Koordinator | rina@sisri.test | password |
+| Dosen | agus@sisri.test | password |
+| Mahasiswa | budi@sisri.test | password |
+
+catatan : jika ingin login menggunakan email dan password sendiri, bisa di tambah di halaman admin. (harus login dengan role : Admin agar bisa menambahkan user/mahasiswa/dosen/koordinator)
 
 ## 📖 Dokumentasi
 
