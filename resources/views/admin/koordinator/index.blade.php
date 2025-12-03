@@ -97,10 +97,10 @@
                                             </button>
                                         </form>
                                         @if(!$koordinator->is_active)
-                                            <form action="{{ route('admin.koordinator.destroy', $koordinator) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus koordinator ini?')">
+                                            <form action="{{ route('admin.koordinator.destroy', $koordinator) }}" method="POST" class="inline" id="delete-koordinator-{{ $koordinator->id }}">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900">
+                                                <button type="button" onclick="confirmDelete('delete-koordinator-{{ $koordinator->id }}', 'Hapus Koordinator', 'Yakin ingin menghapus koordinator ini?')" class="text-red-600 hover:text-red-900">
                                                     Hapus
                                                 </button>
                                             </form>

@@ -61,7 +61,14 @@ class BimbinganController extends Controller
         $jenis = $request->get('jenis', 'proposal');
         $pembimbings = $topik->usulanPembimbing()->approved()->with('dosen')->get();
 
-        return view('mahasiswa.bimbingan.create', compact('topik', 'jenis', 'pembimbings'));
+        // Get pending bimbingan for each dosen (status: menunggu atau direvisi)
+        $pendingBimbingan = Bimbingan::where('topik_id', $topik->id)
+            ->where('jenis', $jenis)
+            ->whereIn('status', ['menunggu', 'direvisi'])
+            ->pluck('dosen_id')
+            ->toArray();
+
+        return view('mahasiswa.bimbingan.create', compact('topik', 'jenis', 'pembimbings', 'pendingBimbingan'));
     }
 
     public function store(Request $request)
@@ -88,6 +95,19 @@ class BimbinganController extends Controller
         if (!$topik) {
             return redirect()->route('mahasiswa.dashboard')
                 ->with('error', 'Anda belum memiliki topik yang disetujui.');
+        }
+
+        // Check if there's pending bimbingan with the same dosen
+        $pendingBimbingan = Bimbingan::where('topik_id', $topik->id)
+            ->where('dosen_id', $request->dosen_id)
+            ->where('jenis', $request->jenis)
+            ->whereIn('status', ['menunggu', 'direvisi'])
+            ->exists();
+
+        if ($pendingBimbingan) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Anda masih memiliki bimbingan yang belum diproses oleh dosen ini. Harap tunggu hingga bimbingan sebelumnya disetujui atau ditolak.');
         }
 
         $filePath = null;

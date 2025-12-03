@@ -303,7 +303,7 @@
                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                             <div class="p-6">
                                 <h3 class="text-lg font-medium text-gray-900 mb-4">Setujui & Jadwalkan</h3>
-                                <form action="{{ route('koordinator.pendaftaran.approve', $pendaftaran) }}" method="POST">
+                                <form action="{{ route('koordinator.pendaftaran.approve', $pendaftaran) }}" method="POST" id="approve-pendaftaran-form">
                                     @csrf
                                     
                                     <div class="space-y-4">
@@ -381,7 +381,7 @@
                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">{{ old('catatan') }}</textarea>
                                         </div>
 
-                                        <button type="submit"
+                                        <button type="button" onclick="confirmAction('approve-pendaftaran-form', 'Setujui & Jadwalkan', 'Yakin ingin menyetujui dan menjadwalkan sidang ini?', 'Setujui', 'success')"
                                             class="w-full inline-flex justify-center items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -397,7 +397,7 @@
                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                             <div class="p-6">
                                 <h3 class="text-lg font-medium text-gray-900 mb-4">Tolak Pendaftaran</h3>
-                                <form action="{{ route('koordinator.pendaftaran.reject', $pendaftaran) }}" method="POST">
+                                <form action="{{ route('koordinator.pendaftaran.reject', $pendaftaran) }}" method="POST" id="reject-pendaftaran-form">
                                     @csrf
                                     
                                     <div class="space-y-4">
@@ -411,9 +411,8 @@
                                             @enderror
                                         </div>
 
-                                        <button type="submit"
-                                            class="w-full inline-flex justify-center items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700"
-                                            onclick="return confirm('Apakah Anda yakin ingin menolak pendaftaran ini?')">
+                                        <button type="button" onclick="confirmAction('reject-pendaftaran-form', 'Tolak Pendaftaran', 'Yakin ingin menolak pendaftaran ini?', 'Tolak', 'warning')"
+                                            class="w-full inline-flex justify-center items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                             </svg>

@@ -99,10 +99,10 @@
                                                 <a href="{{ route('koordinator.penjadwalan.edit', $jadwal) }}" 
                                                     class="text-yellow-600 hover:text-yellow-900">Edit</a>
                                                 @if($jadwal->pendaftaran_sidang_count == 0)
-                                                    <form action="{{ route('koordinator.penjadwalan.destroy', $jadwal) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jadwal ini?')">
+                                                    <form action="{{ route('koordinator.penjadwalan.destroy', $jadwal) }}" method="POST" class="inline" id="delete-jadwal-{{ $jadwal->id }}">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
+                                                        <button type="button" onclick="confirmDelete('delete-jadwal-{{ $jadwal->id }}', 'Hapus Jadwal', 'Yakin ingin menghapus jadwal ini?')" class="text-red-600 hover:text-red-900">Hapus</button>
                                                     </form>
                                                 @endif
                                             </td>

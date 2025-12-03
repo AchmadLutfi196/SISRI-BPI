@@ -42,12 +42,17 @@
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             @forelse($pembimbings as $pembimbing)
-                            <label class="relative cursor-pointer">
+                            @php
+                                $isPending = in_array($pembimbing->dosen_id, $pendingBimbingan ?? []);
+                            @endphp
+                            <label class="relative {{ $isPending ? 'cursor-not-allowed' : 'cursor-pointer' }}">
                                 <input type="radio" name="dosen_id" value="{{ $pembimbing->dosen_id }}" 
-                                       class="peer sr-only" {{ old('dosen_id') == $pembimbing->dosen_id ? 'checked' : '' }} required>
+                                       class="peer sr-only" 
+                                       {{ old('dosen_id') == $pembimbing->dosen_id ? 'checked' : '' }} 
+                                       {{ $isPending ? 'disabled' : '' }}
+                                       required>
                                 <div class="p-4 border-2 rounded-lg transition-all
-                                            peer-checked:border-blue-500 peer-checked:bg-blue-50
-                                            hover:border-gray-300 border-gray-200">
+                                            {{ $isPending ? 'border-gray-200 bg-gray-50 opacity-75' : 'peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 border-gray-200' }}">
                                     <div class="flex items-center gap-3">
                                         <x-avatar 
                                             :src="$pembimbing->dosen->foto_url" 
@@ -57,13 +62,29 @@
                                         <div>
                                             <p class="font-medium text-gray-800">{{ $pembimbing->dosen->nama }}</p>
                                             <p class="text-sm text-gray-500">Pembimbing {{ $pembimbing->urutan }}</p>
+                                            @if($isPending)
+                                                <span class="inline-flex items-center mt-1 px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                                                    </svg>
+                                                    Menunggu Validasi
+                                                </span>
+                                            @endif
                                         </div>
                                     </div>
+                                    @if(!$isPending)
                                     <div class="absolute top-4 right-4 hidden peer-checked:block">
                                         <svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
                                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                                         </svg>
                                     </div>
+                                    @else
+                                    <div class="absolute top-4 right-4">
+                                        <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    @endif
                                 </div>
                             </label>
                             @empty
@@ -72,6 +93,19 @@
                             </div>
                             @endforelse
                         </div>
+                        
+                        @if(count($pendingBimbingan ?? []) > 0)
+                        <div class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <div class="flex items-start gap-2">
+                                <svg class="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                </svg>
+                                <p class="text-sm text-yellow-700">
+                                    Dosen yang ditandai "Menunggu Validasi" memiliki bimbingan yang belum diproses. Anda hanya dapat mengajukan bimbingan baru ke dosen tersebut setelah bimbingan sebelumnya disetujui atau ditolak.
+                                </p>
+                            </div>
+                        </div>
+                        @endif
                         @error('dosen_id')
                             <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
                         @enderror

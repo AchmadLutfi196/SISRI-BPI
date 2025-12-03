@@ -120,9 +120,9 @@
                                                             class="text-yellow-600 hover:text-yellow-900">Edit Jadwal</a>
                                                         <form action="{{ route('koordinator.pendaftaran.complete-pelaksanaan', $pendaftaran->pelaksanaanSidang) }}" 
                                                             method="POST" class="inline"
-                                                            onsubmit="return confirm('Tandai sidang ini selesai?')">
+                                                            id="complete-sidang-{{ $pendaftaran->id }}">
                                                             @csrf
-                                                            <button type="submit" class="text-purple-600 hover:text-purple-900">
+                                                            <button type="button" onclick="confirmAction('complete-sidang-{{ $pendaftaran->id }}', 'Selesaikan Sidang', 'Tandai sidang ini selesai?', 'Selesaikan', 'success')" class="text-purple-600 hover:text-purple-900">
                                                                 Selesaikan
                                                             </button>
                                                         </form>

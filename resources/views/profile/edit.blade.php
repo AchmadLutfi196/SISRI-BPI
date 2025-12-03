@@ -47,7 +47,7 @@
                                     Upload Foto
                                 </button>
                                 @if($userFotoUrl)
-                                    <button type="button" onclick="document.getElementById('delete-photo-form').submit()" 
+                                    <button type="button" onclick="confirmDelete('delete-photo-form', 'Hapus Foto', 'Yakin ingin menghapus foto profil Anda?')" 
                                             class="px-4 py-2 bg-red-100 text-red-700 text-sm font-medium rounded-lg hover:bg-red-200 transition-colors">
                                         Hapus Foto
                                     </button>
