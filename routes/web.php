@@ -172,6 +172,7 @@ Route::middleware(['auth', 'role:koordinator'])->prefix('koordinator')->name('ko
     Route::get('/pendaftaran', [PendaftaranController::class, 'index'])->name('pendaftaran.index');
     Route::get('/pendaftaran/{pendaftaran}', [PendaftaranController::class, 'show'])->name('pendaftaran.show');
     Route::post('/pendaftaran/{pendaftaran}/approve', [PendaftaranController::class, 'approve'])->name('pendaftaran.approve');
+    Route::post('/pendaftaran/{pendaftaran}/auto-approve', [PendaftaranController::class, 'autoApprove'])->name('pendaftaran.auto-approve');
     Route::post('/pendaftaran/{pendaftaran}/reject', [PendaftaranController::class, 'reject'])->name('pendaftaran.reject');
     Route::get('/pendaftaran/{pendaftaran}/edit-pelaksanaan', [PendaftaranController::class, 'editPelaksanaan'])->name('pendaftaran.edit-pelaksanaan');
     Route::put('/pendaftaran/{pendaftaran}/update-pelaksanaan', [PendaftaranController::class, 'updatePelaksanaan'])->name('pendaftaran.update-pelaksanaan');
@@ -185,6 +186,15 @@ Route::middleware(['auth', 'role:koordinator'])->prefix('koordinator')->name('ko
     Route::get('/penjadwalan/{jadwal}/edit', [PenjadwalanController::class, 'edit'])->name('penjadwalan.edit');
     Route::put('/penjadwalan/{jadwal}', [PenjadwalanController::class, 'update'])->name('penjadwalan.update');
     Route::delete('/penjadwalan/{jadwal}', [PenjadwalanController::class, 'destroy'])->name('penjadwalan.destroy');
+    
+    // Penjadwalan - Persetujuan Pendaftaran
+    Route::post('/penjadwalan/pendaftaran/{pendaftaran}/approve', [PenjadwalanController::class, 'approvePendaftaran'])->name('penjadwalan.approve-pendaftaran');
+    Route::post('/penjadwalan/pendaftaran/{pendaftaran}/reject', [PenjadwalanController::class, 'rejectPendaftaran'])->name('penjadwalan.reject-pendaftaran');
+    
+    // Penjadwalan - Pelaksanaan Sidang (Manual)
+    Route::get('/penjadwalan/pendaftaran/{pendaftaran}/pelaksanaan', [PenjadwalanController::class, 'createPelaksanaan'])->name('penjadwalan.create-pelaksanaan');
+    Route::post('/penjadwalan/pendaftaran/{pendaftaran}/pelaksanaan', [PenjadwalanController::class, 'storePelaksanaan'])->name('penjadwalan.store-pelaksanaan');
+    Route::post('/penjadwalan/pelaksanaan/{pelaksanaan}/complete', [PenjadwalanController::class, 'completePelaksanaan'])->name('penjadwalan.complete-pelaksanaan');
     
     // Daftar Nilai
     Route::get('/daftar-nilai', [DaftarNilaiController::class, 'index'])->name('daftar-nilai.index');

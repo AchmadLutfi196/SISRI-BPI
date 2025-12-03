@@ -299,7 +299,37 @@
                 <!-- Form Aksi (sidebar) -->
                 <div class="space-y-6">
                     @if($pendaftaran->status_koordinator === 'menunggu')
-                        <!-- Form Approve -->
+                        <!-- Opsi Jadwal Otomatis -->
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 overflow-hidden sm:rounded-lg">
+                            <div class="p-4">
+                                <div class="flex items-start space-x-3">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="text-sm font-medium text-green-800">Jadwalkan Otomatis</h4>
+                                        <p class="text-xs text-green-600 mt-1">Sistem akan otomatis menentukan tanggal, waktu, ruangan, dan 3 penguji.</p>
+                                        <form action="{{ route('koordinator.pendaftaran.auto-approve', $pendaftaran) }}" method="POST" class="mt-3">
+                                            @csrf
+                                            <button type="submit"
+                                                class="inline-flex items-center px-3 py-1.5 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 transition"
+                                                onclick="return confirm('Sistem akan otomatis menjadwalkan sidang untuk mahasiswa ini. Lanjutkan?')">
+                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                                </svg>
+                                                Setujui & Jadwalkan Otomatis
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Approve Manual -->
                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                             <div class="p-6">
                                 <h3 class="text-lg font-medium text-gray-900 mb-4">Setujui & Jadwalkan</h3>

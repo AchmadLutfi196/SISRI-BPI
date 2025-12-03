@@ -254,14 +254,26 @@ class PenjadwalanController extends Controller
             'penguji_2_id' => 'required|exists:dosen,id|different:penguji_1_id',
         ]);
 
-        // Cek bentrokan jadwal (tanggal & tempat yang sama)
-        $existingSchedule = PelaksanaanSidang::where('tanggal_sidang', $request->tanggal_sidang)
-            ->where('tempat', $request->tempat)
-            ->where('status', '!=', 'selesai')
-            ->first();
+        // Get pembimbing IDs
+        $pembimbing1 = $pendaftaran->topik->usulanPembimbing()->where('urutan', 1)->approved()->first();
+        $pembimbing2 = $pendaftaran->topik->usulanPembimbing()->where('urutan', 2)->approved()->first();
+        
+        $allDosenIds = array_filter([
+            $pembimbing1?->dosen_id,
+            $pembimbing2?->dosen_id,
+            $request->penguji_1_id,
+            $request->penguji_2_id,
+        ]);
 
-        if ($existingSchedule) {
-            return back()->withInput()->with('error', 'Jadwal bentrok! Ruangan "' . $request->tempat . '" sudah digunakan pada tanggal tersebut untuk sidang lain.');
+        // Validasi konflik jadwal
+        $conflicts = $this->checkScheduleConflicts(
+            $request->tanggal_sidang,
+            $request->tempat,
+            $allDosenIds
+        );
+
+        if (!empty($conflicts)) {
+            return back()->withInput()->with('error', implode(' ', $conflicts));
         }
 
         $pelaksanaan = PelaksanaanSidang::create([
@@ -319,5 +331,189 @@ class PenjadwalanController extends Controller
         $pelaksanaan->update(['status' => 'selesai']);
 
         return back()->with('success', 'Sidang berhasil ditandai selesai.');
+    }
+
+    /**
+     * Check schedule conflicts for room and dosen
+     */
+    private function checkScheduleConflicts($tanggalSidang, $tempat, $dosenIds, $excludePelaksanaanId = null)
+    {
+        $conflicts = [];
+
+        // Query base untuk pelaksanaan yang aktif pada waktu yang sama
+        $baseQuery = PelaksanaanSidang::where('tanggal_sidang', $tanggalSidang)
+            ->where('status', '!=', 'selesai');
+
+        if ($excludePelaksanaanId) {
+            $baseQuery->where('id', '!=', $excludePelaksanaanId);
+        }
+
+        // Cek bentrokan ruangan
+        $roomConflict = (clone $baseQuery)->where('tempat', $tempat)->first();
+        if ($roomConflict) {
+            $mahasiswa = $roomConflict->pendaftaranSidang->topik->mahasiswa->nama ?? 'mahasiswa lain';
+            $conflicts[] = "Ruangan \"{$tempat}\" sudah digunakan untuk sidang {$mahasiswa} pada waktu tersebut.";
+        }
+
+        // Cek bentrokan dosen
+        $existingSchedules = (clone $baseQuery)->with('pengujiSidang.dosen')->get();
+        
+        foreach ($existingSchedules as $schedule) {
+            $scheduledDosenIds = $schedule->pengujiSidang->pluck('dosen_id')->toArray();
+            $conflictingDosenIds = array_intersect($dosenIds, $scheduledDosenIds);
+            
+            if (!empty($conflictingDosenIds)) {
+                foreach ($conflictingDosenIds as $dosenId) {
+                    $dosen = Dosen::with('user')->find($dosenId);
+                    $mahasiswa = $schedule->pendaftaranSidang->topik->mahasiswa->nama ?? 'mahasiswa lain';
+                    $conflicts[] = "Dosen {$dosen->user->name} sudah memiliki jadwal sidang untuk {$mahasiswa} pada waktu tersebut.";
+                }
+            }
+        }
+
+        return $conflicts;
+    }
+
+    /**
+     * Show form for auto scheduling
+     */
+    public function autoScheduleForm(JadwalSidang $jadwal)
+    {
+        $prodiId = $this->getProdiId();
+
+        if (!$prodiId || $jadwal->prodi_id !== $prodiId) {
+            abort(403);
+        }
+
+        // Get pendaftaran yang sudah approved pembimbing tapi belum dijadwalkan
+        // (status koordinator bisa menunggu atau disetujui, tapi belum ada pelaksanaan)
+        $pendaftarans = PendaftaranSidang::where('jadwal_sidang_id', $jadwal->id)
+            ->where('status_pembimbing_1', 'disetujui')
+            ->where('status_pembimbing_2', 'disetujui')
+            ->where('status_koordinator', '!=', 'ditolak')
+            ->whereDoesntHave('pelaksanaanSidang')
+            ->with(['topik.mahasiswa', 'topik.usulanPembimbing.dosen'])
+            ->get();
+
+        if ($pendaftarans->isEmpty()) {
+            return back()->with('error', 'Tidak ada pendaftaran yang perlu dijadwalkan.');
+        }
+
+        // Get available dosens for penguji
+        $dosens = Dosen::where('prodi_id', $prodiId)->with('user')->get();
+
+        // Get unique ruangan dari database
+        $ruangans = PelaksanaanSidang::select('tempat')
+            ->distinct()
+            ->orderBy('tempat')
+            ->pluck('tempat')
+            ->toArray();
+
+        return view('koordinator.penjadwalan.auto-schedule', compact('jadwal', 'pendaftarans', 'dosens', 'ruangans'));
+    }
+
+    /**
+     * Process auto scheduling - simplified version
+     */
+    public function autoScheduleProcess(Request $request, JadwalSidang $jadwal)
+    {
+        $prodiId = $this->getProdiId();
+
+        if (!$prodiId || $jadwal->prodi_id !== $prodiId) {
+            abort(403);
+        }
+
+        $request->validate([
+            'tanggal_sidang' => 'required|date',
+            'tempat' => 'required|string|max:255',
+            'penguji' => 'required|array',
+            'penguji.*' => 'required|array',
+            'penguji.*.1' => 'required|exists:dosen,id',
+            'penguji.*.2' => 'required|exists:dosen,id',
+        ]);
+
+        // Get pendaftaran yang perlu dijadwalkan
+        $pendaftarans = PendaftaranSidang::where('jadwal_sidang_id', $jadwal->id)
+            ->where('status_pembimbing_1', 'disetujui')
+            ->where('status_pembimbing_2', 'disetujui')
+            ->where('status_koordinator', '!=', 'ditolak')
+            ->whereDoesntHave('pelaksanaanSidang')
+            ->with(['topik.mahasiswa', 'topik.usulanPembimbing.dosen'])
+            ->get();
+
+        if ($pendaftarans->isEmpty()) {
+            return back()->with('error', 'Tidak ada pendaftaran yang perlu dijadwalkan.');
+        }
+
+        $scheduled = 0;
+        $failed = [];
+
+        foreach ($pendaftarans as $pendaftaran) {
+            // Check if penguji data exists for this pendaftaran
+            if (!isset($request->penguji[$pendaftaran->id])) {
+                $failed[] = ($pendaftaran->topik->mahasiswa->nama ?? 'Unknown') . " (data penguji tidak lengkap)";
+                continue;
+            }
+
+            $penguji1Id = $request->penguji[$pendaftaran->id][1];
+            $penguji2Id = $request->penguji[$pendaftaran->id][2];
+
+            // Get pembimbing
+            $pembimbing1 = $pendaftaran->topik->usulanPembimbing->where('urutan', 1)->where('status', 'disetujui')->first();
+            $pembimbing2 = $pendaftaran->topik->usulanPembimbing->where('urutan', 2)->where('status', 'disetujui')->first();
+
+            // Update status koordinator jika masih menunggu
+            if ($pendaftaran->status_koordinator === 'menunggu') {
+                $pendaftaran->update(['status_koordinator' => 'disetujui']);
+            }
+
+            // Create pelaksanaan
+            $pelaksanaan = PelaksanaanSidang::create([
+                'pendaftaran_sidang_id' => $pendaftaran->id,
+                'tanggal_sidang' => $request->tanggal_sidang,
+                'tempat' => $request->tempat,
+                'status' => 'dijadwalkan',
+            ]);
+
+            // Add pembimbing as penguji
+            if ($pembimbing1) {
+                PengujiSidang::create([
+                    'pelaksanaan_sidang_id' => $pelaksanaan->id,
+                    'dosen_id' => $pembimbing1->dosen_id,
+                    'role' => 'pembimbing_1',
+                ]);
+            }
+
+            if ($pembimbing2) {
+                PengujiSidang::create([
+                    'pelaksanaan_sidang_id' => $pelaksanaan->id,
+                    'dosen_id' => $pembimbing2->dosen_id,
+                    'role' => 'pembimbing_2',
+                ]);
+            }
+
+            // Add penguji
+            PengujiSidang::create([
+                'pelaksanaan_sidang_id' => $pelaksanaan->id,
+                'dosen_id' => $penguji1Id,
+                'role' => 'penguji_1',
+            ]);
+
+            PengujiSidang::create([
+                'pelaksanaan_sidang_id' => $pelaksanaan->id,
+                'dosen_id' => $penguji2Id,
+                'role' => 'penguji_2',
+            ]);
+
+            $scheduled++;
+        }
+
+        $message = "Berhasil menjadwalkan {$scheduled} sidang.";
+        if (!empty($failed)) {
+            $message .= " Gagal: " . implode(', ', $failed);
+        }
+
+        return redirect()->route('koordinator.penjadwalan.show', $jadwal)
+            ->with($scheduled > 0 ? 'success' : 'error', $message);
     }
 }

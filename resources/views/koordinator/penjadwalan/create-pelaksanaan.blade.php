@@ -55,7 +55,31 @@
             <!-- Form Jadwal -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Form Penjadwalan</h3>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-medium text-gray-900">Form Penjadwalan Manual</h3>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                            Mode Manual
+                        </span>
+                    </div>
+
+                    <!-- Info validasi -->
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                        <div class="flex">
+                            <svg class="w-5 h-5 text-yellow-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            <div class="text-sm text-yellow-700">
+                                <p class="font-medium">Sistem akan otomatis memvalidasi:</p>
+                                <ul class="list-disc list-inside mt-1">
+                                    <li>Ruangan tidak bentrok dengan jadwal sidang lain</li>
+                                    <li>Dosen pembimbing dan penguji tidak bentrok dengan jadwal sidang lain</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
 
                     <form action="{{ route('koordinator.penjadwalan.store-pelaksanaan', $pendaftaran) }}" method="POST">
                         @csrf

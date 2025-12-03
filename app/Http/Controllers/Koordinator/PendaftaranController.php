@@ -329,4 +329,181 @@ class PendaftaranController extends Controller
         return redirect()->route('koordinator.pendaftaran.index', ['jenis' => $jenis])
             ->with('success', 'Sidang telah ditandai selesai.');
     }
+
+    /**
+     * Auto approve - sistem otomatis pilih tanggal, waktu, ruangan, dan 3 penguji
+     */
+    public function autoApprove(PendaftaranSidang $pendaftaran)
+    {
+        $prodiId = $this->getProdiId();
+
+        if (!$prodiId || $pendaftaran->jadwalSidang->prodi_id !== $prodiId) {
+            abort(403);
+        }
+
+        if ($pendaftaran->status_koordinator !== 'menunggu') {
+            return back()->with('error', 'Pendaftaran sudah diproses sebelumnya.');
+        }
+
+        // Get pembimbing IDs to exclude from penguji
+        $pembimbingIds = $pendaftaran->topik->usulanPembimbing()
+            ->where('status', 'diterima')
+            ->pluck('dosen_id')
+            ->toArray();
+
+        // Get available dosen for penguji (exclude pembimbing)
+        $availableDosens = Dosen::where('prodi_id', $prodiId)
+            ->whereNotIn('id', $pembimbingIds)
+            ->with('user')
+            ->inRandomOrder()
+            ->get();
+
+        if ($availableDosens->count() < 3) {
+            return back()->with('error', 'Tidak cukup dosen tersedia untuk menjadi penguji (minimal 3 dosen selain pembimbing).');
+        }
+
+        // Pick 3 random penguji
+        $penguji1 = $availableDosens->get(0);
+        $penguji2 = $availableDosens->get(1);
+        $penguji3 = $availableDosens->get(2);
+
+        // Determine schedule based on jadwal sidang period
+        $jadwalSidang = $pendaftaran->jadwalSidang;
+        
+        // Find available slot (date and room)
+        $tanggalSidang = $this->findAvailableSlot($jadwalSidang);
+        
+        if (!$tanggalSidang) {
+            return back()->with('error', 'Tidak ada slot waktu tersedia dalam periode sidang.');
+        }
+
+        // Find available room
+        $tempat = $this->findAvailableRoom($tanggalSidang['datetime']);
+
+        // Update status koordinator
+        $pendaftaran->update([
+            'status_koordinator' => 'disetujui',
+            'catatan_koordinator' => 'Dijadwalkan secara otomatis oleh sistem.',
+        ]);
+
+        // Buat pelaksanaan sidang
+        $pelaksanaan = PelaksanaanSidang::create([
+            'pendaftaran_sidang_id' => $pendaftaran->id,
+            'tanggal_sidang' => $tanggalSidang['datetime'],
+            'tempat' => $tempat,
+            'status' => 'dijadwalkan',
+        ]);
+
+        // Tambahkan pembimbing sebagai penguji
+        $pembimbing = $pendaftaran->topik->usulanPembimbing()
+            ->where('status', 'diterima')
+            ->orderBy('urutan')
+            ->get();
+
+        foreach ($pembimbing as $p) {
+            PengujiSidang::create([
+                'pelaksanaan_sidang_id' => $pelaksanaan->id,
+                'dosen_id' => $p->dosen_id,
+                'role' => 'pembimbing_' . $p->urutan,
+            ]);
+        }
+
+        // Tambahkan 3 penguji
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaan->id,
+            'dosen_id' => $penguji1->id,
+            'role' => 'penguji_1',
+        ]);
+
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaan->id,
+            'dosen_id' => $penguji2->id,
+            'role' => 'penguji_2',
+        ]);
+
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaan->id,
+            'dosen_id' => $penguji3->id,
+            'role' => 'penguji_3',
+        ]);
+
+        $jenis = $pendaftaran->jenis === 'seminar_proposal' ? 'sempro' : 'sidang';
+        
+        $tanggalFormatted = \Carbon\Carbon::parse($tanggalSidang['datetime'])->format('d M Y H:i');
+        $pengujiNames = $penguji1->user->name . ', ' . $penguji2->user->name . ', ' . $penguji3->user->name;
+
+        return redirect()->route('koordinator.pendaftaran.index', ['jenis' => $jenis])
+            ->with('success', "Sidang berhasil dijadwalkan otomatis pada {$tanggalFormatted} di {$tempat}. Penguji: {$pengujiNames}");
+    }
+
+    /**
+     * Find available time slot based on jadwal sidang period
+     */
+    private function findAvailableSlot($jadwalSidang)
+    {
+        $startDate = \Carbon\Carbon::parse($jadwalSidang->tanggal_buka);
+        $endDate = \Carbon\Carbon::parse($jadwalSidang->tanggal_tutup)->addDays(14); // Give 2 weeks buffer after registration closes
+        
+        // If start date is in the past, use tomorrow
+        if ($startDate->isPast()) {
+            $startDate = \Carbon\Carbon::tomorrow();
+        }
+
+        $timeSlots = ['08:00', '09:30', '11:00', '13:00', '14:30', '16:00'];
+        
+        $currentDate = $startDate->copy();
+        
+        while ($currentDate->lte($endDate)) {
+            // Skip weekends
+            if (!$currentDate->isWeekend()) {
+                foreach ($timeSlots as $time) {
+                    $datetime = $currentDate->format('Y-m-d') . ' ' . $time . ':00';
+                    
+                    // Check if this slot is available (no other sidang at this time)
+                    $existingCount = PelaksanaanSidang::where('tanggal_sidang', $datetime)
+                        ->where('status', '!=', 'selesai')
+                        ->count();
+                    
+                    // Allow up to 3 concurrent sessions (different rooms)
+                    if ($existingCount < 3) {
+                        return [
+                            'datetime' => $datetime,
+                            'date' => $currentDate->format('Y-m-d'),
+                            'time' => $time,
+                        ];
+                    }
+                }
+            }
+            
+            $currentDate->addDay();
+        }
+        
+        return null;
+    }
+
+    /**
+     * Find available room for a specific datetime
+     */
+    private function findAvailableRoom($datetime)
+    {
+        $defaultRooms = [
+            'Ruang Sidang A - Gedung Teknik Lt. 3',
+            'Ruang Sidang B - Gedung Teknik Lt. 3',
+            'Ruang Sidang C - Gedung Teknik Lt. 4',
+        ];
+        
+        foreach ($defaultRooms as $room) {
+            $isUsed = PelaksanaanSidang::where('tanggal_sidang', $datetime)
+                ->where('tempat', $room)
+                ->where('status', '!=', 'selesai')
+                ->exists();
+            
+            if (!$isUsed) {
+                return $room;
+            }
+        }
+        
+        // If all default rooms are used, generate a new room name
+        return 'Ruang Sidang ' . chr(65 + rand(3, 5)) . ' - Gedung Teknik Lt. ' . rand(2, 5);
+    }
 }
