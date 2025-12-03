@@ -3,20 +3,8 @@
         <!-- Left Side - Branding & Illustration -->
         <div class="lg:w-1/2 bg-gradient-to-br from-blue-50 to-blue-100 p-8 flex flex-col items-center justify-center relative">
             <!-- Logo Header -->
-            <div class="flex items-center gap-3 mb-6">
-                <!-- UTM Logo -->
-                <div class="w-14 h-14 rounded-full bg-yellow-400 flex items-center justify-center shadow-lg">
-                    <svg class="w-10 h-10 text-blue-800" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
-                    </svg>
-                </div>
-                <!-- SISRI Title -->
-                <div>
-                    <h1 class="text-2xl font-bold">
-                        <span class="text-yellow-500">SI</span><span class="text-blue-700">SRI</span>
-                    </h1>
-                    <p class="text-xs text-blue-600 font-semibold">FT UTM</p>
-                </div>
+            <div class="flex items-center justify-center mb-6">
+                <img src="{{ asset('images/logo.png') }}" alt="SISRI-UTM" class="h-16 w-auto">
             </div>
             
             <!-- Title Text -->

@@ -58,8 +58,17 @@
                                 @foreach($bimbingans as $bimbingan)
                                     <tr class="hover:bg-gray-50 {{ $bimbingan->status == 'menunggu' ? 'bg-yellow-50' : '' }}">
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">{{ $bimbingan->topik->mahasiswa->nama }}</div>
-                                            <div class="text-sm text-gray-500">{{ $bimbingan->topik->mahasiswa->nim }}</div>
+                                            <div class="flex items-center">
+                                                <x-avatar 
+                                                    :src="$bimbingan->topik->mahasiswa->foto_url" 
+                                                    :initials="$bimbingan->topik->mahasiswa->initials" 
+                                                    size="md" 
+                                                />
+                                                <div class="ml-3">
+                                                    <div class="text-sm font-medium text-gray-900">{{ $bimbingan->topik->mahasiswa->nama }}</div>
+                                                    <div class="text-sm text-gray-500">{{ $bimbingan->topik->mahasiswa->nim }}</div>
+                                                </div>
+                                            </div>
                                         </td>
                                         <td class="px-6 py-4">
                                             <div class="text-sm text-gray-900 max-w-xs truncate">{{ $bimbingan->topik->judul }}</div>

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Storage;
 
 class Dosen extends Model
 {
@@ -22,6 +23,7 @@ class Dosen extends Model
         'prodi_id',
         'email',
         'no_hp',
+        'foto',
     ];
 
     /**
@@ -94,5 +96,34 @@ class Dosen extends Model
     public function nilai(): HasMany
     {
         return $this->hasMany(Nilai::class);
+    }
+
+    /**
+     * Get foto URL or null.
+     */
+    public function getFotoUrlAttribute(): ?string
+    {
+        if ($this->foto) {
+            return Storage::url($this->foto);
+        }
+        return null;
+    }
+
+    /**
+     * Get initials from nama.
+     */
+    public function getInitialsAttribute(): string
+    {
+        $words = explode(' ', $this->nama);
+        $initials = '';
+        
+        foreach ($words as $word) {
+            if (!empty($word)) {
+                $initials .= strtoupper(substr($word, 0, 1));
+                if (strlen($initials) >= 2) break;
+            }
+        }
+        
+        return $initials ?: 'D';
     }
 }

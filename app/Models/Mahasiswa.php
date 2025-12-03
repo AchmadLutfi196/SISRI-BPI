@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Mahasiswa extends Model
 {
@@ -21,6 +22,7 @@ class Mahasiswa extends Model
         'angkatan',
         'email',
         'no_hp',
+        'foto',
     ];
 
     /**
@@ -45,5 +47,34 @@ class Mahasiswa extends Model
     public function topikSkripsi(): HasMany
     {
         return $this->hasMany(TopikSkripsi::class);
+    }
+
+    /**
+     * Get foto URL or null.
+     */
+    public function getFotoUrlAttribute(): ?string
+    {
+        if ($this->foto) {
+            return Storage::url($this->foto);
+        }
+        return null;
+    }
+
+    /**
+     * Get initials from nama.
+     */
+    public function getInitialsAttribute(): string
+    {
+        $words = explode(' ', $this->nama);
+        $initials = '';
+        
+        foreach ($words as $word) {
+            if (!empty($word)) {
+                $initials .= strtoupper(substr($word, 0, 1));
+                if (strlen($initials) >= 2) break;
+            }
+        }
+        
+        return $initials ?: 'M';
     }
 }

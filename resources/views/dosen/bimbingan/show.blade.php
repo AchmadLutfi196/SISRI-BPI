@@ -42,15 +42,19 @@
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
             <div class="p-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Informasi Mahasiswa</h3>
+                <div class="flex items-start gap-4 mb-4">
+                    <x-avatar 
+                        :src="$bimbingan->topik->mahasiswa->foto_url" 
+                        :initials="$bimbingan->topik->mahasiswa->initials" 
+                        size="xl" 
+                    />
+                    <div class="flex-1">
+                        <p class="text-lg font-semibold text-gray-900">{{ $bimbingan->topik->mahasiswa->nama }}</p>
+                        <p class="text-sm text-gray-500">{{ $bimbingan->topik->mahasiswa->nim }}</p>
+                        <p class="text-sm text-gray-500">{{ $bimbingan->topik->mahasiswa->prodi->nama ?? '' }}</p>
+                    </div>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-sm text-gray-500">Nama</p>
-                        <p class="font-medium text-gray-900">{{ $bimbingan->topik->mahasiswa->nama }}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500">NIM</p>
-                        <p class="font-medium text-gray-900">{{ $bimbingan->topik->mahasiswa->nim }}</p>
-                    </div>
                     <div>
                         <p class="text-sm text-gray-500">Judul Skripsi</p>
                         <p class="font-medium text-gray-900">{{ $bimbingan->topik->judul }}</p>

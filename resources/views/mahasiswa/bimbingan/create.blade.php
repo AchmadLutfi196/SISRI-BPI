@@ -49,9 +49,11 @@
                                             peer-checked:border-blue-500 peer-checked:bg-blue-50
                                             hover:border-gray-300 border-gray-200">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                                            <span class="text-lg font-bold text-blue-600">{{ substr($pembimbing->dosen->nama, 0, 1) }}</span>
-                                        </div>
+                                        <x-avatar 
+                                            :src="$pembimbing->dosen->foto_url" 
+                                            :initials="$pembimbing->dosen->initials" 
+                                            size="lg" 
+                                        />
                                         <div>
                                             <p class="font-medium text-gray-800">{{ $pembimbing->dosen->nama }}</p>
                                             <p class="text-sm text-gray-500">Pembimbing {{ $pembimbing->urutan }}</p>
@@ -94,7 +96,9 @@
                         <label for="file_bimbingan" class="block text-sm font-medium text-gray-700 mb-1">
                             Upload Dokumen (Opsional)
                         </label>
-                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-400 transition-colors">
+                        
+                        <!-- Upload Area -->
+                        <div id="upload-area" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-400 transition-colors cursor-pointer">
                             <div class="space-y-1 text-center">
                                 <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                                     <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -109,7 +113,35 @@
                                 <p class="text-xs text-gray-500">PDF, DOC, DOCX hingga 10MB</p>
                             </div>
                         </div>
-                        <p id="file-name" class="text-sm text-green-600 mt-2"></p>
+
+                        <!-- File Selected Preview -->
+                        <div id="file-preview" class="hidden mt-1 p-4 border-2 border-green-500 bg-green-50 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                                        <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p id="file-name" class="text-sm font-medium text-gray-800"></p>
+                                        <p id="file-size" class="text-xs text-gray-500"></p>
+                                    </div>
+                                </div>
+                                <button type="button" id="remove-file" class="p-1 text-gray-400 hover:text-red-500 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="mt-2 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="text-xs text-green-600 font-medium">File siap diupload</span>
+                            </div>
+                        </div>
+
                         @error('file_bimbingan')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror
@@ -145,10 +177,77 @@
     </div>
 
     <script>
-        // Show selected file name
-        document.getElementById('file_bimbingan').addEventListener('change', function(e) {
-            var fileName = e.target.files[0] ? e.target.files[0].name : '';
-            document.getElementById('file-name').textContent = fileName ? 'File dipilih: ' + fileName : '';
+        const fileInput = document.getElementById('file_bimbingan');
+        const uploadArea = document.getElementById('upload-area');
+        const filePreview = document.getElementById('file-preview');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const removeBtn = document.getElementById('remove-file');
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Handle file selection
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                uploadArea.classList.add('hidden');
+                filePreview.classList.remove('hidden');
+            }
+        });
+
+        // Handle remove file
+        removeBtn.addEventListener('click', function() {
+            fileInput.value = '';
+            fileName.textContent = '';
+            fileSize.textContent = '';
+            filePreview.classList.add('hidden');
+            uploadArea.classList.remove('hidden');
+        });
+
+        // Make upload area clickable
+        uploadArea.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('border-blue-500', 'bg-blue-50');
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('border-blue-500', 'bg-blue-50');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('border-blue-500', 'bg-blue-50');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                
+                if (allowedTypes.includes(file.type)) {
+                    fileInput.files = files;
+                    fileName.textContent = file.name;
+                    fileSize.textContent = formatFileSize(file.size);
+                    uploadArea.classList.add('hidden');
+                    filePreview.classList.remove('hidden');
+                } else {
+                    alert('Format file tidak didukung. Gunakan PDF, DOC, atau DOCX.');
+                }
+            }
         });
     </script>
 </x-app-layout>

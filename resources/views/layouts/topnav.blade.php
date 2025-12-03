@@ -22,11 +22,25 @@
         <x-dropdown align="right" width="48">
             <x-slot name="trigger">
                 <button class="flex items-center gap-2 text-gray-500 hover:text-gray-700 focus:outline-none">
-                    <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                        </svg>
-                    </div>
+                    @php
+                        $userFotoUrl = null;
+                        $userInitials = 'U';
+                        
+                        if (auth()->user()->isMahasiswa() && auth()->user()->mahasiswa) {
+                            $userFotoUrl = auth()->user()->mahasiswa->foto_url;
+                            $userInitials = auth()->user()->mahasiswa->initials;
+                        } elseif ((auth()->user()->isDosen() || auth()->user()->isKoordinator()) && auth()->user()->dosen) {
+                            $userFotoUrl = auth()->user()->dosen->foto_url;
+                            $userInitials = auth()->user()->dosen->initials;
+                        } elseif (auth()->user()->isAdmin()) {
+                            $userInitials = strtoupper(substr(auth()->user()->name, 0, 2));
+                        }
+                    @endphp
+                    <x-avatar 
+                        :src="$userFotoUrl" 
+                        :initials="$userInitials" 
+                        size="sm" 
+                    />
                 </button>
             </x-slot>
 

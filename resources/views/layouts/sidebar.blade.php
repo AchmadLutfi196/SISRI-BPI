@@ -3,30 +3,34 @@
        :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
     
     <!-- Logo Section -->
-    <div class="h-16 flex items-center justify-center border-b border-gray-200 bg-gradient-to-r from-yellow-400 to-yellow-500">
-        <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
-            <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow">
-                <svg class="w-6 h-6 text-blue-700" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
-                </svg>
-            </div>
-            <div>
-                <span class="text-xl font-bold">
-                    <span class="text-white">SI</span><span class="text-blue-800">SRI</span>
-                </span>
-                <p class="text-xs text-blue-800 font-medium -mt-1">FT UTM</p>
-            </div>
+    <div class="h-16 flex items-center justify-center border-b border-gray-200 bg-white">
+        <a href="{{ route('dashboard') }}" class="flex items-center">
+            <img src="{{ asset('images/logo.png') }}" alt="SISRI-UTM" class="h-10 w-auto">
         </a>
     </div>
 
     <!-- User Info -->
     <div class="p-4 border-b border-gray-200">
         <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center">
-                <svg class="w-8 h-8 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                </svg>
-            </div>
+            @php
+                $userFotoUrl = null;
+                $userInitials = 'U';
+                
+                if (auth()->user()->isMahasiswa() && auth()->user()->mahasiswa) {
+                    $userFotoUrl = auth()->user()->mahasiswa->foto_url;
+                    $userInitials = auth()->user()->mahasiswa->initials;
+                } elseif ((auth()->user()->isDosen() || auth()->user()->isKoordinator()) && auth()->user()->dosen) {
+                    $userFotoUrl = auth()->user()->dosen->foto_url;
+                    $userInitials = auth()->user()->dosen->initials;
+                } elseif (auth()->user()->isAdmin()) {
+                    $userInitials = strtoupper(substr(auth()->user()->name, 0, 2));
+                }
+            @endphp
+            <x-avatar 
+                :src="$userFotoUrl" 
+                :initials="$userInitials" 
+                size="lg" 
+            />
             <div class="flex-1 min-w-0">
                 <p class="text-sm font-semibold text-blue-700 truncate">{{ Auth::user()->name }}</p>
                 @if(auth()->user()->isMahasiswa() && auth()->user()->mahasiswa)
