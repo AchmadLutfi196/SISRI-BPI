@@ -839,24 +839,6 @@ class DatabaseSeeder extends Seeder
                 'kapasitas' => 15,
                 'is_active' => true,
             ],
-            [
-                'nama' => 'Ruang Sidang C',
-                'lokasi' => 'Gedung Teknik Lt. 2',
-                'kapasitas' => 25,
-                'is_active' => true,
-            ],
-            [
-                'nama' => 'Aula Fakultas',
-                'lokasi' => 'Gedung Rektorat Lt. 1',
-                'kapasitas' => 100,
-                'is_active' => true,
-            ],
-            [
-                'nama' => 'Lab Komputer 1',
-                'lokasi' => 'Gedung Teknik Lt. 1',
-                'kapasitas' => 30,
-                'is_active' => false, // Tidak aktif
-            ],
         ];
 
         foreach ($ruangans as $ruangan) {

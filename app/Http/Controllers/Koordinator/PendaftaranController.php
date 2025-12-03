@@ -355,34 +355,15 @@ class PendaftaranController extends Controller
             ->pluck('dosen_id')
             ->toArray();
 
-        // Get available dosen for penguji (exclude pembimbing)
-        $availableDosens = Dosen::where('prodi_id', $prodiId)
-            ->whereNotIn('id', $pembimbingIds)
-            ->with('user')
-            ->inRandomOrder()
-            ->get();
-
-        if ($availableDosens->count() < 3) {
-            return back()->with('error', 'Tidak cukup dosen tersedia untuk menjadi penguji (minimal 3 dosen selain pembimbing).');
-        }
-
-        // Pick 3 random penguji
-        $penguji1 = $availableDosens->get(0);
-        $penguji2 = $availableDosens->get(1);
-        $penguji3 = $availableDosens->get(2);
-
         // Determine schedule based on jadwal sidang period
         $jadwalSidang = $pendaftaran->jadwalSidang;
         
-        // Find available slot (date and room)
-        $tanggalSidang = $this->findAvailableSlot($jadwalSidang);
+        // Find available slot (date, time, room, and 3 available penguji)
+        $schedule = $this->findAvailableSchedule($jadwalSidang, $pembimbingIds, $prodiId);
         
-        if (!$tanggalSidang) {
-            return back()->with('error', 'Tidak ada slot waktu tersedia dalam periode sidang.');
+        if (!$schedule) {
+            return back()->with('error', 'Tidak ada slot waktu dan penguji tersedia dalam periode sidang. Pastikan ada minimal 3 dosen yang tidak sedang menguji di waktu yang sama.');
         }
-
-        // Find available room
-        $tempat = $this->findAvailableRoom($tanggalSidang['datetime']);
 
         // Update status koordinator
         $pendaftaran->update([
@@ -393,8 +374,8 @@ class PendaftaranController extends Controller
         // Buat pelaksanaan sidang
         $pelaksanaan = PelaksanaanSidang::create([
             'pendaftaran_sidang_id' => $pendaftaran->id,
-            'tanggal_sidang' => $tanggalSidang['datetime'],
-            'tempat' => $tempat,
+            'tanggal_sidang' => $schedule['datetime'],
+            'tempat' => $schedule['room'],
             'status' => 'dijadwalkan',
         ]);
 
@@ -415,46 +396,52 @@ class PendaftaranController extends Controller
         // Tambahkan 3 penguji
         PengujiSidang::create([
             'pelaksanaan_sidang_id' => $pelaksanaan->id,
-            'dosen_id' => $penguji1->id,
+            'dosen_id' => $schedule['penguji'][0]->id,
             'role' => 'penguji_1',
         ]);
 
         PengujiSidang::create([
             'pelaksanaan_sidang_id' => $pelaksanaan->id,
-            'dosen_id' => $penguji2->id,
+            'dosen_id' => $schedule['penguji'][1]->id,
             'role' => 'penguji_2',
         ]);
 
         PengujiSidang::create([
             'pelaksanaan_sidang_id' => $pelaksanaan->id,
-            'dosen_id' => $penguji3->id,
+            'dosen_id' => $schedule['penguji'][2]->id,
             'role' => 'penguji_3',
         ]);
 
         $jenis = $pendaftaran->jenis === 'seminar_proposal' ? 'sempro' : 'sidang';
         
-        $tanggalFormatted = \Carbon\Carbon::parse($tanggalSidang['datetime'])->format('d M Y H:i');
-        $pengujiNames = $penguji1->user->name . ', ' . $penguji2->user->name . ', ' . $penguji3->user->name;
+        $tanggalFormatted = \Carbon\Carbon::parse($schedule['datetime'])->format('d M Y H:i');
+        $pengujiNames = $schedule['penguji'][0]->user->name . ', ' . $schedule['penguji'][1]->user->name . ', ' . $schedule['penguji'][2]->user->name;
 
         return redirect()->route('koordinator.pendaftaran.index', ['jenis' => $jenis])
-            ->with('success', "Sidang berhasil dijadwalkan otomatis pada {$tanggalFormatted} di {$tempat}. Penguji: {$pengujiNames}");
+            ->with('success', "Sidang berhasil dijadwalkan otomatis pada {$tanggalFormatted} di {$schedule['room']}. Penguji: {$pengujiNames}");
     }
 
     /**
-     * Find available time slot based on jadwal sidang period
+     * Find available schedule (datetime, room, and 3 penguji) with conflict checking
      */
-    private function findAvailableSlot($jadwalSidang)
+    private function findAvailableSchedule($jadwalSidang, $pembimbingIds, $prodiId)
     {
         $startDate = \Carbon\Carbon::parse($jadwalSidang->tanggal_buka);
-        $endDate = \Carbon\Carbon::parse($jadwalSidang->tanggal_tutup)->addDays(14); // Give 2 weeks buffer after registration closes
+        $endDate = \Carbon\Carbon::parse($jadwalSidang->tanggal_tutup)->addDays(14);
         
-        // If start date is in the past, use tomorrow
         if ($startDate->isPast()) {
             $startDate = \Carbon\Carbon::tomorrow();
         }
 
         $timeSlots = ['08:00', '09:30', '11:00', '13:00', '14:30', '16:00'];
         
+        // Get available rooms from database
+        $rooms = Ruangan::active()->orderBy('nama')->get();
+        
+        if ($rooms->isEmpty()) {
+            return null;
+        }
+
         $currentDate = $startDate->copy();
         
         while ($currentDate->lte($endDate)) {
@@ -463,17 +450,21 @@ class PendaftaranController extends Controller
                 foreach ($timeSlots as $time) {
                     $datetime = $currentDate->format('Y-m-d') . ' ' . $time . ':00';
                     
-                    // Check if this slot is available (no other sidang at this time)
-                    $existingCount = PelaksanaanSidang::where('tanggal_sidang', $datetime)
-                        ->where('status', '!=', 'selesai')
-                        ->count();
+                    // Find available room for this datetime
+                    $availableRoom = $this->findAvailableRoomForDatetime($rooms, $datetime);
                     
-                    // Allow up to 3 concurrent sessions (different rooms)
-                    if ($existingCount < 3) {
+                    if (!$availableRoom) {
+                        continue; // No room available at this time, try next slot
+                    }
+                    
+                    // Find 3 available penguji for this datetime
+                    $availablePenguji = $this->findAvailablePengujiForDatetime($datetime, $pembimbingIds, $prodiId);
+                    
+                    if (count($availablePenguji) >= 3) {
                         return [
                             'datetime' => $datetime,
-                            'date' => $currentDate->format('Y-m-d'),
-                            'time' => $time,
+                            'room' => $availableRoom->nama,
+                            'penguji' => array_slice($availablePenguji, 0, 3),
                         ];
                     }
                 }
@@ -486,19 +477,13 @@ class PendaftaranController extends Controller
     }
 
     /**
-     * Find available room for a specific datetime
+     * Find available room from database for a specific datetime
      */
-    private function findAvailableRoom($datetime)
+    private function findAvailableRoomForDatetime($rooms, $datetime)
     {
-        $defaultRooms = [
-            'Ruang Sidang A - Gedung Teknik Lt. 3',
-            'Ruang Sidang B - Gedung Teknik Lt. 3',
-            'Ruang Sidang C - Gedung Teknik Lt. 4',
-        ];
-        
-        foreach ($defaultRooms as $room) {
+        foreach ($rooms as $room) {
             $isUsed = PelaksanaanSidang::where('tanggal_sidang', $datetime)
-                ->where('tempat', $room)
+                ->where('tempat', $room->nama)
                 ->where('status', '!=', 'selesai')
                 ->exists();
             
@@ -507,7 +492,31 @@ class PendaftaranController extends Controller
             }
         }
         
-        // If all default rooms are used, generate a new room name
-        return 'Ruang Sidang ' . chr(65 + rand(3, 5)) . ' - Gedung Teknik Lt. ' . rand(2, 5);
+        return null;
+    }
+
+    /**
+     * Find available penguji (dosen not in another sidang at same datetime)
+     */
+    private function findAvailablePengujiForDatetime($datetime, $pembimbingIds, $prodiId)
+    {
+        // Get all dosen in prodi (exclude pembimbing)
+        $allDosens = Dosen::where('prodi_id', $prodiId)
+            ->whereNotIn('id', $pembimbingIds)
+            ->with('user')
+            ->get();
+        
+        // Get dosen IDs who are busy at this datetime (already assigned as penguji/pembimbing)
+        $busyDosenIds = PengujiSidang::whereHas('pelaksanaanSidang', function ($q) use ($datetime) {
+            $q->where('tanggal_sidang', $datetime)
+              ->where('status', '!=', 'selesai');
+        })->pluck('dosen_id')->toArray();
+        
+        // Filter out busy dosen
+        $availableDosens = $allDosens->filter(function ($dosen) use ($busyDosenIds) {
+            return !in_array($dosen->id, $busyDosenIds);
+        })->shuffle()->values()->all();
+        
+        return $availableDosens;
     }
 }
