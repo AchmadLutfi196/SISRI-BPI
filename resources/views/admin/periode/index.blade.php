@@ -83,10 +83,10 @@
                                                 </button>
                                             </form>
                                         @endif
-                                        <form action="{{ route('admin.periode.destroy', $periode) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus periode ini?')">
+                                        <form action="{{ route('admin.periode.destroy', $periode) }}" method="POST" class="inline" id="delete-periode-{{ $periode->id }}">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900">
+                                            <button type="button" onclick="confirmDelete('delete-periode-{{ $periode->id }}', 'Periode {{ $periode->nama }}')" class="text-red-600 hover:text-red-900">
                                                 Hapus
                                             </button>
                                         </form>

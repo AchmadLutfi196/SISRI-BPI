@@ -28,19 +28,22 @@
                         
                         if (auth()->user()->isMahasiswa() && auth()->user()->mahasiswa) {
                             $userFotoUrl = auth()->user()->mahasiswa->foto_url;
-                            $userInitials = auth()->user()->mahasiswa->initials;
+                            $userInitials = auth()->user()->mahasiswa->initials ?? strtoupper(substr(auth()->user()->name, 0, 1));
                         } elseif ((auth()->user()->isDosen() || auth()->user()->isKoordinator()) && auth()->user()->dosen) {
                             $userFotoUrl = auth()->user()->dosen->foto_url;
-                            $userInitials = auth()->user()->dosen->initials;
-                        } elseif (auth()->user()->isAdmin()) {
-                            $userInitials = strtoupper(substr(auth()->user()->name, 0, 2));
+                            $userInitials = auth()->user()->dosen->initials ?? strtoupper(substr(auth()->user()->name, 0, 1));
+                        } else {
+                            $userInitials = strtoupper(substr(auth()->user()->name, 0, 1));
                         }
                     @endphp
-                    <x-avatar 
-                        :src="$userFotoUrl" 
-                        :initials="$userInitials" 
-                        size="sm" 
-                    />
+                    
+                    @if($userFotoUrl)
+                        <img src="{{ $userFotoUrl }}" alt="Avatar" class="w-8 h-8 rounded-full object-cover ring-2 ring-yellow-500">
+                    @else
+                        <div class="w-8 h-8 rounded-full bg-yellow-500 text-white flex items-center justify-center font-semibold text-sm ring-2 ring-yellow-600">
+                            {{ $userInitials }}
+                        </div>
+                    @endif
                 </button>
             </x-slot>
 
@@ -58,10 +61,10 @@
                 </x-dropdown-link>
 
                 <!-- Authentication -->
-                <form method="POST" action="{{ route('logout') }}">
+                <form method="POST" action="{{ route('logout') }}" id="logout-form">
                     @csrf
-                    <x-dropdown-link :href="route('logout')"
-                            onclick="event.preventDefault(); this.closest('form').submit();">
+                    <x-dropdown-link href="#"
+                            onclick="event.preventDefault(); confirmLogout('logout-form');">
                         <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                         </svg>

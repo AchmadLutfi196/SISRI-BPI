@@ -7,18 +7,6 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            @if(session('success'))
-                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                    {{ session('error') }}
-                </div>
-            @endif
-
             <!-- Info Box -->
             <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <div class="flex">
@@ -120,9 +108,9 @@
                                                             class="text-yellow-600 hover:text-yellow-900">Edit Jadwal</a>
                                                         <form action="{{ route('koordinator.pendaftaran.complete-pelaksanaan', $pendaftaran->pelaksanaanSidang) }}" 
                                                             method="POST" class="inline"
-                                                            onsubmit="return confirm('Tandai sidang ini selesai?')">
+                                                            id="complete-sidang-{{ $pendaftaran->id }}">
                                                             @csrf
-                                                            <button type="submit" class="text-purple-600 hover:text-purple-900">
+                                                            <button type="button" onclick="confirmAction('complete-sidang-{{ $pendaftaran->id }}', 'Konfirmasi', 'Tandai sidang ini selesai?', 'Ya, Selesaikan')" class="text-purple-600 hover:text-purple-900">
                                                                 Selesaikan
                                                             </button>
                                                         </form>

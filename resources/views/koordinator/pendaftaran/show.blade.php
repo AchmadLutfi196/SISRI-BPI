@@ -313,11 +313,11 @@
                                     <div class="flex-1">
                                         <h4 class="text-sm font-medium text-green-800">Jadwalkan Otomatis</h4>
                                         <p class="text-xs text-green-600 mt-1">Sistem akan otomatis menentukan tanggal, waktu, ruangan, dan 3 penguji.</p>
-                                        <form action="{{ route('koordinator.pendaftaran.auto-approve', $pendaftaran) }}" method="POST" class="mt-3">
+                                        <form action="{{ route('koordinator.pendaftaran.auto-approve', $pendaftaran) }}" method="POST" class="mt-3" id="auto-approve-form">
                                             @csrf
-                                            <button type="submit"
+                                            <button type="button"
                                                 class="inline-flex items-center px-3 py-1.5 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 transition"
-                                                onclick="return confirm('Sistem akan otomatis menjadwalkan sidang untuk mahasiswa ini. Lanjutkan?')">
+                                                onclick="confirmAction('auto-approve-form', 'Jadwalkan Otomatis', 'Sistem akan otomatis menjadwalkan sidang untuk mahasiswa ini. Lanjutkan?', 'Ya, Jadwalkan')">
                                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                                                 </svg>
@@ -427,7 +427,7 @@
                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                             <div class="p-6">
                                 <h3 class="text-lg font-medium text-gray-900 mb-4">Tolak Pendaftaran</h3>
-                                <form action="{{ route('koordinator.pendaftaran.reject', $pendaftaran) }}" method="POST">
+                                <form action="{{ route('koordinator.pendaftaran.reject', $pendaftaran) }}" method="POST" id="reject-form">
                                     @csrf
                                     
                                     <div class="space-y-4">
@@ -441,9 +441,9 @@
                                             @enderror
                                         </div>
 
-                                        <button type="submit"
+                                        <button type="button"
                                             class="w-full inline-flex justify-center items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700"
-                                            onclick="return confirm('Apakah Anda yakin ingin menolak pendaftaran ini?')">
+                                            onclick="confirmAction('reject-form', 'Tolak Pendaftaran', 'Apakah Anda yakin ingin menolak pendaftaran ini?', 'Ya, Tolak')">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                             </svg>

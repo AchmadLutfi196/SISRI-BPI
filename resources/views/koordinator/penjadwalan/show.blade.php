@@ -216,10 +216,10 @@
 
                                                     {{-- Selesaikan Sidang --}}
                                                     @if($pendaftaran->pelaksanaanSidang && $pendaftaran->pelaksanaanSidang->status === 'dijadwalkan')
-                                                        <form action="{{ route('koordinator.penjadwalan.complete-pelaksanaan', $pendaftaran->pelaksanaanSidang) }}" method="POST" class="inline">
+                                                        <form action="{{ route('koordinator.penjadwalan.complete-pelaksanaan', $pendaftaran->pelaksanaanSidang) }}" method="POST" class="inline" id="complete-penjadwalan-{{ $pendaftaran->id }}">
                                                             @csrf
-                                                            <button type="submit" class="text-purple-600 hover:text-purple-900 text-left"
-                                                                onclick="return confirm('Tandai sidang ini selesai?')">
+                                                            <button type="button" class="text-purple-600 hover:text-purple-900 text-left"
+                                                                onclick="confirmAction('complete-penjadwalan-{{ $pendaftaran->id }}', 'Konfirmasi', 'Tandai sidang ini selesai?', 'Ya, Selesaikan')">
                                                                 Selesaikan
                                                             </button>
                                                         </form>

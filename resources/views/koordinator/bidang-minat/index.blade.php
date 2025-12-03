@@ -73,10 +73,10 @@
                                                        class="text-indigo-600 hover:text-indigo-900">Edit</a>
                                                     <form action="{{ route('koordinator.bidang-minat.destroy', $bidang) }}" 
                                                           method="POST" 
-                                                          onsubmit="return confirm('Yakin ingin menghapus bidang minat ini?')">
+                                                          id="delete-bidang-{{ $bidang->id }}">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
+                                                        <button type="button" onclick="confirmDelete('delete-bidang-{{ $bidang->id }}', '{{ $bidang->nama }}')" class="text-red-600 hover:text-red-900">Hapus</button>
                                                     </form>
                                                 </div>
                                             </td>

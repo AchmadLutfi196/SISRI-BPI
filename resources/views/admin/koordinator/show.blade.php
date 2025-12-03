@@ -104,11 +104,10 @@
                 </button>
             </form>
             @if(!$koordinator->is_active)
-                <form action="{{ route('admin.koordinator.destroy', $koordinator) }}" method="POST" 
-                    onsubmit="return confirm('Apakah Anda yakin ingin menghapus koordinator ini?')">
+                <form action="{{ route('admin.koordinator.destroy', $koordinator) }}" method="POST" id="delete-koordinator-show">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" 
+                    <button type="button" onclick="confirmDelete('delete-koordinator-show', '{{ $koordinator->dosen->nama ?? 'Koordinator' }}')" 
                         class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition">
                         Hapus
                     </button>

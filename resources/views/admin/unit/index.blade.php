@@ -81,10 +81,10 @@
                                         <a href="{{ route('admin.unit.edit', $unit) }}" class="text-yellow-600 hover:text-yellow-900">
                                             Edit
                                         </a>
-                                        <form action="{{ route('admin.unit.destroy', $unit) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus unit ini?')">
+                                        <form action="{{ route('admin.unit.destroy', $unit) }}" method="POST" class="inline" id="delete-unit-{{ $unit->id }}">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900">
+                                            <button type="button" onclick="confirmDelete('delete-unit-{{ $unit->id }}', '{{ $unit->nama }}')" class="text-red-600 hover:text-red-900">
                                                 Hapus
                                             </button>
                                         </form>

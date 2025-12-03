@@ -56,10 +56,9 @@
 
                     <!-- Reset Password Button -->
                     <div class="mt-6 pt-4 border-t border-gray-200">
-                        <form action="{{ route('admin.mahasiswa.reset-password', $mahasiswa) }}" method="POST" 
-                            onsubmit="return confirm('Apakah Anda yakin ingin mereset password mahasiswa ini ke default (password123)?')">
+                        <form action="{{ route('admin.mahasiswa.reset-password', $mahasiswa) }}" method="POST" id="reset-password-mhs">
                             @csrf
-                            <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 bg-orange-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition">
+                            <button type="button" onclick="confirmAction('reset-password-mhs', 'Reset Password', 'Password akan direset ke default (password123). Lanjutkan?', 'Ya, Reset')" class="w-full inline-flex justify-center items-center px-4 py-2 bg-orange-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                                 </svg>
