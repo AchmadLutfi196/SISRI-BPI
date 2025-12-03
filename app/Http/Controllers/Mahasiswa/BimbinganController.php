@@ -36,7 +36,13 @@ class BimbinganController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return view('mahasiswa.bimbingan.index', compact('bimbingans', 'topik', 'jenis'));
+        // Check if there's any pending bimbingan
+        $hasPendingBimbingan = Bimbingan::where('topik_id', $topik->id)
+            ->where('jenis', $jenis)
+            ->where('status', 'menunggu')
+            ->exists();
+
+        return view('mahasiswa.bimbingan.index', compact('bimbingans', 'topik', 'jenis', 'hasPendingBimbingan'));
     }
 
     public function create(Request $request)
@@ -59,6 +65,18 @@ class BimbinganController extends Controller
         }
 
         $jenis = $request->get('jenis', 'proposal');
+        
+        // Check if there's any pending bimbingan
+        $hasPendingBimbingan = Bimbingan::where('topik_id', $topik->id)
+            ->where('jenis', $jenis)
+            ->where('status', 'menunggu')
+            ->exists();
+
+        if ($hasPendingBimbingan) {
+            return redirect()->route('mahasiswa.bimbingan.index', ['jenis' => $jenis])
+                ->with('error', 'Anda masih memiliki bimbingan yang menunggu persetujuan. Silakan tunggu dosen menyetujui bimbingan sebelumnya.');
+        }
+
         $pembimbings = $topik->usulanPembimbing()->approved()->with('dosen')->get();
 
         // Get pending bimbingan for each dosen (status: menunggu atau direvisi)
@@ -108,6 +126,17 @@ class BimbinganController extends Controller
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Anda masih memiliki bimbingan yang belum diproses oleh dosen ini. Harap tunggu hingga bimbingan sebelumnya disetujui atau ditolak.');
+        }
+
+        // Check if there's any pending bimbingan
+        $hasPendingBimbingan = Bimbingan::where('topik_id', $topik->id)
+            ->where('jenis', $request->jenis)
+            ->where('status', 'menunggu')
+            ->exists();
+
+        if ($hasPendingBimbingan) {
+            return redirect()->route('mahasiswa.bimbingan.index', ['jenis' => $request->jenis])
+                ->with('error', 'Anda masih memiliki bimbingan yang menunggu persetujuan. Silakan tunggu dosen menyetujui bimbingan sebelumnya.');
         }
 
         $filePath = null;

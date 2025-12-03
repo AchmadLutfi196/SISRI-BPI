@@ -82,6 +82,7 @@
                                             Edit
                                         </a>
                                         <form action="{{ route('admin.unit.destroy', $unit) }}" method="POST" class="inline" id="delete-unit-{{ $unit->id }}">
+                                        <form action="{{ route('admin.unit.destroy', $unit) }}" method="POST" class="inline" id="delete-unit-{{ $unit->id }}">
                                             @csrf
                                             @method('DELETE')
                                             <button type="button" onclick="confirmDelete('delete-unit-{{ $unit->id }}', 'Hapus Unit', 'Yakin ingin menghapus unit {{ $unit->nama }}?')" class="text-red-600 hover:text-red-900">

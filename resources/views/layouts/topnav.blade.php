@@ -28,19 +28,22 @@
                         
                         if (auth()->user()->isMahasiswa() && auth()->user()->mahasiswa) {
                             $userFotoUrl = auth()->user()->mahasiswa->foto_url;
-                            $userInitials = auth()->user()->mahasiswa->initials;
+                            $userInitials = auth()->user()->mahasiswa->initials ?? strtoupper(substr(auth()->user()->name, 0, 2));
                         } elseif ((auth()->user()->isDosen() || auth()->user()->isKoordinator()) && auth()->user()->dosen) {
                             $userFotoUrl = auth()->user()->dosen->foto_url;
-                            $userInitials = auth()->user()->dosen->initials;
-                        } elseif (auth()->user()->isAdmin()) {
+                            $userInitials = auth()->user()->dosen->initials ?? strtoupper(substr(auth()->user()->name, 0, 2));
+                        } else {
                             $userInitials = strtoupper(substr(auth()->user()->name, 0, 2));
                         }
                     @endphp
-                    <x-avatar 
-                        :src="$userFotoUrl" 
-                        :initials="$userInitials" 
-                        size="sm" 
-                    />
+                    
+                    @if($userFotoUrl)
+                        <img src="{{ $userFotoUrl }}" alt="Avatar" class="w-8 h-8 rounded-full object-cover ring-2 ring-yellow-500">
+                    @else
+                        <div class="w-8 h-8 rounded-full bg-yellow-500 text-white flex items-center justify-center font-semibold text-sm ring-2 ring-yellow-600">
+                            {{ $userInitials }}
+                        </div>
+                    @endif
                 </button>
             </x-slot>
 

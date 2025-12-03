@@ -313,11 +313,11 @@
                                     <div class="flex-1">
                                         <h4 class="text-sm font-medium text-green-800">Jadwalkan Otomatis</h4>
                                         <p class="text-xs text-green-600 mt-1">Sistem akan otomatis menentukan tanggal, waktu, ruangan, dan 3 penguji.</p>
-                                        <form action="{{ route('koordinator.pendaftaran.auto-approve', $pendaftaran) }}" method="POST" class="mt-3">
+                                        <form action="{{ route('koordinator.pendaftaran.auto-approve', $pendaftaran) }}" method="POST" class="mt-3" id="auto-approve-form">
                                             @csrf
-                                            <button type="submit"
+                                            <button type="button"
                                                 class="inline-flex items-center px-3 py-1.5 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 transition"
-                                                onclick="return confirm('Sistem akan otomatis menjadwalkan sidang untuk mahasiswa ini. Lanjutkan?')">
+                                                onclick="confirmAction('auto-approve-form', 'Jadwalkan Otomatis', 'Sistem akan otomatis menjadwalkan sidang untuk mahasiswa ini. Lanjutkan?', 'Ya, Jadwalkan')">
                                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                                                 </svg>
@@ -349,9 +349,15 @@
 
                                         <div>
                                             <label for="tempat" class="block text-sm font-medium text-gray-700">Tempat / Ruangan</label>
-                                            <input type="text" name="tempat" id="tempat" value="{{ old('tempat') }}"
-                                                placeholder="Contoh: Ruang Sidang A Lt. 3"
+                                            <select name="tempat" id="tempat"
                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm" required>
+                                                <option value="">-- Pilih Ruangan --</option>
+                                                @foreach($ruangans as $ruangan)
+                                                    <option value="{{ $ruangan->nama }}" {{ old('tempat') == $ruangan->nama ? 'selected' : '' }}>
+                                                        {{ $ruangan->nama }}{{ $ruangan->lokasi ? " - {$ruangan->lokasi}" : '' }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
                                             @error('tempat')
                                                 <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                             @enderror

@@ -6,6 +6,17 @@
                 <h1 class="text-2xl font-bold text-gray-800">Bimbingan Skripsi</h1>
                 <p class="text-gray-600">Kelola bimbingan proposal dan skripsi Anda</p>
             </div>
+            @if($hasPendingBimbingan)
+            <div class="mt-4 md:mt-0">
+                <span class="inline-flex items-center px-4 py-2 bg-gray-400 text-white rounded-lg cursor-not-allowed" title="Tunggu bimbingan sebelumnya disetujui">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Ajukan Bimbingan
+                </span>
+                <p class="text-xs text-orange-600 mt-1">Menunggu persetujuan bimbingan sebelumnya</p>
+            </div>
+            @else
             <a href="{{ route('mahasiswa.bimbingan.create', ['jenis' => $jenis]) }}" 
                class="mt-4 md:mt-0 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -13,6 +24,7 @@
                 </svg>
                 Ajukan Bimbingan
             </a>
+            @endif
         </div>
 
         <!-- Topik Info Card -->

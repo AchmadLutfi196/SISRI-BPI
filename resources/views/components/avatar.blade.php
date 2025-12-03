@@ -17,30 +17,16 @@
     
     $sizeClass = $sizes[$size] ?? $sizes['md'];
     
-    // Generate consistent color based on initials
-    $colors = [
-        'bg-blue-500',
-        'bg-green-500',
-        'bg-yellow-500',
-        'bg-red-500',
-        'bg-purple-500',
-        'bg-pink-500',
-        'bg-indigo-500',
-        'bg-teal-500',
-        'bg-orange-500',
-        'bg-cyan-500',
-    ];
-    
-    $colorIndex = ord(substr($initials, 0, 1)) % count($colors);
-    $bgColor = $colors[$colorIndex];
+    // Use consistent yellow color for all avatars without photo
+    $bgColor = 'bg-yellow-500';
 @endphp
 
 @if($src)
     <img src="{{ $src }}" 
          alt="Avatar" 
-         {{ $attributes->merge(['class' => "rounded-full object-cover {$sizeClass} {$class}"]) }}>
+         {{ $attributes->merge(['class' => "rounded-full object-cover ring-2 ring-yellow-500 {$sizeClass} {$class}"]) }}>
 @else
-    <div {{ $attributes->merge(['class' => "rounded-full {$bgColor} text-white flex items-center justify-center font-semibold {$sizeClass} {$class}"]) }}>
+    <div {{ $attributes->merge(['class' => "rounded-full {$bgColor} text-white flex items-center justify-center font-semibold ring-2 ring-yellow-600 {$sizeClass} {$class}"]) }}>
         {{ $initials }}
     </div>
 @endif

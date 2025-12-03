@@ -1,16 +1,16 @@
 <!-- Sidebar -->
-<aside class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300"
+<aside class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 flex flex-col"
        :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
     
     <!-- Logo Section -->
-    <div class="h-16 flex items-center justify-center border-b border-gray-200 bg-white">
+    <div class="h-16 flex items-center justify-center border-b border-gray-200 bg-white flex-shrink-0">
         <a href="{{ route('dashboard') }}" class="flex items-center">
             <img src="{{ asset('images/logo.png') }}" alt="SISRI-UTM" class="h-10 w-auto">
         </a>
     </div>
 
     <!-- User Info -->
-    <div class="p-4 border-b border-gray-200">
+    <div class="p-4 border-b border-gray-200 flex-shrink-0">
         <div class="flex items-center gap-3">
             @php
                 $userFotoUrl = null;
@@ -50,7 +50,7 @@
     </div>
 
     <!-- Role Label -->
-    <div class="px-4 py-2 bg-gray-50">
+    <div class="px-4 py-2 bg-gray-50 flex-shrink-0">
         <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
             {{ strtoupper(auth()->user()->role) }}
         </span>
@@ -82,6 +82,9 @@
             </x-sidebar-dropdown>
             <x-sidebar-link :href="route('admin.koordinator.index')" :active="request()->routeIs('admin.koordinator.*')" icon="badge">
                 Koordinator Prodi
+            </x-sidebar-link>
+            <x-sidebar-link :href="route('admin.ruangan.index')" :active="request()->routeIs('admin.ruangan.*')" icon="building-office">
+                Ruangan
             </x-sidebar-link>
         @endif
 

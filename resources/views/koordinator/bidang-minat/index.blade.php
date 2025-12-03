@@ -74,6 +74,7 @@
                                                     <form action="{{ route('koordinator.bidang-minat.destroy', $bidang) }}" 
                                                           method="POST" 
                                                           id="delete-bidang-{{ $bidang->id }}">
+                                                          id="delete-bidang-{{ $bidang->id }}">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="button" onclick="confirmDelete('delete-bidang-{{ $bidang->id }}', 'Hapus Bidang Minat', 'Yakin ingin menghapus bidang minat {{ $bidang->nama }}?')" class="text-red-600 hover:text-red-900">Hapus</button>
