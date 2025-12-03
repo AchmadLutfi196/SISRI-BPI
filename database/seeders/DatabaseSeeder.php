@@ -16,6 +16,10 @@ use App\Models\PendaftaranSidang;
 use App\Models\PelaksanaanSidang;
 use App\Models\PengujiSidang;
 use App\Models\Ruangan;
+use App\Models\Bimbingan;
+use App\Models\BimbinganHistory;
+use App\Models\Nilai;
+use App\Models\RevisiSidang;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -60,8 +64,14 @@ class DatabaseSeeder extends Seeder
         // Create Ruangan
         $this->createRuangan();
         
+        // Create Sample Bimbingan (untuk testing fitur bimbingan)
+        $this->createSampleBimbingan($units);
+        
         // Create Sample Pendaftaran untuk testing Jadwal Otomatis
         $this->createSamplePendaftaranForAutoSchedule($units);
+        
+        // Create Complete Sidang with Nilai & Revisi (mahasiswa yang sudah selesai)
+        $this->createCompleteSidangWithNilai($units);
     }
 
     private function createRoles(): void
@@ -716,5 +726,819 @@ class DatabaseSeeder extends Seeder
         foreach ($ruangans as $ruangan) {
             Ruangan::create($ruangan);
         }
+    }
+    
+    /**
+     * Create sample bimbingan untuk mahasiswa Budi (yang topiknya sudah diterima)
+     * Ini untuk testing fitur bimbingan mahasiswa & dosen
+     */
+    private function createSampleBimbingan(array $units): void
+    {
+        // Get mahasiswa Budi
+        $mahasiswaBudi = Mahasiswa::where('nim', '2021001')->first();
+        $topikBudi = TopikSkripsi::where('mahasiswa_id', $mahasiswaBudi->id)->first();
+        
+        // Get pembimbing dari usulan pembimbing
+        $pembimbing1 = UsulanPembimbing::where('topik_id', $topikBudi->id)
+            ->where('urutan', 1)
+            ->first();
+        $pembimbing2 = UsulanPembimbing::where('topik_id', $topikBudi->id)
+            ->where('urutan', 2)
+            ->first();
+        
+        // ========== BIMBINGAN PROPOSAL ==========
+        // Bimbingan 1 - Sudah disetujui (bimbingan pertama)
+        $bimbingan1 = Bimbingan::create([
+            'topik_id' => $topikBudi->id,
+            'dosen_id' => $pembimbing1->dosen_id,
+            'jenis' => 'proposal',
+            'pokok_bimbingan' => 'Pembahasan BAB 1 - Latar Belakang dan Rumusan Masalah',
+            'file_bimbingan' => null,
+            'pesan_mahasiswa' => 'Pak, saya sudah menyusun BAB 1 sesuai template. Mohon koreksinya.',
+            'pesan_dosen' => 'Latar belakang sudah cukup bagus, perbaiki rumusan masalah agar lebih spesifik.',
+            'file_revisi' => null,
+            'status' => 'disetujui',
+            'tanggal_bimbingan' => now()->subDays(30),
+            'tanggal_respon' => now()->subDays(28),
+        ]);
+        
+        BimbinganHistory::create([
+            'bimbingan_id' => $bimbingan1->id,
+            'status' => 'menunggu',
+            'aksi' => 'submit',
+            'catatan' => 'Mahasiswa mengajukan bimbingan',
+            'oleh' => $mahasiswaBudi->user->name,
+        ]);
+        
+        BimbinganHistory::create([
+            'bimbingan_id' => $bimbingan1->id,
+            'status' => 'disetujui',
+            'aksi' => 'approve',
+            'catatan' => 'Latar belakang sudah cukup bagus',
+            'oleh' => $pembimbing1->dosen->nama,
+        ]);
+        
+        // Bimbingan 2 - Sudah disetujui
+        $bimbingan2 = Bimbingan::create([
+            'topik_id' => $topikBudi->id,
+            'dosen_id' => $pembimbing1->dosen_id,
+            'jenis' => 'proposal',
+            'pokok_bimbingan' => 'Pembahasan BAB 2 - Tinjauan Pustaka dan Landasan Teori',
+            'file_bimbingan' => null,
+            'pesan_mahasiswa' => 'Pak, BAB 2 sudah selesai. Saya lampirkan jurnal referensi yang digunakan.',
+            'pesan_dosen' => 'Tinjauan pustaka perlu diperkuat dengan referensi terbaru (5 tahun terakhir). Tambahkan minimal 5 jurnal internasional.',
+            'file_revisi' => null,
+            'status' => 'disetujui',
+            'tanggal_bimbingan' => now()->subDays(25),
+            'tanggal_respon' => now()->subDays(23),
+        ]);
+        
+        BimbinganHistory::create([
+            'bimbingan_id' => $bimbingan2->id,
+            'status' => 'menunggu',
+            'aksi' => 'submit',
+            'catatan' => 'Mahasiswa mengajukan bimbingan BAB 2',
+            'oleh' => $mahasiswaBudi->user->name,
+        ]);
+        
+        BimbinganHistory::create([
+            'bimbingan_id' => $bimbingan2->id,
+            'status' => 'direvisi',
+            'aksi' => 'revise',
+            'catatan' => 'Perlu tambahan referensi jurnal internasional',
+            'oleh' => $pembimbing1->dosen->nama,
+        ]);
+        
+        BimbinganHistory::create([
+            'bimbingan_id' => $bimbingan2->id,
+            'status' => 'disetujui',
+            'aksi' => 'approve',
+            'catatan' => 'Revisi sudah sesuai',
+            'oleh' => $pembimbing1->dosen->nama,
+        ]);
+        
+        // Bimbingan 3 - Dengan pembimbing 2, sudah disetujui
+        $bimbingan3 = Bimbingan::create([
+            'topik_id' => $topikBudi->id,
+            'dosen_id' => $pembimbing2->dosen_id,
+            'jenis' => 'proposal',
+            'pokok_bimbingan' => 'Konsultasi Metodologi Penelitian',
+            'file_bimbingan' => null,
+            'pesan_mahasiswa' => 'Bu, mohon arahan untuk metodologi penelitian yang sesuai dengan topik saya.',
+            'pesan_dosen' => 'Gunakan metodologi CRISP-DM untuk proyek machine learning. Sertakan diagram alur penelitian.',
+            'file_revisi' => null,
+            'status' => 'disetujui',
+            'tanggal_bimbingan' => now()->subDays(20),
+            'tanggal_respon' => now()->subDays(18),
+        ]);
+        
+        BimbinganHistory::create([
+            'bimbingan_id' => $bimbingan3->id,
+            'status' => 'menunggu',
+            'aksi' => 'submit',
+            'catatan' => 'Konsultasi metodologi penelitian',
+            'oleh' => $mahasiswaBudi->user->name,
+        ]);
+        
+        BimbinganHistory::create([
+            'bimbingan_id' => $bimbingan3->id,
+            'status' => 'disetujui',
+            'aksi' => 'approve',
+            'catatan' => 'Metodologi CRISP-DM sudah sesuai',
+            'oleh' => $pembimbing2->dosen->nama,
+        ]);
+        
+        // Bimbingan 4 - BAB 3, sedang direvisi (belum selesai)
+        $bimbingan4 = Bimbingan::create([
+            'topik_id' => $topikBudi->id,
+            'dosen_id' => $pembimbing1->dosen_id,
+            'jenis' => 'proposal',
+            'pokok_bimbingan' => 'Pembahasan BAB 3 - Analisis dan Perancangan Sistem',
+            'file_bimbingan' => null,
+            'pesan_mahasiswa' => 'Pak, ini draft BAB 3 tentang analisis kebutuhan dan perancangan sistem.',
+            'pesan_dosen' => 'Use case diagram perlu diperbaiki. Tambahkan activity diagram untuk proses utama.',
+            'file_revisi' => null,
+            'status' => 'direvisi',
+            'tanggal_bimbingan' => now()->subDays(10),
+            'tanggal_respon' => now()->subDays(8),
+        ]);
+        
+        BimbinganHistory::create([
+            'bimbingan_id' => $bimbingan4->id,
+            'status' => 'menunggu',
+            'aksi' => 'submit',
+            'catatan' => 'Mahasiswa mengajukan bimbingan BAB 3',
+            'oleh' => $mahasiswaBudi->user->name,
+        ]);
+        
+        BimbinganHistory::create([
+            'bimbingan_id' => $bimbingan4->id,
+            'status' => 'direvisi',
+            'aksi' => 'revise',
+            'catatan' => 'Use case diagram perlu diperbaiki',
+            'oleh' => $pembimbing1->dosen->nama,
+        ]);
+        
+        // Bimbingan 5 - Baru diajukan, status menunggu
+        $bimbingan5 = Bimbingan::create([
+            'topik_id' => $topikBudi->id,
+            'dosen_id' => $pembimbing2->dosen_id,
+            'jenis' => 'proposal',
+            'pokok_bimbingan' => 'Review Draft Proposal Lengkap',
+            'file_bimbingan' => null,
+            'pesan_mahasiswa' => 'Bu, mohon review draft proposal lengkap sebelum seminar proposal.',
+            'pesan_dosen' => null,
+            'file_revisi' => null,
+            'status' => 'menunggu',
+            'tanggal_bimbingan' => now()->subDays(2),
+            'tanggal_respon' => null,
+        ]);
+        
+        BimbinganHistory::create([
+            'bimbingan_id' => $bimbingan5->id,
+            'status' => 'menunggu',
+            'aksi' => 'submit',
+            'catatan' => 'Mahasiswa mengajukan review proposal lengkap',
+            'oleh' => $mahasiswaBudi->user->name,
+        ]);
+        
+        // ========== BIMBINGAN UNTUK SITI (mahasiswa dengan topik sudah diterima) ==========
+        $mahasiswaSiti = Mahasiswa::where('nim', '2021002')->first();
+        $topikSiti = TopikSkripsi::where('mahasiswa_id', $mahasiswaSiti->id)->first();
+        
+        // Update topik Siti jadi diterima (sebelumnya menunggu)
+        $topikSiti->update(['status' => 'diterima']);
+        UsulanPembimbing::where('topik_id', $topikSiti->id)->update(['status' => 'diterima']);
+        
+        $pembimbingSiti1 = UsulanPembimbing::where('topik_id', $topikSiti->id)->where('urutan', 1)->first();
+        
+        // Bimbingan untuk Siti - baru 1 kali
+        $bimbinganSiti = Bimbingan::create([
+            'topik_id' => $topikSiti->id,
+            'dosen_id' => $pembimbingSiti1->dosen_id,
+            'jenis' => 'proposal',
+            'pokok_bimbingan' => 'Diskusi awal topik dan ruang lingkup penelitian',
+            'file_bimbingan' => null,
+            'pesan_mahasiswa' => 'Pak, saya ingin mendiskusikan ruang lingkup penelitian untuk sistem informasi akademik.',
+            'pesan_dosen' => 'Fokuskan pada modul tertentu saja, misalnya modul KRS dan nilai. Jangan terlalu luas.',
+            'file_revisi' => null,
+            'status' => 'disetujui',
+            'tanggal_bimbingan' => now()->subDays(15),
+            'tanggal_respon' => now()->subDays(13),
+        ]);
+        
+        BimbinganHistory::create([
+            'bimbingan_id' => $bimbinganSiti->id,
+            'status' => 'menunggu',
+            'aksi' => 'submit',
+            'catatan' => 'Diskusi awal topik',
+            'oleh' => $mahasiswaSiti->user->name,
+        ]);
+        
+        BimbinganHistory::create([
+            'bimbingan_id' => $bimbinganSiti->id,
+            'status' => 'disetujui',
+            'aksi' => 'approve',
+            'catatan' => 'Ruang lingkup sudah jelas',
+            'oleh' => $pembimbingSiti1->dosen->nama,
+        ]);
+    }
+    
+    /**
+     * Create complete sidang with nilai dan revisi
+     * Mahasiswa yang sudah lulus sempro dan sedang/selesai sidang skripsi
+     */
+    private function createCompleteSidangWithNilai(array $units): void
+    {
+        // Create mahasiswa baru yang sudah selesai seminar proposal (lengkap dengan nilai)
+        $dosenList = Dosen::whereIn('nip', [
+            '19740610200812', // Abdullah Basuki Rahmat
+            '19860926201404', // Ach Khozaimi
+            '19810109200604', // Achmad Jauhari
+            '19800503200312', // Andharini Dwi Cahyani
+            '19790222200501', // Ari Kusumaningsih
+            '19691118200112', // Prof. Dr. Arif Muntasa
+        ])->get()->keyBy('nip');
+        
+        $bidangMinatAI = BidangMinat::where('nama', 'Artificial Intelligence')->first();
+        $bidangMinatData = BidangMinat::where('nama', 'Data Science')->first();
+        
+        $jadwalSeminarNov = JadwalSidang::where('jenis', 'seminar_proposal')
+            ->where('nama', 'like', '%November%')
+            ->first();
+        $jadwalSidangNov = JadwalSidang::where('jenis', 'sidang_skripsi')
+            ->where('nama', 'like', '%November%')
+            ->first();
+        
+        // ========== MAHASISWA 1: DEWI - Sudah lulus sempro, sedang sidang skripsi (dijadwalkan) ==========
+        $userDewi = User::create([
+            'name' => 'Dewi Kartika Sari',
+            'username' => '2020002',
+            'email' => 'dewi.kartika@sisri.test',
+            'password' => Hash::make('password'),
+            'role' => 'mahasiswa',
+            'is_active' => true,
+        ]);
+        $userDewi->assignRole('mahasiswa');
+        
+        $mahasiswaDewi = Mahasiswa::create([
+            'user_id' => $userDewi->id,
+            'nim' => '2020002',
+            'nama' => 'Dewi Kartika Sari',
+            'prodi_id' => $units['prodi']->id,
+            'angkatan' => '2020',
+            'no_hp' => '081234567893',
+        ]);
+        
+        $topikDewi = TopikSkripsi::create([
+            'mahasiswa_id' => $mahasiswaDewi->id,
+            'bidang_minat_id' => $bidangMinatAI->id,
+            'judul' => 'Sistem Deteksi Penyakit Tanaman Padi Menggunakan CNN',
+            'status' => 'diterima',
+            'catatan' => 'Topik sangat relevan dengan pertanian modern',
+        ]);
+        
+        UsulanPembimbing::create([
+            'topik_id' => $topikDewi->id,
+            'dosen_id' => $dosenList['19691118200112']->id, // Prof Arif
+            'urutan' => 1,
+            'status' => 'diterima',
+        ]);
+        
+        UsulanPembimbing::create([
+            'topik_id' => $topikDewi->id,
+            'dosen_id' => $dosenList['19800503200312']->id, // Andharini
+            'urutan' => 2,
+            'status' => 'diterima',
+        ]);
+        
+        // Sempro Dewi - sudah selesai
+        $pendaftaranSemproDewi = PendaftaranSidang::create([
+            'topik_id' => $topikDewi->id,
+            'jadwal_sidang_id' => $jadwalSeminarNov->id,
+            'jenis' => 'seminar_proposal',
+            'status_pembimbing_1' => 'disetujui',
+            'status_pembimbing_2' => 'disetujui',
+            'status_koordinator' => 'disetujui',
+            'catatan_koordinator' => 'Dijadwalkan untuk sempro November',
+        ]);
+        
+        $pelaksanaanSemproDewi = PelaksanaanSidang::create([
+            'pendaftaran_sidang_id' => $pendaftaranSemproDewi->id,
+            'tanggal_sidang' => now()->subDays(20),
+            'tempat' => 'Ruang Sidang A - Gedung Teknik Lt. 3',
+            'status' => 'selesai',
+            'berita_acara' => 'Seminar proposal berjalan lancar. Mahasiswa lulus dengan revisi minor.',
+        ]);
+        
+        // Penguji sempro Dewi
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproDewi->id,
+            'dosen_id' => $dosenList['19691118200112']->id,
+            'role' => 'pembimbing_1',
+            'ttd_berita_acara' => true,
+            'tanggal_ttd' => now()->subDays(20),
+        ]);
+        
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproDewi->id,
+            'dosen_id' => $dosenList['19800503200312']->id,
+            'role' => 'pembimbing_2',
+            'ttd_berita_acara' => true,
+            'tanggal_ttd' => now()->subDays(20),
+        ]);
+        
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproDewi->id,
+            'dosen_id' => $dosenList['19860926201404']->id,
+            'role' => 'penguji_1',
+            'ttd_berita_acara' => true,
+            'tanggal_ttd' => now()->subDays(20),
+        ]);
+        
+        // Nilai sempro Dewi
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproDewi->id,
+            'dosen_id' => $dosenList['19691118200112']->id,
+            'jenis_nilai' => 'bimbingan',
+            'nilai' => 85.00,
+            'catatan' => 'Proses bimbingan sangat baik',
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproDewi->id,
+            'dosen_id' => $dosenList['19691118200112']->id,
+            'jenis_nilai' => 'ujian',
+            'nilai' => 82.50,
+            'catatan' => 'Presentasi bagus, perlu perbaikan di metodologi',
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproDewi->id,
+            'dosen_id' => $dosenList['19800503200312']->id,
+            'jenis_nilai' => 'bimbingan',
+            'nilai' => 83.00,
+            'catatan' => 'Konsisten dalam bimbingan',
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproDewi->id,
+            'dosen_id' => $dosenList['19800503200312']->id,
+            'jenis_nilai' => 'ujian',
+            'nilai' => 80.00,
+            'catatan' => 'Jawaban cukup memuaskan',
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproDewi->id,
+            'dosen_id' => $dosenList['19860926201404']->id,
+            'jenis_nilai' => 'ujian',
+            'nilai' => 78.50,
+            'catatan' => 'Perlu pendalaman teori CNN',
+        ]);
+        
+        // Revisi sempro Dewi - sudah disetujui
+        RevisiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproDewi->id,
+            'dosen_id' => $dosenList['19860926201404']->id,
+            'file_revisi' => null,
+            'catatan' => 'Perbaiki penjelasan arsitektur CNN di BAB 2',
+            'status' => 'disetujui',
+            'tanggal_submit' => now()->subDays(15),
+            'tanggal_validasi' => now()->subDays(13),
+        ]);
+        
+        // Sidang skripsi Dewi - sudah dijadwalkan (belum dilaksanakan)
+        $pendaftaranSidangDewi = PendaftaranSidang::create([
+            'topik_id' => $topikDewi->id,
+            'jadwal_sidang_id' => $jadwalSidangNov->id,
+            'jenis' => 'sidang_skripsi',
+            'status_pembimbing_1' => 'disetujui',
+            'status_pembimbing_2' => 'disetujui',
+            'status_koordinator' => 'disetujui',
+            'catatan_koordinator' => 'Siap untuk sidang skripsi',
+        ]);
+        
+        $pelaksanaanSidangDewi = PelaksanaanSidang::create([
+            'pendaftaran_sidang_id' => $pendaftaranSidangDewi->id,
+            'tanggal_sidang' => now()->addDays(5), // 5 hari lagi
+            'tempat' => 'Ruang Sidang B - Gedung Teknik Lt. 3',
+            'status' => 'dijadwalkan',
+            'berita_acara' => null,
+        ]);
+        
+        // Penguji sidang Dewi
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSidangDewi->id,
+            'dosen_id' => $dosenList['19691118200112']->id,
+            'role' => 'pembimbing_1',
+        ]);
+        
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSidangDewi->id,
+            'dosen_id' => $dosenList['19800503200312']->id,
+            'role' => 'pembimbing_2',
+        ]);
+        
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSidangDewi->id,
+            'dosen_id' => $dosenList['19810109200604']->id,
+            'role' => 'penguji_1',
+        ]);
+        
+        // ========== MAHASISWA 2: ANDI - Sudah LULUS semua (sempro + sidang skripsi) ==========
+        $userAndi = User::create([
+            'name' => 'Andi Pratama Putra',
+            'username' => '2019001',
+            'email' => 'andi.pratama@sisri.test',
+            'password' => Hash::make('password'),
+            'role' => 'mahasiswa',
+            'is_active' => true,
+        ]);
+        $userAndi->assignRole('mahasiswa');
+        
+        $mahasiswaAndi = Mahasiswa::create([
+            'user_id' => $userAndi->id,
+            'nim' => '2019001',
+            'nama' => 'Andi Pratama Putra',
+            'prodi_id' => $units['prodi']->id,
+            'angkatan' => '2019',
+            'no_hp' => '081234567894',
+        ]);
+        
+        $topikAndi = TopikSkripsi::create([
+            'mahasiswa_id' => $mahasiswaAndi->id,
+            'bidang_minat_id' => $bidangMinatData->id,
+            'judul' => 'Analisis Sentimen Review Produk E-Commerce Menggunakan LSTM',
+            'status' => 'diterima',
+            'catatan' => 'Topik bagus dan relevan',
+        ]);
+        
+        UsulanPembimbing::create([
+            'topik_id' => $topikAndi->id,
+            'dosen_id' => $dosenList['19810109200604']->id, // Achmad Jauhari
+            'urutan' => 1,
+            'status' => 'diterima',
+        ]);
+        
+        UsulanPembimbing::create([
+            'topik_id' => $topikAndi->id,
+            'dosen_id' => $dosenList['19790222200501']->id, // Ari Kusumaningsih
+            'urutan' => 2,
+            'status' => 'diterima',
+        ]);
+        
+        // Sempro Andi - sudah selesai
+        $pendaftaranSemproAndi = PendaftaranSidang::create([
+            'topik_id' => $topikAndi->id,
+            'jadwal_sidang_id' => $jadwalSeminarNov->id,
+            'jenis' => 'seminar_proposal',
+            'status_pembimbing_1' => 'disetujui',
+            'status_pembimbing_2' => 'disetujui',
+            'status_koordinator' => 'disetujui',
+        ]);
+        
+        $pelaksanaanSemproAndi = PelaksanaanSidang::create([
+            'pendaftaran_sidang_id' => $pendaftaranSemproAndi->id,
+            'tanggal_sidang' => now()->subDays(45),
+            'tempat' => 'Ruang Sidang C - Gedung Teknik Lt. 2',
+            'status' => 'selesai',
+            'berita_acara' => 'Lulus dengan revisi minor',
+        ]);
+        
+        // Penguji sempro Andi
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproAndi->id,
+            'dosen_id' => $dosenList['19810109200604']->id,
+            'role' => 'pembimbing_1',
+            'ttd_berita_acara' => true,
+            'tanggal_ttd' => now()->subDays(45),
+        ]);
+        
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproAndi->id,
+            'dosen_id' => $dosenList['19790222200501']->id,
+            'role' => 'pembimbing_2',
+            'ttd_berita_acara' => true,
+            'tanggal_ttd' => now()->subDays(45),
+        ]);
+        
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproAndi->id,
+            'dosen_id' => $dosenList['19740610200812']->id,
+            'role' => 'penguji_1',
+            'ttd_berita_acara' => true,
+            'tanggal_ttd' => now()->subDays(45),
+        ]);
+        
+        // Nilai sempro Andi
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproAndi->id,
+            'dosen_id' => $dosenList['19810109200604']->id,
+            'jenis_nilai' => 'bimbingan',
+            'nilai' => 88.00,
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproAndi->id,
+            'dosen_id' => $dosenList['19810109200604']->id,
+            'jenis_nilai' => 'ujian',
+            'nilai' => 85.00,
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproAndi->id,
+            'dosen_id' => $dosenList['19790222200501']->id,
+            'jenis_nilai' => 'bimbingan',
+            'nilai' => 86.00,
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproAndi->id,
+            'dosen_id' => $dosenList['19790222200501']->id,
+            'jenis_nilai' => 'ujian',
+            'nilai' => 84.00,
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproAndi->id,
+            'dosen_id' => $dosenList['19740610200812']->id,
+            'jenis_nilai' => 'ujian',
+            'nilai' => 82.00,
+        ]);
+        
+        // Revisi sempro Andi - sudah disetujui
+        RevisiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproAndi->id,
+            'dosen_id' => $dosenList['19740610200812']->id,
+            'catatan' => 'Perbaiki preprocessing data',
+            'status' => 'disetujui',
+            'tanggal_submit' => now()->subDays(40),
+            'tanggal_validasi' => now()->subDays(38),
+        ]);
+        
+        // Sidang skripsi Andi - SELESAI (sudah lulus!)
+        $pendaftaranSidangAndi = PendaftaranSidang::create([
+            'topik_id' => $topikAndi->id,
+            'jadwal_sidang_id' => $jadwalSidangNov->id,
+            'jenis' => 'sidang_skripsi',
+            'status_pembimbing_1' => 'disetujui',
+            'status_pembimbing_2' => 'disetujui',
+            'status_koordinator' => 'disetujui',
+        ]);
+        
+        $pelaksanaanSidangAndi = PelaksanaanSidang::create([
+            'pendaftaran_sidang_id' => $pendaftaranSidangAndi->id,
+            'tanggal_sidang' => now()->subDays(10),
+            'tempat' => 'Ruang Sidang A - Gedung Teknik Lt. 3',
+            'status' => 'selesai',
+            'berita_acara' => 'Mahasiswa dinyatakan LULUS dengan predikat Sangat Memuaskan.',
+        ]);
+        
+        // Penguji sidang Andi
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSidangAndi->id,
+            'dosen_id' => $dosenList['19810109200604']->id,
+            'role' => 'pembimbing_1',
+            'ttd_berita_acara' => true,
+            'tanggal_ttd' => now()->subDays(10),
+        ]);
+        
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSidangAndi->id,
+            'dosen_id' => $dosenList['19790222200501']->id,
+            'role' => 'pembimbing_2',
+            'ttd_berita_acara' => true,
+            'tanggal_ttd' => now()->subDays(10),
+        ]);
+        
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSidangAndi->id,
+            'dosen_id' => $dosenList['19691118200112']->id, // Prof Arif sebagai penguji
+            'role' => 'penguji_1',
+            'ttd_berita_acara' => true,
+            'tanggal_ttd' => now()->subDays(10),
+        ]);
+        
+        // Nilai sidang skripsi Andi
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSidangAndi->id,
+            'dosen_id' => $dosenList['19810109200604']->id,
+            'jenis_nilai' => 'bimbingan',
+            'nilai' => 90.00,
+            'catatan' => 'Bimbingan sangat baik dari awal hingga akhir',
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSidangAndi->id,
+            'dosen_id' => $dosenList['19810109200604']->id,
+            'jenis_nilai' => 'ujian',
+            'nilai' => 88.00,
+            'catatan' => 'Penguasaan materi sangat baik',
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSidangAndi->id,
+            'dosen_id' => $dosenList['19790222200501']->id,
+            'jenis_nilai' => 'bimbingan',
+            'nilai' => 87.00,
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSidangAndi->id,
+            'dosen_id' => $dosenList['19790222200501']->id,
+            'jenis_nilai' => 'ujian',
+            'nilai' => 86.00,
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSidangAndi->id,
+            'dosen_id' => $dosenList['19691118200112']->id,
+            'jenis_nilai' => 'ujian',
+            'nilai' => 85.00,
+            'catatan' => 'Implementasi LSTM sangat baik',
+        ]);
+        
+        // Revisi sidang Andi - sudah disetujui
+        RevisiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSidangAndi->id,
+            'dosen_id' => $dosenList['19691118200112']->id,
+            'catatan' => 'Perbaiki format penulisan daftar pustaka sesuai IEEE',
+            'status' => 'disetujui',
+            'tanggal_submit' => now()->subDays(7),
+            'tanggal_validasi' => now()->subDays(5),
+        ]);
+        
+        RevisiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSidangAndi->id,
+            'dosen_id' => $dosenList['19810109200604']->id,
+            'catatan' => 'Tambahkan analisis confusion matrix di hasil pengujian',
+            'status' => 'disetujui',
+            'tanggal_submit' => now()->subDays(7),
+            'tanggal_validasi' => now()->subDays(4),
+        ]);
+        
+        // ========== MAHASISWA 3: RINA - Sempro selesai, revisi belum selesai ==========
+        $userRina = User::create([
+            'name' => 'Rina Wulandari',
+            'username' => '2020003',
+            'email' => 'rina.wulandari@sisri.test',
+            'password' => Hash::make('password'),
+            'role' => 'mahasiswa',
+            'is_active' => true,
+        ]);
+        $userRina->assignRole('mahasiswa');
+        
+        $mahasiswaRina = Mahasiswa::create([
+            'user_id' => $userRina->id,
+            'nim' => '2020003',
+            'nama' => 'Rina Wulandari',
+            'prodi_id' => $units['prodi']->id,
+            'angkatan' => '2020',
+            'no_hp' => '081234567895',
+        ]);
+        
+        $topikRina = TopikSkripsi::create([
+            'mahasiswa_id' => $mahasiswaRina->id,
+            'bidang_minat_id' => $bidangMinatAI->id,
+            'judul' => 'Sistem Rekomendasi Buku Perpustakaan dengan Collaborative Filtering',
+            'status' => 'diterima',
+        ]);
+        
+        UsulanPembimbing::create([
+            'topik_id' => $topikRina->id,
+            'dosen_id' => $dosenList['19740610200812']->id,
+            'urutan' => 1,
+            'status' => 'diterima',
+        ]);
+        
+        UsulanPembimbing::create([
+            'topik_id' => $topikRina->id,
+            'dosen_id' => $dosenList['19860926201404']->id,
+            'urutan' => 2,
+            'status' => 'diterima',
+        ]);
+        
+        // Sempro Rina - selesai tapi revisi belum tuntas
+        $pendaftaranSemproRina = PendaftaranSidang::create([
+            'topik_id' => $topikRina->id,
+            'jadwal_sidang_id' => $jadwalSeminarNov->id,
+            'jenis' => 'seminar_proposal',
+            'status_pembimbing_1' => 'disetujui',
+            'status_pembimbing_2' => 'disetujui',
+            'status_koordinator' => 'disetujui',
+        ]);
+        
+        $pelaksanaanSemproRina = PelaksanaanSidang::create([
+            'pendaftaran_sidang_id' => $pendaftaranSemproRina->id,
+            'tanggal_sidang' => now()->subDays(7),
+            'tempat' => 'Ruang Sidang B - Gedung Teknik Lt. 3',
+            'status' => 'selesai',
+            'berita_acara' => 'Lulus dengan beberapa revisi yang harus diselesaikan',
+        ]);
+        
+        // Penguji sempro Rina
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproRina->id,
+            'dosen_id' => $dosenList['19740610200812']->id,
+            'role' => 'pembimbing_1',
+            'ttd_berita_acara' => true,
+            'tanggal_ttd' => now()->subDays(7),
+        ]);
+        
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproRina->id,
+            'dosen_id' => $dosenList['19860926201404']->id,
+            'role' => 'pembimbing_2',
+            'ttd_berita_acara' => true,
+            'tanggal_ttd' => now()->subDays(7),
+        ]);
+        
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproRina->id,
+            'dosen_id' => $dosenList['19800503200312']->id,
+            'role' => 'penguji_1',
+            'ttd_berita_acara' => true,
+            'tanggal_ttd' => now()->subDays(7),
+        ]);
+        
+        // Nilai sempro Rina
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproRina->id,
+            'dosen_id' => $dosenList['19740610200812']->id,
+            'jenis_nilai' => 'bimbingan',
+            'nilai' => 80.00,
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproRina->id,
+            'dosen_id' => $dosenList['19740610200812']->id,
+            'jenis_nilai' => 'ujian',
+            'nilai' => 78.00,
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproRina->id,
+            'dosen_id' => $dosenList['19860926201404']->id,
+            'jenis_nilai' => 'bimbingan',
+            'nilai' => 79.00,
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproRina->id,
+            'dosen_id' => $dosenList['19860926201404']->id,
+            'jenis_nilai' => 'ujian',
+            'nilai' => 77.00,
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproRina->id,
+            'dosen_id' => $dosenList['19800503200312']->id,
+            'jenis_nilai' => 'ujian',
+            'nilai' => 76.00,
+        ]);
+        
+        // Revisi sempro Rina - satu sudah disetujui, satu masih menunggu
+        RevisiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproRina->id,
+            'dosen_id' => $dosenList['19740610200812']->id,
+            'catatan' => 'Perbaiki diagram use case',
+            'status' => 'disetujui',
+            'tanggal_submit' => now()->subDays(4),
+            'tanggal_validasi' => now()->subDays(2),
+        ]);
+        
+        RevisiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproRina->id,
+            'dosen_id' => $dosenList['19800503200312']->id,
+            'catatan' => 'Jelaskan lebih detail algoritma collaborative filtering yang digunakan',
+            'status' => 'menunggu', // Belum submit revisi
+            'tanggal_submit' => now()->subDays(7),
+            'tanggal_validasi' => null,
+        ]);
+        
+        // Bimbingan untuk beberapa mahasiswa baru ini
+        // Bimbingan Dewi
+        Bimbingan::create([
+            'topik_id' => $topikDewi->id,
+            'dosen_id' => $dosenList['19691118200112']->id,
+            'jenis' => 'skripsi',
+            'pokok_bimbingan' => 'Review BAB 4 - Implementasi CNN untuk deteksi penyakit padi',
+            'pesan_mahasiswa' => 'Pak, ini hasil implementasi CNN dengan accuracy 92%',
+            'pesan_dosen' => 'Bagus! Coba tambahkan augmentasi data untuk meningkatkan akurasi',
+            'status' => 'disetujui',
+            'tanggal_bimbingan' => now()->subDays(12),
+            'tanggal_respon' => now()->subDays(10),
+        ]);
+        
+        Bimbingan::create([
+            'topik_id' => $topikDewi->id,
+            'dosen_id' => $dosenList['19800503200312']->id,
+            'jenis' => 'skripsi',
+            'pokok_bimbingan' => 'Konsultasi BAB 5 - Kesimpulan dan Saran',
+            'pesan_mahasiswa' => 'Bu, mohon review kesimpulan penelitian saya',
+            'status' => 'menunggu',
+            'tanggal_bimbingan' => now()->subDays(1),
+        ]);
     }
 }
