@@ -171,11 +171,25 @@
                             <div class="flex-1 pb-4 border-b border-gray-100">
                                 <div class="flex items-center justify-between">
                                     <p class="text-sm font-medium text-gray-800">
-                                        {{ $history->keterangan }}
+                                        @if($history->aksi === 'diajukan')
+                                            Mengajukan bimbingan
+                                        @elseif($history->aksi === 'upload_revisi')
+                                            Mengupload revisi
+                                        @elseif($history->aksi === 'direspon')
+                                            @if($history->status === 'disetujui')
+                                                Menyetujui bimbingan
+                                            @elseif($history->status === 'direvisi')
+                                                Meminta revisi
+                                            @else
+                                                Merespon bimbingan
+                                            @endif
+                                        @else
+                                            {{ $history->catatan ?? 'Update status' }}
+                                        @endif
                                     </p>
                                     <span class="text-xs px-2 py-1 rounded-full 
-                                        {{ $history->actor_type === 'mahasiswa' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">
-                                        {{ $history->actor_type === 'mahasiswa' ? 'Mahasiswa' : 'Dosen' }}
+                                        {{ $history->oleh === 'mahasiswa' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">
+                                        {{ $history->oleh === 'mahasiswa' ? 'Mahasiswa' : 'Dosen' }}
                                     </span>
                                 </div>
                                 <p class="text-xs text-gray-500 mt-1">{{ $history->created_at->format('d M Y, H:i') }}</p>
@@ -185,7 +199,7 @@
                                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z" clip-rule="evenodd"></path>
                                     </svg>
-                                    Lihat file
+                                    {{ basename($history->file) }}
                                 </a>
                                 @endif
                             </div>
