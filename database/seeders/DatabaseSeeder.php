@@ -15,6 +15,7 @@ use App\Models\UsulanPembimbing;
 use App\Models\PendaftaranSidang;
 use App\Models\PelaksanaanSidang;
 use App\Models\PengujiSidang;
+use App\Models\Ruangan;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -55,6 +56,12 @@ class DatabaseSeeder extends Seeder
         
         // Create Sample Sidang yang sudah dijadwalkan (for testing nilai)
         $this->createSampleSidang($units);
+        
+        // Create Ruangan
+        $this->createRuangan();
+        
+        // Create Sample Pendaftaran untuk testing Jadwal Otomatis
+        $this->createSamplePendaftaranForAutoSchedule($units);
     }
 
     private function createRoles(): void
@@ -644,5 +651,216 @@ class DatabaseSeeder extends Seeder
             'ttd_berita_acara' => true,
             'tanggal_ttd' => now()->subDays(3),
         ]);
+    }
+    
+    /**
+     * Create sample pendaftaran untuk testing fitur Jadwal Otomatis
+     * Scenario: Mahasiswa sudah mendaftar sidang, pembimbing sudah setuju, menunggu koordinator
+     */
+    private function createSamplePendaftaranForAutoSchedule(array $units): void
+    {
+        // Get dosen
+        $dosenAgus = Dosen::where('nip', '197001011995121001')->first();
+        $dosenDewi = Dosen::where('nip', '198005152005012001')->first();
+        
+        // Get bidang minat
+        $bidangMinatAI = BidangMinat::where('nama', 'Artificial Intelligence')->first();
+        $bidangMinatWeb = BidangMinat::where('nama', 'Web Development')->first();
+        $bidangMinatData = BidangMinat::where('nama', 'Data Science')->first();
+        
+        // Get jadwal sidang Desember
+        $jadwalSeminarDes = JadwalSidang::where('jenis', 'seminar_proposal')
+            ->where('nama', 'like', '%Desember%')
+            ->first();
+        
+        // ========== MAHASISWA 1: Siti Rahayu (Update existing) ==========
+        // Update Siti's topik menjadi diterima dan buat pendaftaran
+        $mahasiswaSiti = Mahasiswa::where('nim', '2021002')->first();
+        $topikSiti = TopikSkripsi::where('mahasiswa_id', $mahasiswaSiti->id)->first();
+        
+        // Update status topik
+        $topikSiti->update([
+            'status' => 'diterima',
+            'catatan' => 'Topik disetujui untuk penelitian'
+        ]);
+        
+        // Update usulan pembimbing jadi diterima
+        UsulanPembimbing::where('topik_id', $topikSiti->id)->update([
+            'status' => 'diterima',
+            'catatan' => 'Bersedia menjadi pembimbing'
+        ]);
+        
+        // Buat pendaftaran sidang - MENUNGGU KOORDINATOR (untuk test jadwal otomatis)
+        PendaftaranSidang::create([
+            'topik_id' => $topikSiti->id,
+            'jadwal_sidang_id' => $jadwalSeminarDes->id,
+            'jenis' => 'seminar_proposal',
+            'status_pembimbing_1' => 'disetujui',
+            'status_pembimbing_2' => 'disetujui',
+            'status_koordinator' => 'menunggu', // MENUNGGU - bisa di-jadwal otomatis!
+            'catatan_pembimbing_1' => 'Sudah siap untuk seminar proposal',
+            'catatan_pembimbing_2' => 'Disetujui untuk seminar',
+            'catatan_koordinator' => null,
+        ]);
+        
+        // ========== MAHASISWA 2: Dina Permata (New) ==========
+        $userDina = User::create([
+            'name' => 'Dina Permata',
+            'username' => '2021003',
+            'email' => 'dina@sisri.test',
+            'password' => Hash::make('password'),
+            'role' => 'mahasiswa',
+            'is_active' => true,
+        ]);
+        $userDina->assignRole('mahasiswa');
+
+        $mahasiswaDina = Mahasiswa::create([
+            'user_id' => $userDina->id,
+            'nim' => '2021003',
+            'nama' => 'Dina Permata',
+            'prodi_id' => $units['prodi']->id,
+            'angkatan' => '2021',
+            'no_hp' => '081234567893',
+        ]);
+        
+        // Topik untuk Dina
+        $topikDina = TopikSkripsi::create([
+            'mahasiswa_id' => $mahasiswaDina->id,
+            'bidang_minat_id' => $bidangMinatData->id,
+            'judul' => 'Analisis Big Data untuk Prediksi Penjualan E-Commerce',
+            'file_proposal' => null,
+            'status' => 'diterima',
+            'catatan' => 'Topik diterima, silakan lanjutkan bimbingan',
+        ]);
+        
+        // Usulan pembimbing untuk Dina
+        UsulanPembimbing::create([
+            'topik_id' => $topikDina->id,
+            'dosen_id' => $dosenAgus->id,
+            'urutan' => 1,
+            'status' => 'diterima',
+            'catatan' => 'Bersedia',
+        ]);
+        
+        UsulanPembimbing::create([
+            'topik_id' => $topikDina->id,
+            'dosen_id' => $dosenDewi->id,
+            'urutan' => 2,
+            'status' => 'diterima',
+            'catatan' => 'Bersedia',
+        ]);
+        
+        // Pendaftaran sidang Dina - MENUNGGU KOORDINATOR
+        PendaftaranSidang::create([
+            'topik_id' => $topikDina->id,
+            'jadwal_sidang_id' => $jadwalSeminarDes->id,
+            'jenis' => 'seminar_proposal',
+            'status_pembimbing_1' => 'disetujui',
+            'status_pembimbing_2' => 'disetujui',
+            'status_koordinator' => 'menunggu', // MENUNGGU - bisa di-jadwal otomatis!
+            'catatan_pembimbing_1' => 'Mahasiswa sudah siap untuk seminar',
+            'catatan_pembimbing_2' => 'Setuju untuk seminar proposal',
+            'catatan_koordinator' => null,
+        ]);
+        
+        // ========== MAHASISWA 3: Rizky Pratama (New) ==========
+        $userRizky = User::create([
+            'name' => 'Rizky Pratama',
+            'username' => '2021004',
+            'email' => 'rizky@sisri.test',
+            'password' => Hash::make('password'),
+            'role' => 'mahasiswa',
+            'is_active' => true,
+        ]);
+        $userRizky->assignRole('mahasiswa');
+
+        $mahasiswaRizky = Mahasiswa::create([
+            'user_id' => $userRizky->id,
+            'nim' => '2021004',
+            'nama' => 'Rizky Pratama',
+            'prodi_id' => $units['prodi']->id,
+            'angkatan' => '2021',
+            'no_hp' => '081234567894',
+        ]);
+        
+        // Topik untuk Rizky
+        $topikRizky = TopikSkripsi::create([
+            'mahasiswa_id' => $mahasiswaRizky->id,
+            'bidang_minat_id' => $bidangMinatWeb->id,
+            'judul' => 'Pengembangan Sistem Manajemen Inventaris dengan Framework Laravel',
+            'file_proposal' => null,
+            'status' => 'diterima',
+            'catatan' => 'Topik disetujui',
+        ]);
+        
+        // Usulan pembimbing untuk Rizky
+        UsulanPembimbing::create([
+            'topik_id' => $topikRizky->id,
+            'dosen_id' => $dosenDewi->id,
+            'urutan' => 1,
+            'status' => 'diterima',
+            'catatan' => 'OK',
+        ]);
+        
+        UsulanPembimbing::create([
+            'topik_id' => $topikRizky->id,
+            'dosen_id' => $dosenAgus->id,
+            'urutan' => 2,
+            'status' => 'diterima',
+            'catatan' => 'Setuju',
+        ]);
+        
+        // Pendaftaran sidang Rizky - MENUNGGU KOORDINATOR
+        PendaftaranSidang::create([
+            'topik_id' => $topikRizky->id,
+            'jadwal_sidang_id' => $jadwalSeminarDes->id,
+            'jenis' => 'seminar_proposal',
+            'status_pembimbing_1' => 'disetujui',
+            'status_pembimbing_2' => 'disetujui',
+            'status_koordinator' => 'menunggu', // MENUNGGU - bisa di-jadwal otomatis!
+            'catatan_pembimbing_1' => 'Bisa lanjut ke seminar',
+            'catatan_pembimbing_2' => 'Disetujui',
+            'catatan_koordinator' => null,
+        ]);
+    }
+
+    private function createRuangan(): void
+    {
+        $ruangans = [
+            [
+                'nama' => 'Ruang Sidang A',
+                'lokasi' => 'Gedung Teknik Lt. 3',
+                'kapasitas' => 20,
+                'is_active' => true,
+            ],
+            [
+                'nama' => 'Ruang Sidang B',
+                'lokasi' => 'Gedung Teknik Lt. 3',
+                'kapasitas' => 15,
+                'is_active' => true,
+            ],
+            [
+                'nama' => 'Ruang Sidang C',
+                'lokasi' => 'Gedung Teknik Lt. 2',
+                'kapasitas' => 25,
+                'is_active' => true,
+            ],
+            [
+                'nama' => 'Aula Fakultas',
+                'lokasi' => 'Gedung Rektorat Lt. 1',
+                'kapasitas' => 100,
+                'is_active' => true,
+            ],
+            [
+                'nama' => 'Lab Komputer 1',
+                'lokasi' => 'Gedung Teknik Lt. 1',
+                'kapasitas' => 30,
+                'is_active' => false, // Tidak aktif
+            ],
+        ];
+
+        foreach ($ruangans as $ruangan) {
+            Ruangan::create($ruangan);
+        }
     }
 }

@@ -83,6 +83,9 @@
             <x-sidebar-link :href="route('admin.koordinator.index')" :active="request()->routeIs('admin.koordinator.*')" icon="badge">
                 Koordinator Prodi
             </x-sidebar-link>
+            <x-sidebar-link :href="route('admin.ruangan.index')" :active="request()->routeIs('admin.ruangan.*')" icon="building-office">
+                Ruangan
+            </x-sidebar-link>
         @endif
 
         {{-- Mahasiswa Menu --}}

@@ -28,12 +28,12 @@
                         
                         if (auth()->user()->isMahasiswa() && auth()->user()->mahasiswa) {
                             $userFotoUrl = auth()->user()->mahasiswa->foto_url;
-                            $userInitials = auth()->user()->mahasiswa->initials ?? strtoupper(substr(auth()->user()->name, 0, 1));
+                            $userInitials = auth()->user()->mahasiswa->initials ?? strtoupper(substr(auth()->user()->name, 0, 2));
                         } elseif ((auth()->user()->isDosen() || auth()->user()->isKoordinator()) && auth()->user()->dosen) {
                             $userFotoUrl = auth()->user()->dosen->foto_url;
-                            $userInitials = auth()->user()->dosen->initials ?? strtoupper(substr(auth()->user()->name, 0, 1));
+                            $userInitials = auth()->user()->dosen->initials ?? strtoupper(substr(auth()->user()->name, 0, 2));
                         } else {
-                            $userInitials = strtoupper(substr(auth()->user()->name, 0, 1));
+                            $userInitials = strtoupper(substr(auth()->user()->name, 0, 2));
                         }
                     @endphp
                     

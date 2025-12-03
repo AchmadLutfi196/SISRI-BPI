@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\DosenController as AdminDosenController;
 use App\Http\Controllers\Admin\PeriodeController as AdminPeriodeController;
 use App\Http\Controllers\Admin\UnitController as AdminUnitController;
 use App\Http\Controllers\Admin\KoordinatorProdiController as AdminKoordinatorProdiController;
+use App\Http\Controllers\Admin\RuanganController as AdminRuanganController;
 
 // Mahasiswa Controllers
 use App\Http\Controllers\Mahasiswa\DashboardController as MahasiswaDashboardController;
@@ -90,6 +91,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Koordinator Prodi Management
     Route::resource('koordinator', AdminKoordinatorProdiController::class)->except(['edit', 'update']);
     Route::patch('/koordinator/{koordinator}/toggle-status', [AdminKoordinatorProdiController::class, 'toggleStatus'])->name('koordinator.toggle-status');
+    
+    // Ruangan Management
+    Route::resource('ruangan', AdminRuanganController::class)->except(['show']);
 });
 
 // ==================== MAHASISWA ROUTES ====================

@@ -9,6 +9,7 @@ use App\Models\PelaksanaanSidang;
 use App\Models\PendaftaranSidang;
 use App\Models\PengujiSidang;
 use App\Models\Periode;
+use App\Models\Ruangan;
 use Illuminate\Http\Request;
 
 class PenjadwalanController extends Controller
@@ -231,8 +232,9 @@ class PenjadwalanController extends Controller
         }
 
         $dosens = Dosen::where('prodi_id', $prodiId)->with('user')->get();
+        $ruangans = Ruangan::active()->orderBy('nama')->get();
 
-        return view('koordinator.penjadwalan.create-pelaksanaan', compact('pendaftaran', 'dosens'));
+        return view('koordinator.penjadwalan.create-pelaksanaan', compact('pendaftaran', 'dosens', 'ruangans'));
     }
 
     public function storePelaksanaan(Request $request, PendaftaranSidang $pendaftaran)

@@ -7,6 +7,7 @@ use App\Models\Dosen;
 use App\Models\PelaksanaanSidang;
 use App\Models\PendaftaranSidang;
 use App\Models\PengujiSidang;
+use App\Models\Ruangan;
 use Illuminate\Http\Request;
 
 class PendaftaranController extends Controller
@@ -88,9 +89,12 @@ class PendaftaranController extends Controller
             ->with('user')
             ->get();
 
+        // Daftar ruangan aktif
+        $ruangans = Ruangan::active()->orderBy('nama')->get();
+
         $jenis = $pendaftaran->jenis === 'seminar_proposal' ? 'sempro' : 'sidang';
 
-        return view('koordinator.pendaftaran.show', compact('pendaftaran', 'dosens', 'jenis'));
+        return view('koordinator.pendaftaran.show', compact('pendaftaran', 'dosens', 'ruangans', 'jenis'));
     }
 
     /**

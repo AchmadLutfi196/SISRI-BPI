@@ -349,9 +349,15 @@
 
                                         <div>
                                             <label for="tempat" class="block text-sm font-medium text-gray-700">Tempat / Ruangan</label>
-                                            <input type="text" name="tempat" id="tempat" value="{{ old('tempat') }}"
-                                                placeholder="Contoh: Ruang Sidang A Lt. 3"
+                                            <select name="tempat" id="tempat"
                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm" required>
+                                                <option value="">-- Pilih Ruangan --</option>
+                                                @foreach($ruangans as $ruangan)
+                                                    <option value="{{ $ruangan->nama }}" {{ old('tempat') == $ruangan->nama ? 'selected' : '' }}>
+                                                        {{ $ruangan->nama }}{{ $ruangan->lokasi ? " - {$ruangan->lokasi}" : '' }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
                                             @error('tempat')
                                                 <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                             @enderror
