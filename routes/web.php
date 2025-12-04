@@ -121,6 +121,8 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasi
     Route::get('/sidang/create', [SidangController::class, 'create'])->name('sidang.create');
     Route::post('/sidang', [SidangController::class, 'store'])->name('sidang.store');
     Route::get('/sidang/{pendaftaran}', [SidangController::class, 'show'])->name('sidang.show');
+    Route::get('/sidang/{pendaftaran}/download-dokumen', [SidangController::class, 'downloadDokumen'])->name('sidang.download-dokumen');
+    Route::get('/sidang/{pendaftaran}/download-berita-acara', [SidangController::class, 'downloadBeritaAcara'])->name('sidang.download-berita-acara');
 });
 
 // ==================== DOSEN ROUTES ====================
@@ -158,6 +160,7 @@ Route::middleware(['auth', 'role:dosen|koordinator'])->prefix('dosen')->name('do
     Route::get('/persetujuan-sidang/{pendaftaran}', [PersetujuanSidangController::class, 'show'])->name('persetujuan-sidang.show');
     Route::post('/persetujuan-sidang/{pendaftaran}/approve', [PersetujuanSidangController::class, 'approve'])->name('persetujuan-sidang.approve');
     Route::post('/persetujuan-sidang/{pendaftaran}/reject', [PersetujuanSidangController::class, 'reject'])->name('persetujuan-sidang.reject');
+    Route::get('/persetujuan-sidang/{pendaftaran}/download-dokumen', [PersetujuanSidangController::class, 'downloadDokumen'])->name('persetujuan-sidang.download-dokumen');
     
     // Jadwal Ujian
     Route::get('/jadwal-ujian/sempro', [JadwalUjianController::class, 'sempro'])->name('jadwal-ujian.sempro');
@@ -169,6 +172,7 @@ Route::middleware(['auth', 'role:dosen|koordinator'])->prefix('dosen')->name('do
     Route::get('/berita-acara/{pelaksanaan}', [BeritaAcaraController::class, 'show'])->name('berita-acara.show');
     Route::post('/berita-acara/{pelaksanaan}/tanda-tangan', [BeritaAcaraController::class, 'tandaTangan'])->name('berita-acara.tanda-tangan');
     Route::get('/berita-acara/{pelaksanaan}/download-pdf', [BeritaAcaraController::class, 'downloadPdf'])->name('berita-acara.download-pdf');
+    Route::get('/berita-acara/{pelaksanaan}/download-dokumen', [BeritaAcaraController::class, 'downloadDokumen'])->name('berita-acara.download-dokumen');
 });
 
 // ==================== KOORDINATOR ROUTES ====================
@@ -188,6 +192,7 @@ Route::middleware(['auth', 'role:koordinator'])->prefix('koordinator')->name('ko
     Route::get('/pendaftaran/{pendaftaran}/edit-pelaksanaan', [PendaftaranController::class, 'editPelaksanaan'])->name('pendaftaran.edit-pelaksanaan');
     Route::put('/pendaftaran/{pendaftaran}/update-pelaksanaan', [PendaftaranController::class, 'updatePelaksanaan'])->name('pendaftaran.update-pelaksanaan');
     Route::post('/pendaftaran/pelaksanaan/{pelaksanaan}/complete', [PendaftaranController::class, 'completePelaksanaan'])->name('pendaftaran.complete-pelaksanaan');
+    Route::get('/pendaftaran/{pendaftaran}/download-dokumen', [PendaftaranController::class, 'downloadDokumen'])->name('pendaftaran.download-dokumen');
     
     // Penjadwalan Sidang (CRUD jadwal periode)
     Route::get('/penjadwalan', [PenjadwalanController::class, 'index'])->name('penjadwalan.index');

@@ -50,7 +50,27 @@ class PendaftaranController extends Controller
                 'jadwalSidang',
                 'pelaksanaanSidang'
             ])
-            ->orderByRaw("CASE WHEN status_koordinator = 'menunggu' THEN 0 ELSE 1 END")
+            // Urutan prioritas:
+            // 1. Menunggu approval koordinator (paling atas)
+            // 2. Dijadwalkan (tengah)
+            // 3. Selesai (paling bawah)
+            ->orderByRaw("
+                CASE 
+                    WHEN status_koordinator = 'menunggu' THEN 0
+                    WHEN status_koordinator = 'disetujui' THEN 1
+                    ELSE 2
+                END
+            ")
+            ->orderByRaw("
+                CASE 
+                    WHEN EXISTS (
+                        SELECT 1 FROM pelaksanaan_sidang 
+                        WHERE pelaksanaan_sidang.pendaftaran_sidang_id = pendaftaran_sidang.id 
+                        AND pelaksanaan_sidang.status = 'selesai'
+                    ) THEN 1
+                    ELSE 0
+                END
+            ")
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
@@ -561,5 +581,29 @@ class PendaftaranController extends Controller
         })->shuffle()->values()->all();
         
         return $availableDosens;
+    }
+
+    /**
+     * Download dokumen pendaftaran
+     */
+    public function downloadDokumen(PendaftaranSidang $pendaftaran)
+    {
+        $prodiId = $this->getProdiId();
+
+        if (!$prodiId || $pendaftaran->jadwalSidang->prodi_id !== $prodiId) {
+            abort(403);
+        }
+
+        if (!$pendaftaran->file_dokumen) {
+            return back()->with('error', 'Dokumen tidak ditemukan.');
+        }
+
+        $path = storage_path('app/public/' . $pendaftaran->file_dokumen);
+        
+        if (!file_exists($path)) {
+            return back()->with('error', 'File tidak ditemukan.');
+        }
+
+        return response()->download($path, $pendaftaran->file_dokumen_original_name ?? 'dokumen.pdf');
     }
 }

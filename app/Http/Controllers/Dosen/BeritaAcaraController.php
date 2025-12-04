@@ -194,4 +194,34 @@ class BeritaAcaraController extends Controller
 
         return $pdf->download($filename);
     }
+
+    public function downloadDokumen(PelaksanaanSidang $pelaksanaan)
+    {
+        $dosen = auth()->user()->dosen;
+        
+        if (!$dosen) {
+            return back()->with('error', 'Data dosen tidak ditemukan.');
+        }
+
+        // Cek apakah dosen terlibat dalam sidang ini
+        $penguji = $pelaksanaan->pengujiSidang()->where('dosen_id', $dosen->id)->first();
+        
+        if (!$penguji) {
+            abort(403, 'Anda tidak terlibat dalam sidang ini.');
+        }
+
+        $pendaftaran = $pelaksanaan->pendaftaranSidang;
+
+        if (!$pendaftaran->file_dokumen) {
+            return back()->with('error', 'Dokumen tidak ditemukan.');
+        }
+
+        $path = storage_path('app/public/' . $pendaftaran->file_dokumen);
+        
+        if (!file_exists($path)) {
+            return back()->with('error', 'File tidak ditemukan.');
+        }
+
+        return response()->download($path, $pendaftaran->file_dokumen_original_name ?? 'dokumen.pdf');
+    }
 }

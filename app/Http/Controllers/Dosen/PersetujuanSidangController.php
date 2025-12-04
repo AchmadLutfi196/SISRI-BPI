@@ -143,4 +143,31 @@ class PersetujuanSidangController extends Controller
         return redirect()->route('dosen.persetujuan-sidang.index', ['jenis' => $jenisUrl])
             ->with('success', 'Pendaftaran sidang berhasil ditolak.');
     }
+
+    public function downloadDokumen(PendaftaranSidang $pendaftaran)
+    {
+        $dosen = auth()->user()->dosen;
+
+        // Cek apakah dosen adalah pembimbing
+        $usulanPembimbing = UsulanPembimbing::where('topik_id', $pendaftaran->topik_id)
+            ->where('dosen_id', $dosen->id)
+            ->where('status', 'diterima')
+            ->first();
+
+        if (!$usulanPembimbing) {
+            abort(403);
+        }
+
+        if (!$pendaftaran->file_dokumen) {
+            return back()->with('error', 'Dokumen tidak ditemukan.');
+        }
+
+        $path = storage_path('app/public/' . $pendaftaran->file_dokumen);
+        
+        if (!file_exists($path)) {
+            return back()->with('error', 'File tidak ditemukan.');
+        }
+
+        return response()->download($path, $pendaftaran->file_dokumen_original_name ?? 'dokumen.pdf');
+    }
 }

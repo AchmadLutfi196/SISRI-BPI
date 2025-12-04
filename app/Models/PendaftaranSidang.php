@@ -23,6 +23,8 @@ class PendaftaranSidang extends Model
         'catatan_pembimbing_1',
         'catatan_pembimbing_2',
         'catatan_koordinator',
+        'file_dokumen',
+        'file_dokumen_original_name',
     ];
 
     /**

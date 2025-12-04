@@ -326,11 +326,14 @@
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
                             @foreach($nilaiCollection as $n)
+                            @php
+                                $penguji = $pendaftaran->pelaksanaanSidang?->pengujiSidang?->where('dosen_id', $n->dosen_id)->first();
+                            @endphp
                             <div class="p-4 bg-gray-50 rounded-lg">
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="text-sm text-gray-500">{{ $n->dosen->user->name ?? 'Dosen' }}</p>
-                                        <p class="text-xs text-gray-400">{{ ucfirst(str_replace('_', ' ', $n->jenis_nilai)) }}</p>
+                                        <p class="text-xs text-gray-400">{{ $penguji ? str_replace('_', ' ', ucwords($penguji->role, '_')) : '-' }}</p>
                                     </div>
                                     <p class="text-xl font-bold text-gray-800">{{ number_format($n->nilai, 2) }}</p>
                                 </div>
@@ -453,6 +456,76 @@
                         @endif
                     </div>
                 </div>
+
+                <!-- Dokumen yang Diupload -->
+                @if($pendaftaran->file_dokumen)
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h3 class="font-semibold text-gray-800 mb-4">Dokumen {{ $pendaftaran->jenis === 'seminar_proposal' ? 'Proposal' : 'Skripsi' }}</h3>
+                    <div class="p-4 bg-gradient-to-br from-red-50 to-orange-50 border border-red-100 rounded-xl">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0">
+                                <svg class="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-gray-800 truncate" title="{{ $pendaftaran->file_dokumen_original_name ?? 'Dokumen.pdf' }}">
+                                    {{ $pendaftaran->file_dokumen_original_name ?? 'Dokumen.pdf' }}
+                                </p>
+                                <p class="text-xs text-gray-500 mt-0.5">Format: PDF</p>
+                            </div>
+                        </div>
+                        <a href="{{ route('mahasiswa.sidang.download-dokumen', $pendaftaran) }}" 
+                           class="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            </svg>
+                            Download Dokumen
+                        </a>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Download Berita Acara -->
+                @if($pendaftaran->pelaksanaanSidang && $pendaftaran->pelaksanaanSidang->status === 'selesai')
+                @php
+                    $totalPengujiCount = $pendaftaran->pelaksanaanSidang->pengujiSidang->count();
+                    $totalTtdCount = $pendaftaran->pelaksanaanSidang->pengujiSidang->where('ttd_berita_acara', true)->count();
+                    $semuaSudahTtd = $totalTtdCount === $totalPengujiCount && $totalPengujiCount > 0;
+                @endphp
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h3 class="font-semibold text-gray-800 mb-4">Berita Acara</h3>
+                    @if($semuaSudahTtd)
+                        <div class="p-4 bg-green-50 border border-green-200 rounded-lg mb-4">
+                            <div class="flex items-center gap-2 text-green-700">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-sm font-medium">Semua dosen sudah menandatangani</span>
+                            </div>
+                        </div>
+                        <a href="{{ route('mahasiswa.sidang.download-berita-acara', $pendaftaran) }}" 
+                           class="w-full inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            </svg>
+                            Download Berita Acara (PDF)
+                        </a>
+                    @else
+                        <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <div class="flex items-start gap-2 text-yellow-700">
+                                <svg class="w-5 h-5 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                                <div>
+                                    <p class="text-sm font-medium">Berita acara belum tersedia</p>
+                                    <p class="text-xs mt-1">Menunggu tanda tangan dari semua dosen ({{ $totalTtdCount }}/{{ $totalPengujiCount }})</p>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+                @endif
 
                 <!-- Waiting Status -->
                 @if($overallStatus === 'menunggu')

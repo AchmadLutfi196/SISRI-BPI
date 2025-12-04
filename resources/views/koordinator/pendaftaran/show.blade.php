@@ -51,6 +51,84 @@
                         </div>
                     </div>
 
+                    <!-- Periode Pendaftaran -->
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Periode Pendaftaran</h3>
+                            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Nama Periode</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ $pendaftaran->jadwalSidang->nama ?? '-' }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Jenis</dt>
+                                    <dd class="mt-1">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $pendaftaran->jenis === 'seminar_proposal' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
+                                            {{ $pendaftaran->jenis === 'seminar_proposal' ? 'Seminar Proposal' : 'Sidang Skripsi' }}
+                                        </span>
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Tanggal Buka</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ \Carbon\Carbon::parse($pendaftaran->jadwalSidang->tanggal_buka)->format('d F Y') }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Tanggal Tutup</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ \Carbon\Carbon::parse($pendaftaran->jadwalSidang->tanggal_tutup)->format('d F Y') }}</dd>
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <dt class="text-sm font-medium text-gray-500">Estimasi Pelaksanaan</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">
+                                        @php
+                                            $tanggalBuka = \Carbon\Carbon::parse($pendaftaran->jadwalSidang->tanggal_buka);
+                                            $tanggalTutup = \Carbon\Carbon::parse($pendaftaran->jadwalSidang->tanggal_tutup);
+                                            $today = \Carbon\Carbon::today();
+                                            
+                                            if ($today->lt($tanggalBuka)) {
+                                                $startPelaksanaan = $tanggalBuka->copy();
+                                            } else {
+                                                $startPelaksanaan = \Carbon\Carbon::tomorrow();
+                                            }
+                                            $endPelaksanaan = $tanggalTutup->copy()->addDays(14);
+                                        @endphp
+                                        <span class="text-green-600 font-medium">{{ $startPelaksanaan->format('d M Y') }}</span> s/d 
+                                        <span class="text-green-600 font-medium">{{ $endPelaksanaan->format('d M Y') }}</span>
+                                        <p class="text-xs text-gray-500 mt-1">Jadwal otomatis akan mencari slot dalam rentang ini</p>
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Dokumen yang Diupload -->
+                    @if($pendaftaran->file_dokumen)
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Dokumen {{ $pendaftaran->jenis === 'seminar_proposal' ? 'Proposal' : 'Skripsi' }}</h3>
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center">
+                                        <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-900">{{ $pendaftaran->file_dokumen_original_name ?? 'Dokumen.pdf' }}</p>
+                                        <p class="text-sm text-gray-500">PDF - Dokumen {{ $pendaftaran->jenis === 'seminar_proposal' ? 'Proposal' : 'Skripsi' }}</p>
+                                    </div>
+                                </div>
+                                <a href="{{ route('koordinator.pendaftaran.download-dokumen', $pendaftaran) }}" 
+                                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                    </svg>
+                                    Download
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
                     <!-- Pembimbing -->
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6">

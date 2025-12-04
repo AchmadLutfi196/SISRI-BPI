@@ -29,9 +29,10 @@
                                     <tr>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mahasiswa</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Judul</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Periode Pendaftaran</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pembimbing</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jadwal</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jadwal Pelaksanaan</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                     </tr>
                                 </thead>
@@ -50,9 +51,18 @@
                                                 <div class="text-sm text-gray-900 max-w-xs truncate" title="{{ $pendaftaran->topik->judul }}">
                                                     {{ Str::limit($pendaftaran->topik->judul, 50) }}
                                                 </div>
-                                                <div class="text-xs text-gray-500">
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-gray-900">
                                                     {{ $pendaftaran->jadwalSidang->nama ?? '-' }}
                                                 </div>
+                                                <div class="text-xs text-gray-500">
+                                                    {{ \Carbon\Carbon::parse($pendaftaran->jadwalSidang->tanggal_buka)->format('d M') }} - 
+                                                    {{ \Carbon\Carbon::parse($pendaftaran->jadwalSidang->tanggal_tutup)->format('d M Y') }}
+                                                </div>
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $pendaftaran->jenis === 'seminar_proposal' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
+                                                    {{ $pendaftaran->jenis === 'seminar_proposal' ? 'Sempro' : 'Sidang' }}
+                                                </span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 @foreach($pendaftaran->topik->usulanPembimbing as $p)

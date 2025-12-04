@@ -72,11 +72,7 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Nilai yang Sudah Diberikan</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-gray-50 p-4 rounded-lg text-center">
-                            <p class="text-sm text-gray-500 mb-1">Jenis Nilai</p>
-                            <p class="text-xl font-bold text-gray-900">{{ ucfirst($existingNilai->jenis_nilai) }}</p>
-                        </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="bg-blue-50 p-4 rounded-lg text-center">
                             <p class="text-sm text-gray-500 mb-1">Nilai</p>
                             <p class="text-3xl font-bold text-blue-600">{{ $existingNilai->nilai }}</p>
@@ -145,18 +141,8 @@
                     <form method="POST" action="{{ route('dosen.nilai.store', $pelaksanaan) }}">
                         @csrf
                         <div class="space-y-6">
-                            <div>
-                                <label for="jenis_nilai" class="block text-sm font-medium text-gray-700">Jenis Nilai <span class="text-red-500">*</span></label>
-                                <select name="jenis_nilai" id="jenis_nilai" required
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                    <option value="">Pilih Jenis Nilai</option>
-                                    <option value="bimbingan" {{ old('jenis_nilai') == 'bimbingan' ? 'selected' : '' }}>Nilai Bimbingan</option>
-                                    <option value="ujian" {{ old('jenis_nilai') == 'ujian' ? 'selected' : '' }}>Nilai Ujian</option>
-                                </select>
-                                @error('jenis_nilai')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
+                            <!-- Hidden field - jenis nilai selalu ujian -->
+                            <input type="hidden" name="jenis_nilai" value="ujian">
 
                             <div>
                                 <label for="nilai" class="block text-sm font-medium text-gray-700">Nilai (0-100) <span class="text-red-500">*</span></label>

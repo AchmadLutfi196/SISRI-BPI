@@ -480,6 +480,8 @@ class DatabaseSeeder extends Seeder
             'catatan_pembimbing_1' => 'Sudah siap untuk seminar',
             'catatan_pembimbing_2' => 'Disetujui',
             'catatan_koordinator' => 'Disetujui untuk seminar proposal',
+            'file_dokumen' => 'dokumen-sidang/sample_proposal_fajar.pdf',
+            'file_dokumen_original_name' => 'Proposal_Budi_Santoso_ML.pdf',
         ]);
         
         // Buat pelaksanaan sidang - Status SELESAI (untuk testing input nilai)
@@ -961,6 +963,9 @@ class DatabaseSeeder extends Seeder
             '19800503200312', // Andharini Dwi Cahyani
             '19790222200501', // Ari Kusumaningsih
             '19691118200112', // Prof. Dr. Arif Muntasa
+            '19780309200312', // Dr. Arik Kurniawati
+            '19800325200312', // Dr. Bain Khusnul Khotimah
+            '19780225200501', // Dr. Cucun Very Angkoso
         ])->get()->keyBy('nip');
         
         $bidangMinatAI = BidangMinat::where('nama', 'Artificial Intelligence')->first();
@@ -1024,6 +1029,8 @@ class DatabaseSeeder extends Seeder
             'status_pembimbing_2' => 'disetujui',
             'status_koordinator' => 'disetujui',
             'catatan_koordinator' => 'Dijadwalkan untuk sempro November',
+            'file_dokumen' => 'dokumen-sidang/sample_proposal_dewi.pdf',
+            'file_dokumen_original_name' => 'Proposal_Dewi_Kartika_CNN_Tanaman.pdf',
         ]);
         
         $pelaksanaanSemproDewi = PelaksanaanSidang::create([
@@ -1059,29 +1066,29 @@ class DatabaseSeeder extends Seeder
             'tanggal_ttd' => now()->subDays(20),
         ]);
         
-        // Nilai sempro Dewi
-        Nilai::create([
+        PengujiSidang::create([
             'pelaksanaan_sidang_id' => $pelaksanaanSemproDewi->id,
-            'dosen_id' => $dosenList['19691118200112']->id,
-            'jenis_nilai' => 'bimbingan',
-            'nilai' => 85.00,
-            'catatan' => 'Proses bimbingan sangat baik',
+            'dosen_id' => $dosenList['19810109200604']->id,
+            'role' => 'penguji_2',
+            'ttd_berita_acara' => true,
+            'tanggal_ttd' => now()->subDays(20),
         ]);
         
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproDewi->id,
+            'dosen_id' => $dosenList['19780309200312']->id,
+            'role' => 'penguji_3',
+            'ttd_berita_acara' => true,
+            'tanggal_ttd' => now()->subDays(20),
+        ]);
+        
+        // Nilai sempro Dewi (hanya nilai ujian - 5 dosen: 2 pembimbing + 3 penguji)
         Nilai::create([
             'pelaksanaan_sidang_id' => $pelaksanaanSemproDewi->id,
             'dosen_id' => $dosenList['19691118200112']->id,
             'jenis_nilai' => 'ujian',
             'nilai' => 82.50,
             'catatan' => 'Presentasi bagus, perlu perbaikan di metodologi',
-        ]);
-        
-        Nilai::create([
-            'pelaksanaan_sidang_id' => $pelaksanaanSemproDewi->id,
-            'dosen_id' => $dosenList['19800503200312']->id,
-            'jenis_nilai' => 'bimbingan',
-            'nilai' => 83.00,
-            'catatan' => 'Konsisten dalam bimbingan',
         ]);
         
         Nilai::create([
@@ -1098,6 +1105,22 @@ class DatabaseSeeder extends Seeder
             'jenis_nilai' => 'ujian',
             'nilai' => 78.50,
             'catatan' => 'Perlu pendalaman teori CNN',
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproDewi->id,
+            'dosen_id' => $dosenList['19810109200604']->id,
+            'jenis_nilai' => 'ujian',
+            'nilai' => 80.00,
+            'catatan' => 'Metodologi penelitian sudah baik',
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproDewi->id,
+            'dosen_id' => $dosenList['19780309200312']->id,
+            'jenis_nilai' => 'ujian',
+            'nilai' => 79.00,
+            'catatan' => 'Perlu perbaikan pada BAB 3',
         ]);
         
         // Revisi sempro Dewi - sudah disetujui
@@ -1120,6 +1143,8 @@ class DatabaseSeeder extends Seeder
             'status_pembimbing_2' => 'disetujui',
             'status_koordinator' => 'disetujui',
             'catatan_koordinator' => 'Siap untuk sidang skripsi',
+            'file_dokumen' => 'dokumen-sidang/sample_proposal_dewi.pdf',
+            'file_dokumen_original_name' => 'Skripsi_Dewi_Kartika_CNN_Tanaman.pdf',
         ]);
         
         $pelaksanaanSidangDewi = PelaksanaanSidang::create([
@@ -1147,6 +1172,18 @@ class DatabaseSeeder extends Seeder
             'pelaksanaan_sidang_id' => $pelaksanaanSidangDewi->id,
             'dosen_id' => $dosenList['19810109200604']->id,
             'role' => 'penguji_1',
+        ]);
+        
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSidangDewi->id,
+            'dosen_id' => $dosenList['19860926201404']->id,
+            'role' => 'penguji_2',
+        ]);
+        
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSidangDewi->id,
+            'dosen_id' => $dosenList['19780309200312']->id,
+            'role' => 'penguji_3',
         ]);
         
         // ========== MAHASISWA 2: ANDI - Sudah LULUS semua (sempro + sidang skripsi) ==========
@@ -1199,6 +1236,8 @@ class DatabaseSeeder extends Seeder
             'status_pembimbing_1' => 'disetujui',
             'status_pembimbing_2' => 'disetujui',
             'status_koordinator' => 'disetujui',
+            'file_dokumen' => 'dokumen-sidang/sample_proposal_andi.pdf',
+            'file_dokumen_original_name' => 'Proposal_Andi_LSTM_Sentimen.pdf',
         ]);
         
         $pelaksanaanSemproAndi = PelaksanaanSidang::create([
@@ -1234,26 +1273,28 @@ class DatabaseSeeder extends Seeder
             'tanggal_ttd' => now()->subDays(45),
         ]);
         
-        // Nilai sempro Andi
-        Nilai::create([
+        PengujiSidang::create([
             'pelaksanaan_sidang_id' => $pelaksanaanSemproAndi->id,
-            'dosen_id' => $dosenList['19810109200604']->id,
-            'jenis_nilai' => 'bimbingan',
-            'nilai' => 88.00,
+            'dosen_id' => $dosenList['19800325200312']->id,
+            'role' => 'penguji_2',
+            'ttd_berita_acara' => true,
+            'tanggal_ttd' => now()->subDays(45),
         ]);
         
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproAndi->id,
+            'dosen_id' => $dosenList['19780225200501']->id,
+            'role' => 'penguji_3',
+            'ttd_berita_acara' => true,
+            'tanggal_ttd' => now()->subDays(45),
+        ]);
+        
+        // Nilai sempro Andi (hanya nilai ujian - 5 dosen: 2 pembimbing + 3 penguji)
         Nilai::create([
             'pelaksanaan_sidang_id' => $pelaksanaanSemproAndi->id,
             'dosen_id' => $dosenList['19810109200604']->id,
             'jenis_nilai' => 'ujian',
             'nilai' => 85.00,
-        ]);
-        
-        Nilai::create([
-            'pelaksanaan_sidang_id' => $pelaksanaanSemproAndi->id,
-            'dosen_id' => $dosenList['19790222200501']->id,
-            'jenis_nilai' => 'bimbingan',
-            'nilai' => 86.00,
         ]);
         
         Nilai::create([
@@ -1268,6 +1309,20 @@ class DatabaseSeeder extends Seeder
             'dosen_id' => $dosenList['19740610200812']->id,
             'jenis_nilai' => 'ujian',
             'nilai' => 82.00,
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproAndi->id,
+            'dosen_id' => $dosenList['19800325200312']->id,
+            'jenis_nilai' => 'ujian',
+            'nilai' => 83.00,
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproAndi->id,
+            'dosen_id' => $dosenList['19780225200501']->id,
+            'jenis_nilai' => 'ujian',
+            'nilai' => 81.00,
         ]);
         
         // Revisi sempro Andi - sudah disetujui
@@ -1288,6 +1343,8 @@ class DatabaseSeeder extends Seeder
             'status_pembimbing_1' => 'disetujui',
             'status_pembimbing_2' => 'disetujui',
             'status_koordinator' => 'disetujui',
+            'file_dokumen' => 'dokumen-sidang/sample_proposal_andi.pdf',
+            'file_dokumen_original_name' => 'Skripsi_Andi_LSTM_Sentimen.pdf',
         ]);
         
         $pelaksanaanSidangAndi = PelaksanaanSidang::create([
@@ -1323,28 +1380,29 @@ class DatabaseSeeder extends Seeder
             'tanggal_ttd' => now()->subDays(10),
         ]);
         
-        // Nilai sidang skripsi Andi
-        Nilai::create([
+        PengujiSidang::create([
             'pelaksanaan_sidang_id' => $pelaksanaanSidangAndi->id,
-            'dosen_id' => $dosenList['19810109200604']->id,
-            'jenis_nilai' => 'bimbingan',
-            'nilai' => 90.00,
-            'catatan' => 'Bimbingan sangat baik dari awal hingga akhir',
+            'dosen_id' => $dosenList['19740610200812']->id,
+            'role' => 'penguji_2',
+            'ttd_berita_acara' => true,
+            'tanggal_ttd' => now()->subDays(10),
         ]);
         
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSidangAndi->id,
+            'dosen_id' => $dosenList['19800325200312']->id,
+            'role' => 'penguji_3',
+            'ttd_berita_acara' => true,
+            'tanggal_ttd' => now()->subDays(10),
+        ]);
+        
+        // Nilai sidang skripsi Andi (hanya nilai ujian - 5 dosen: 2 pembimbing + 3 penguji)
         Nilai::create([
             'pelaksanaan_sidang_id' => $pelaksanaanSidangAndi->id,
             'dosen_id' => $dosenList['19810109200604']->id,
             'jenis_nilai' => 'ujian',
             'nilai' => 88.00,
             'catatan' => 'Penguasaan materi sangat baik',
-        ]);
-        
-        Nilai::create([
-            'pelaksanaan_sidang_id' => $pelaksanaanSidangAndi->id,
-            'dosen_id' => $dosenList['19790222200501']->id,
-            'jenis_nilai' => 'bimbingan',
-            'nilai' => 87.00,
         ]);
         
         Nilai::create([
@@ -1360,6 +1418,22 @@ class DatabaseSeeder extends Seeder
             'jenis_nilai' => 'ujian',
             'nilai' => 85.00,
             'catatan' => 'Implementasi LSTM sangat baik',
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSidangAndi->id,
+            'dosen_id' => $dosenList['19740610200812']->id,
+            'jenis_nilai' => 'ujian',
+            'nilai' => 84.00,
+            'catatan' => 'Analisis data sudah baik',
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSidangAndi->id,
+            'dosen_id' => $dosenList['19800325200312']->id,
+            'jenis_nilai' => 'ujian',
+            'nilai' => 83.00,
+            'catatan' => 'Kesimpulan dan saran sudah tepat',
         ]);
         
         // Revisi sidang Andi - sudah disetujui
@@ -1430,6 +1504,8 @@ class DatabaseSeeder extends Seeder
             'status_pembimbing_1' => 'disetujui',
             'status_pembimbing_2' => 'disetujui',
             'status_koordinator' => 'disetujui',
+            'file_dokumen' => 'dokumen-sidang/sample_proposal_rina.pdf',
+            'file_dokumen_original_name' => 'Proposal_Rina_Algoritma_Genetika.pdf',
         ]);
         
         $pelaksanaanSemproRina = PelaksanaanSidang::create([
@@ -1461,6 +1537,22 @@ class DatabaseSeeder extends Seeder
             'pelaksanaan_sidang_id' => $pelaksanaanSemproRina->id,
             'dosen_id' => $dosenList['19800503200312']->id,
             'role' => 'penguji_1',
+            'ttd_berita_acara' => true,
+            'tanggal_ttd' => now()->subDays(7),
+        ]);
+        
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproRina->id,
+            'dosen_id' => $dosenList['19810109200604']->id,
+            'role' => 'penguji_2',
+            'ttd_berita_acara' => true,
+            'tanggal_ttd' => now()->subDays(7),
+        ]);
+        
+        PengujiSidang::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproRina->id,
+            'dosen_id' => $dosenList['19780225200501']->id,
+            'role' => 'penguji_3',
             'ttd_berita_acara' => true,
             'tanggal_ttd' => now()->subDays(7),
         ]);
@@ -1499,6 +1591,20 @@ class DatabaseSeeder extends Seeder
             'dosen_id' => $dosenList['19800503200312']->id,
             'jenis_nilai' => 'ujian',
             'nilai' => 76.00,
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproRina->id,
+            'dosen_id' => $dosenList['19810109200604']->id,
+            'jenis_nilai' => 'ujian',
+            'nilai' => 75.00,
+        ]);
+        
+        Nilai::create([
+            'pelaksanaan_sidang_id' => $pelaksanaanSemproRina->id,
+            'dosen_id' => $dosenList['19780225200501']->id,
+            'jenis_nilai' => 'ujian',
+            'nilai' => 74.00,
         ]);
         
         // Revisi sempro Rina - satu sudah disetujui, satu masih menunggu

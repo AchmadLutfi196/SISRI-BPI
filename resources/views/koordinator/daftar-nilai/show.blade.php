@@ -94,21 +94,15 @@
             <!-- Daftar Nilai -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Daftar Nilai</h3>
-                    
-                    @php
-                        $nilaiUjian = $pelaksanaan->nilai->where('jenis_nilai', 'ujian');
-                        $nilaiBimbingan = $pelaksanaan->nilai->where('jenis_nilai', 'bimbingan');
-                    @endphp
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Daftar Nilai Ujian</h3>
 
-                    @if($nilaiUjian->count() > 0 || $nilaiBimbingan->count() > 0)
+                    @if($pelaksanaan->nilai->count() > 0)
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Penilai</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Nilai</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nilai</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catatan</th>
                                     </tr>
@@ -124,17 +118,6 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {{ $penguji ? str_replace('_', ' ', ucwords($penguji->role, '_')) : '-' }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                @if($nilai->jenis_nilai === 'ujian')
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                        Ujian
-                                                    </span>
-                                                @else
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                        Bimbingan
-                                                    </span>
-                                                @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <span class="text-lg font-bold {{ $nilai->nilai >= 55 ? 'text-green-600' : 'text-red-600' }}">
@@ -163,46 +146,31 @@
 
             <!-- Ringkasan Nilai -->
             @php
-                $nilaiRataUjian = $nilaiUjian->count() > 0 ? $nilaiUjian->avg('nilai') : null;
-                $nilaiRataBimbingan = $nilaiBimbingan->count() > 0 ? $nilaiBimbingan->avg('nilai') : null;
-                $isLulus = $nilaiRataUjian !== null && $nilaiRataUjian >= 55;
+                $nilaiRata = $pelaksanaan->nilai->count() > 0 ? $pelaksanaan->nilai->avg('nilai') : null;
+                $isLulus = $nilaiRata !== null && $nilaiRata >= 55;
             @endphp
 
-            @if($nilaiRataUjian !== null || $nilaiRataBimbingan !== null)
+            @if($nilaiRata !== null)
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
                         <h3 class="text-lg font-medium text-gray-900 mb-4">Ringkasan Nilai</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            @if($nilaiRataUjian !== null)
-                                <div class="text-center p-4 bg-gray-50 rounded-lg">
-                                    <p class="text-sm text-gray-500 mb-1">Rata-rata Nilai Ujian</p>
-                                    <p class="text-3xl font-bold {{ $nilaiRataUjian >= 55 ? 'text-green-600' : 'text-red-600' }}">
-                                        {{ number_format($nilaiRataUjian, 1) }}
-                                    </p>
-                                </div>
-                            @endif
-
-                            @if($nilaiRataBimbingan !== null)
-                                <div class="text-center p-4 bg-gray-50 rounded-lg">
-                                    <p class="text-sm text-gray-500 mb-1">Rata-rata Nilai Bimbingan</p>
-                                    <p class="text-3xl font-bold {{ $nilaiRataBimbingan >= 55 ? 'text-green-600' : 'text-red-600' }}">
-                                        {{ number_format($nilaiRataBimbingan, 1) }}
-                                    </p>
-                                </div>
-                            @endif
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                                <p class="text-sm text-gray-500 mb-1">Rata-rata Nilai</p>
+                                <p class="text-3xl font-bold {{ $nilaiRata >= 55 ? 'text-green-600' : 'text-red-600' }}">
+                                    {{ number_format($nilaiRata, 1) }}
+                                </p>
+                                <p class="text-xs text-gray-400 mt-1">Dari {{ $pelaksanaan->nilai->count() }} penguji</p>
+                            </div>
 
                             <div class="text-center p-4 rounded-lg {{ $isLulus ? 'bg-green-50' : 'bg-red-50' }}">
                                 <p class="text-sm text-gray-500 mb-1">Status Kelulusan</p>
-                                @if($nilaiRataUjian !== null)
-                                    @if($isLulus)
-                                        <p class="text-2xl font-bold text-green-600">LULUS</p>
-                                        <p class="text-sm text-gray-500 mt-1">Nilai ≥ 55</p>
-                                    @else
-                                        <p class="text-2xl font-bold text-red-600">TIDAK LULUS</p>
-                                        <p class="text-sm text-gray-500 mt-1">Nilai < 55</p>
-                                    @endif
+                                @if($isLulus)
+                                    <p class="text-2xl font-bold text-green-600">LULUS</p>
+                                    <p class="text-sm text-gray-500 mt-1">Nilai ≥ 55</p>
                                 @else
-                                    <p class="text-xl font-medium text-gray-500">Menunggu Penilaian</p>
+                                    <p class="text-2xl font-bold text-red-600">TIDAK LULUS</p>
+                                    <p class="text-sm text-gray-500 mt-1">Nilai < 55</p>
                                 @endif
                             </div>
                         </div>

@@ -133,6 +133,7 @@ class SidangController extends Controller
         $request->validate([
             'jadwal_sidang_id' => 'required|exists:jadwal_sidang,id',
             'jenis' => 'required|in:seminar_proposal,sidang_skripsi',
+            'file_dokumen' => 'required|file|mimes:pdf|max:10240', // 10MB max
         ]);
 
         $mahasiswa = auth()->user()->mahasiswa;
@@ -230,6 +231,15 @@ class SidangController extends Controller
             ->first();
 
         if ($failedPendaftaran && $failedPendaftaran->pelaksanaanSidang && !$failedPendaftaran->pelaksanaanSidang->isLulus()) {
+            // Handle file upload
+            $filePath = null;
+            $originalName = null;
+            if ($request->hasFile('file_dokumen')) {
+                $file = $request->file('file_dokumen');
+                $originalName = $file->getClientOriginalName();
+                $filePath = $file->store('dokumen-sidang', 'public');
+            }
+
             // Update pendaftaran yang tidak lulus, reset status persetujuan dan hapus pelaksanaan lama
             $failedPendaftaran->pelaksanaanSidang->delete(); // Hapus pelaksanaan sidang lama
             $failedPendaftaran->update([
@@ -240,6 +250,8 @@ class SidangController extends Controller
                 'catatan_pembimbing_1' => null,
                 'catatan_pembimbing_2' => null,
                 'catatan_koordinator' => null,
+                'file_dokumen' => $filePath,
+                'file_dokumen_original_name' => $originalName,
             ]);
 
             return redirect()->route('mahasiswa.sidang.index')
@@ -253,6 +265,15 @@ class SidangController extends Controller
             ->first();
 
         if ($rejectedPendaftaran) {
+            // Handle file upload
+            $filePath = null;
+            $originalName = null;
+            if ($request->hasFile('file_dokumen')) {
+                $file = $request->file('file_dokumen');
+                $originalName = $file->getClientOriginalName();
+                $filePath = $file->store('dokumen-sidang', 'public');
+            }
+
             // Update pendaftaran yang ditolak, reset status persetujuan
             $rejectedPendaftaran->update([
                 'jadwal_sidang_id' => $request->jadwal_sidang_id,
@@ -262,10 +283,21 @@ class SidangController extends Controller
                 'catatan_pembimbing_1' => null,
                 'catatan_pembimbing_2' => null,
                 'catatan_koordinator' => null,
+                'file_dokumen' => $filePath,
+                'file_dokumen_original_name' => $originalName,
             ]);
 
             return redirect()->route('mahasiswa.sidang.index')
                 ->with('success', 'Pendaftaran sidang berhasil diajukan ulang.');
+        }
+
+        // Handle file upload untuk pendaftaran baru
+        $filePath = null;
+        $originalName = null;
+        if ($request->hasFile('file_dokumen')) {
+            $file = $request->file('file_dokumen');
+            $originalName = $file->getClientOriginalName();
+            $filePath = $file->store('dokumen-sidang', 'public');
         }
 
         // Jika belum pernah mendaftar, buat baru
@@ -273,6 +305,8 @@ class SidangController extends Controller
             'topik_id' => $topik->id,
             'jadwal_sidang_id' => $request->jadwal_sidang_id,
             'jenis' => $request->jenis,
+            'file_dokumen' => $filePath,
+            'file_dokumen_original_name' => $originalName,
         ]);
 
         return redirect()->route('mahasiswa.sidang.index')
@@ -295,5 +329,73 @@ class SidangController extends Controller
         $pendaftaran->load(['jadwalSidang', 'pelaksanaanSidang.pengujiSidang.dosen', 'pelaksanaanSidang.nilai']);
 
         return view('mahasiswa.sidang.show', compact('pendaftaran'));
+    }
+
+    public function downloadDokumen(PendaftaranSidang $pendaftaran)
+    {
+        $mahasiswa = auth()->user()->mahasiswa;
+        
+        if (!$mahasiswa || $pendaftaran->topik->mahasiswa_id !== $mahasiswa->id) {
+            abort(403);
+        }
+
+        if (!$pendaftaran->file_dokumen) {
+            return back()->with('error', 'Dokumen tidak ditemukan.');
+        }
+
+        $path = storage_path('app/public/' . $pendaftaran->file_dokumen);
+        
+        if (!file_exists($path)) {
+            return back()->with('error', 'File tidak ditemukan.');
+        }
+
+        return response()->download($path, $pendaftaran->file_dokumen_original_name ?? 'dokumen.pdf');
+    }
+
+    public function downloadBeritaAcara(PendaftaranSidang $pendaftaran)
+    {
+        $mahasiswa = auth()->user()->mahasiswa;
+        
+        if (!$mahasiswa || $pendaftaran->topik->mahasiswa_id !== $mahasiswa->id) {
+            abort(403);
+        }
+
+        if (!$pendaftaran->pelaksanaanSidang) {
+            return back()->with('error', 'Pelaksanaan sidang tidak ditemukan.');
+        }
+
+        // Cek apakah semua sudah TTD
+        $pelaksanaan = $pendaftaran->pelaksanaanSidang;
+        $pelaksanaan->load(['pengujiSidang.dosen.user', 'pendaftaranSidang.topik.mahasiswa.user', 'nilai']);
+        
+        $totalPenguji = $pelaksanaan->pengujiSidang->count();
+        $totalTtd = $pelaksanaan->pengujiSidang->where('ttd_berita_acara', true)->count();
+        
+        if ($totalTtd !== $totalPenguji || $totalPenguji === 0) {
+            return back()->with('error', 'Berita acara belum tersedia. Menunggu tanda tangan dari semua dosen.');
+        }
+
+        $jenis = $pendaftaran->jenis === 'seminar_proposal' ? 'sempro' : 'sidang';
+
+        // Pisahkan pembimbing dan penguji
+        $pembimbingList = $pelaksanaan->pengujiSidang->filter(function($p) {
+            return str_starts_with($p->role, 'pembimbing_');
+        })->sortBy('role');
+        
+        $pengujiList = $pelaksanaan->pengujiSidang->filter(function($p) {
+            return str_starts_with($p->role, 'penguji_');
+        })->sortBy('role');
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('dosen.berita-acara.pdf', compact(
+            'pelaksanaan',
+            'jenis',
+            'pembimbingList',
+            'pengujiList'
+        ));
+
+        $filename = 'Berita_Acara_' . ($jenis === 'sempro' ? 'Sempro' : 'Sidang') . '_' . 
+                    str_replace(' ', '_', $pelaksanaan->pendaftaranSidang->topik->mahasiswa->user->name ?? 'Mahasiswa') . '.pdf';
+
+        return $pdf->download($filename);
     }
 }
