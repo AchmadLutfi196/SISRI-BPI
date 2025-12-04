@@ -30,6 +30,8 @@
                 <!-- Top Navigation -->
                 @include('layouts.topnav')
 
+                <!-- SweetAlert Flash Messages -->
+                <x-sweet-alert />
                 <!-- Flash Messages with SweetAlert -->
                 @if(session('success'))
                     <script>

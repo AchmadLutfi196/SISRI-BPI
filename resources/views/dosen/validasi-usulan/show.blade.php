@@ -144,7 +144,7 @@
                         </div>
 
                         <!-- Approve Form -->
-                        <form x-show="action === 'approve'" x-cloak method="POST" action="{{ route('dosen.validasi-usulan.approve', $usulan) }}">
+                        <form x-show="action === 'approve'" x-cloak method="POST" action="{{ route('dosen.validasi-usulan.approve', $usulan) }}" id="approve-usulan-form">
                             @csrf
                             <div class="space-y-4">
                                 <div>
@@ -161,7 +161,7 @@
                                               placeholder="Tambahkan catatan untuk mahasiswa..."></textarea>
                                 </div>
                                 <div class="flex justify-end">
-                                    <button type="submit"
+                                    <button type="button" onclick="confirmAction('approve-usulan-form', 'Setujui Usulan', 'Yakin ingin menyetujui usulan pembimbingan ini?', 'Setujui', 'success')"
                                             class="inline-flex items-center px-6 py-3 bg-green-600 border border-transparent rounded-md font-semibold text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -173,7 +173,7 @@
                         </form>
 
                         <!-- Reject Form -->
-                        <form x-show="action === 'reject'" x-cloak method="POST" action="{{ route('dosen.validasi-usulan.reject', $usulan) }}">
+                        <form x-show="action === 'reject'" x-cloak method="POST" action="{{ route('dosen.validasi-usulan.reject', $usulan) }}" id="reject-usulan-form">
                             @csrf
                             <div class="space-y-4">
                                 <div>
@@ -186,7 +186,7 @@
                                     @enderror
                                 </div>
                                 <div class="flex justify-end">
-                                    <button type="submit"
+                                    <button type="button" onclick="confirmAction('reject-usulan-form', 'Tolak Usulan', 'Yakin ingin menolak usulan pembimbingan ini?', 'Tolak', 'warning')"
                                             class="inline-flex items-center px-6 py-3 bg-red-600 border border-transparent rounded-md font-semibold text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>

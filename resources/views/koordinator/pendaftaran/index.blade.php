@@ -110,7 +110,7 @@
                                                             method="POST" class="inline"
                                                             id="complete-sidang-{{ $pendaftaran->id }}">
                                                             @csrf
-                                                            <button type="button" onclick="confirmAction('complete-sidang-{{ $pendaftaran->id }}', 'Konfirmasi', 'Tandai sidang ini selesai?', 'Ya, Selesaikan')" class="text-purple-600 hover:text-purple-900">
+                                                            <button type="button" onclick="confirmAction('complete-sidang-{{ $pendaftaran->id }}', 'Selesaikan Sidang', 'Tandai sidang ini selesai?', 'Selesaikan', 'success')" class="text-purple-600 hover:text-purple-900">
                                                                 Selesaikan
                                                             </button>
                                                         </form>
