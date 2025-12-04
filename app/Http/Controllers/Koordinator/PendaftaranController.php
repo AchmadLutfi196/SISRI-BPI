@@ -423,15 +423,33 @@ class PendaftaranController extends Controller
 
     /**
      * Find available schedule (datetime, room, and 3 penguji) with conflict checking
+     * Pelaksanaan sidang dijadwalkan dalam rentang periode pendaftaran atau setelahnya
      */
     private function findAvailableSchedule($jadwalSidang, $pembimbingIds, $prodiId)
     {
-        $startDate = \Carbon\Carbon::parse($jadwalSidang->tanggal_buka);
-        $endDate = \Carbon\Carbon::parse($jadwalSidang->tanggal_tutup)->addDays(14);
+        $tanggalBuka = \Carbon\Carbon::parse($jadwalSidang->tanggal_buka);
+        $tanggalTutup = \Carbon\Carbon::parse($jadwalSidang->tanggal_tutup);
+        $today = \Carbon\Carbon::today();
         
-        if ($startDate->isPast()) {
+        // Tentukan tanggal mulai pelaksanaan:
+        // 1. Jika masih dalam periode pendaftaran, mulai dari besok (minimal)
+        // 2. Jika sudah lewat tanggal tutup, mulai dari besok
+        // 3. Jika belum masuk periode, mulai dari tanggal buka
+        if ($today->lt($tanggalBuka)) {
+            // Belum masuk periode pendaftaran, mulai dari tanggal buka
+            $startDate = $tanggalBuka->copy();
+        } else {
+            // Sudah masuk atau lewat periode, mulai dari besok
             $startDate = \Carbon\Carbon::tomorrow();
         }
+        
+        // Pastikan tanggal mulai masih dalam atau setelah periode pendaftaran
+        if ($startDate->lt($tanggalBuka)) {
+            $startDate = $tanggalBuka->copy();
+        }
+        
+        // Periode pelaksanaan: sampai 14 hari setelah tanggal tutup
+        $endDate = $tanggalTutup->copy()->addDays(14);
 
         $timeSlots = ['08:00', '09:30', '11:00', '13:00', '14:30', '16:00'];
         
