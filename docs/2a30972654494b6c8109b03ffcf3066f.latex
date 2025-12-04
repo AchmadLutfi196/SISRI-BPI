@@ -1,0 +1,1065 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\author{}
+\date{}
+
+\begin{document}
+
+\textbf{LAPORAN APLIKASI BPI}
+
+\textbf{PEMODELAN PROSES BISNIS SISRI}
+
+\textbf{TUGAS AKHIR}
+
+\includegraphics[width=1.79822in,height=1.68999in]{vertopal_2a30972654494b6c8109b03ffcf3066f/media/image13.png}
+
+\textbf{Disusun Oleh Kelompok 6:}
+
+Achmad Lutfi Madhani 230411100059
+
+Maharani Putri Mindartik 230411100049
+
+Dicky Prasetyo 230411100166
+
+Harits Putra Junaidi 230411100003
+
+Mohamad Askhab Firdaus 230411100067
+
+Roni Firnanda 230411100025
+
+Moch Sigit Aringga 230411100104
+
+\textbf{Mata Kuliah :}
+
+Pemodelan Proses Bisnis - A
+
+\textbf{Tahun Ajaran:}
+
+Ganjil 2025/2026
+
+\textbf{PRODI TEKNIK INFORMATIKA}
+
+\textbf{FAKULTAS TEKNIK}
+
+\textbf{UNIVERSITAS TRUNOJOYO MADURA}
+
+\textbf{2025}
+
+\textbf{DAFTAR ISI}
+
+\hypertarget{bab-i}{%
+\section{BAB I}\label{bab-i}}
+
+\hypertarget{pendahuluan}{%
+\section{PENDAHULUAN}\label{pendahuluan}}
+
+\hypertarget{latar-belakang}{%
+\subsection{\texorpdfstring{ Latar
+Belakang}{ Latar Belakang}}\label{latar-belakang}}
+
+Pemanfaatan teknologi informasi memiliki peran yang sangat penting dalam
+meningkatkan efisiensi kegiatan administrasi di perguruan tinggi,
+termasuk dalam pengelolaan tugas akhir atau skripsi. Di Fakultas Teknik
+Universitas Trunojoyo Madura (FT UTM), pengelolaan skripsi telah
+ditunjang oleh sebuah sistem berbasis web, yaitu Sistem Informasi
+Skripsi (SISRI). Sistem ini dikembangkan untuk mempermudah mahasiswa,
+dosen, koordinator program studi, serta admin dalam melaksanakan seluruh
+tahapan skripsi, mulai dari pengajuan topik hingga pelaksanaan sidang.
+
+Walaupun SISRI telah digunakan sebagai alat bantu utama, diperlukan
+evaluasi berkala terhadap proses bisnis yang berjalan untuk memastikan
+alur kerja tetap optimal. Berdasarkan panduan penggunaan tahun 2023,
+terdapat beberapa aktor yang berperan, seperti Admin UTM, Dosen,
+Koordinator Program Studi, dan Mahasiswa, yang masing-masing memiliki
+rangkaian tugas saling berkaitan. Namun, dalam pelaksanaannya, masih
+ditemukan sejumlah ketidakefisienan, misalnya waktu tunggu validasi yang
+masih dilakukan secara manual, proses revisi yang tidak sepenuhnya
+terpantau sistem, serta administrasi berita acara yang belum
+terdigitalisasi secara menyeluruh.
+
+Penerapan \emph{Business Process Improvement} (BPI) menjadi pendekatan
+strategis untuk menelaah proses yang sedang berjalan serta merancang
+proses yang lebih baik. Melalui pendekatan ini, diharapkan hambatan
+proses dapat dihilangkan, alur validasi menjadi lebih jelas, serta fitur
+penting seperti tanda tangan digital dan notifikasi \emph{real-time}
+dapat terintegrasi ke dalam model proses bisnis yang baru.
+
+Pada proyek akhir mata kuliah Pemodelan Proses Bisnis ini, penulis
+menyusun rancangan \emph{Business Process Improvement} (BPI) untuk SISRI
+dengan memodelkan ulang alur pengajuan tugas akhir hingga penyerahan
+tugas akhir agar lebih efisien, transparan, dan terintegrasi, serta
+melengkapi upaya perbaikan tersebut dengan implementasi teknis pada
+aplikasi SISRI yang telah ada untuk memastikan bahwa proses bisnis dapat
+dijalankan secara optimal dan benar-benar memberikan peningkatan
+efisiensi.
+
+\hypertarget{rumusan-masalah}{%
+\subsection{\texorpdfstring{ Rumusan
+Masalah}{ Rumusan Masalah}}\label{rumusan-masalah}}
+
+Berdasarkan latar belakang tersebut, rumusan masalah dalam laporan ini
+dirumuskan sebagai berikut:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \begin{quote}
+  Bagaimana gambaran proses bisnis pengajuan skripsi hingga pelaksanaan
+  sidang yang berjalan saat ini pada SISRI di Fakultas Teknik
+  Universitas Trunojoyo Madura?
+  \end{quote}
+\item
+  \begin{quote}
+  Apa saja permasalahan atau bentuk inefisiensi yang muncul dalam proses
+  bisnis SISRI yang sedang berjalan?
+  \end{quote}
+\item
+  \begin{quote}
+  Bagaimana rancangan perbaikan proses bisnis (\emph{Business Process
+  Improvement}) yang diusulkan untuk meningkatkan efisiensi pengelolaan
+  skripsi dari tahap pengajuan topik hingga penyelesaian sidang?
+  \end{quote}
+\item
+  \begin{quote}
+  Bagaimana implementasi rancangan BPI tersebut ke dalam pembangunan
+  aplikasi sistem informasi skripsi berbasis web?
+  \end{quote}
+
+  \begin{enumerate}
+  \def\labelenumii{\arabic{enumii}.}
+  \item ~
+    \hypertarget{tujuan}{%
+    \subsection{\texorpdfstring{ Tujuan}{ Tujuan}}\label{tujuan}}
+  \end{enumerate}
+\end{enumerate}
+
+Tujuan penyusunan laporan proyek akhir ini adalah sebagai berikut:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \begin{quote}
+  Mendokumentasikan serta memodelkan proses bisnis yang saat ini
+  diterapkan pada sistem SISRI berdasarkan panduan resmi yang berlaku.
+  \end{quote}
+\item
+  \begin{quote}
+  Mengidentifikasi kekurangan dan kebutuhan pengembangan pada proses
+  bisnis yang berjalan.
+  \end{quote}
+\item
+  \begin{quote}
+  Menghasilkan rancangan \emph{Business Process Improvement} (BPI) yang
+  mencakup digitalisasi berita acara, validasi berjenjang, dan integrasi
+  penilaian untuk mempercepat proses kelulusan mahasiswa.
+  \end{quote}
+\item
+  \begin{quote}
+  Membangun dan mengimplementasikan aplikasi sistem informasi skripsi
+  yang baru berdasarkan rancangan proses bisnis yang telah diperbaiki.
+  \end{quote}
+
+  \begin{enumerate}
+  \def\labelenumii{\arabic{enumii}.}
+  \item ~
+    \hypertarget{batasan}{%
+    \subsection{\texorpdfstring{ Batasan}{ Batasan}}\label{batasan}}
+  \end{enumerate}
+\end{enumerate}
+
+Agar pembahasan lebih fokus, batasan masalah dalam laporan ini
+ditetapkan sebagai berikut:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \begin{quote}
+  Objek Penelitian: Sistem Informasi Skripsi (SISRI) yang digunakan di
+  lingkungan Fakultas Teknik Universitas Trunojoyo Madura.
+  \end{quote}
+\item
+  \begin{quote}
+  Ruang Lingkup Proses: Analisis proses bisnis dibatasi mulai dari tahap
+  Mahasiswa mengajukan topik hingga tahap pendaftaran sidang skripsi dan
+  penyenyerahan tugas akhir.
+  \end{quote}
+\item
+  \begin{quote}
+  Aktor yang Terlibat: Pemodelan mencakup aktivitas Mahasiswa, Dosen
+  (Pembimbing dan Penguji), Koordinator Program Studi, serta
+  Admin/Sistem.
+  \end{quote}
+\item
+  \begin{quote}
+  Fokus Pembahasan: Penelitian berfokus pada pemodelan dan perbaikan
+  alur proses bisnis (BPMN), dan mencakup pembuatan kode program serta
+  implementasi teknis aplikasi.
+  \end{quote}
+\end{enumerate}
+
+\textbf{BAB II}
+
+\textbf{PEMBAHASAN}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Pemodelan Proses Bisnis Awal}
+\end{enumerate}
+
+\begin{quote}
+Pemodelan Proses Bisnis (Business Process Modeling) adalah teknik atau
+metode untuk menggambarkan alur kerja (workflow) suatu proses dalam
+organisasi secara visual maupun tekstual. Tujuannya adalah untuk
+memahami bagaimana suatu proses berjalan, siapa yang terlibat, apa saja
+aktivitas yang dilakukan, serta bagaimana aliran informasi atau dokumen
+bergerak dari satu tahap ke tahap berikutnya.Pemodelan proses bisnis
+digunakan untuk membantu sebuah organisasi dalam menganalisis,
+memperbaiki, dan mengoptimalkan proses agar menjadi lebih efektif dan
+efisien.
+
+Berikut ini merupakan pemodelan proses bisnis awal untuk pengajuan tugas
+akhir yang telah disusun oleh kelompok kami sebagai gambaran alur kerja
+yang mencakup setiap tahapan, pihak yang terlibat, serta interaksi yang
+terjadi selama proses pengajuan berlangsung.
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \begin{quote}
+  Diagram Alur Proses Bisnis Tugas Akhir
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+Pada pemodelan proses bisnis awal, alur Tugas Akhir terdiri atas
+sembilan tahapan utama yang menjelaskan proses mulai dari pengajuan
+hingga penyelesaian Tugas Akhir(Sidang).
+
+\includegraphics[width=6in,height=0.72822in]{vertopal_2a30972654494b6c8109b03ffcf3066f/media/image16.png}
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\item
+  \begin{quote}
+  Registrasi KRS Skripsi
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+\includegraphics[width=5.59549in,height=2.36732in]{vertopal_2a30972654494b6c8109b03ffcf3066f/media/image3.png}
+
+Penjelasan Alur :
+
+Mahasiswa melakukan login pada sistem SIAKAD untuk mengakses menu
+pengajuan KRS Skripsi. Sistem kemudian melakukan verifikasi terhadap
+pemenuhan syarat SKS dan status pembayaran UKT. Apabila kedua syarat
+terpenuhi, mahasiswa dapat memilih dosen pembimbing, semester, serta
+mata kuliah yang diperlukan. Sistem selanjutnya memvalidasi mata kuliah
+dan prasyarat akademik. Jika seluruh persyaratan dinyatakan sesuai,
+mahasiswa melakukan konfirmasi KRS, yang kemudian diajukan kepada dosen
+wali untuk disetujui. Setelah memperoleh persetujuan, pengajuan skripsi
+dinyatakan berhasil.
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\item
+  \begin{quote}
+  Pengajuan Skripsi dan Penentuan Dosen Pembimbing
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+\includegraphics[width=5.17708in,height=3.23611in]{vertopal_2a30972654494b6c8109b03ffcf3066f/media/image14.png}
+
+\includegraphics[width=5.17708in,height=1.52431in]{vertopal_2a30972654494b6c8109b03ffcf3066f/media/image14.png}
+
+Penjelasan Alur :
+
+Proses dimulai dari mahasiswa yang mengajukan judul skripsi melalui
+sistem. Pengajuan tersebut kemudian diperiksa oleh pihak Prodi untuk
+memastikan kelengkapan dan kesesuaiannya. Setelah itu, Kaprodi melakukan
+evaluasi dan menentukan apakah judul dapat diterima atau perlu direvisi.
+Apabila judul disetujui, Kaprodi menetapkan dosen pembimbing sesuai
+bidang keahlian.Kaprodi kemudian membuatkan sk dan kartu bimbingan yang
+nantinya akan diberikan kepada mahasiswa,dan mahasiswa akan menerima sk
+dan kartu bimbingan dari kaprodi yang nantinya akan digunakan untuk
+bimbingan sampai skripsi tuntas.
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\item
+  \begin{quote}
+  Bimbingan dan Penyusunan Proposal
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+\includegraphics[width=5.26042in,height=3.07364in]{vertopal_2a30972654494b6c8109b03ffcf3066f/media/image8.png}
+
+Penjelasan Alur :
+
+Proses dimulai ketika mahasiswa menyusun dan menyerahkan draf proposal
+kepada Dosen Pembimbing Utama untuk diperiksa. Jika belum sesuai,
+mahasiswa diminta melakukan revisi hingga memperoleh persetujuan.
+Setelah itu, draf diperiksa oleh Dosen Pembimbing Anggota dengan
+mekanisme yang sama, yaitu perbaikan apabila diperlukan. Alur berakhir
+ketika kedua pembimbing memberikan persetujuan penuh, sehingga proposal
+dinyatakan final dan siap diajukan ke tahap seminar.
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{4}
+\item
+  \begin{quote}
+  Seminar Proposal
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+\includegraphics[width=5.66667in,height=3.12572in]{vertopal_2a30972654494b6c8109b03ffcf3066f/media/image4.png}Penjelasan
+Alur :
+
+Proses dimulai dengan mahasiswa mendaftar seminar dan menyerahkan
+seluruh berkas persyaratan. Bagian administrasi memverifikasi
+kelengkapan dokumen dan mengembalikannya jika terdapat kekurangan.
+Setelah berkas dinyatakan valid, Kaprodi menetapkan jadwal seminar serta
+menunjuk dosen penguji. Mahasiswa kemudian melaksanakan seminar sesuai
+jadwal dan mempresentasikan proposalnya. Setelah sesi tanya jawab,
+penguji dan pembimbing menetapkan hasil seminar. Proses ditutup dengan
+penerbitan berita acara serta penyampaian catatan revisi apabila
+diperlukan.
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{5}
+\item
+  \begin{quote}
+  Pelaksanaan Penelitian
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+\includegraphics[width=4.14757in,height=3.42708in]{vertopal_2a30972654494b6c8109b03ffcf3066f/media/image2.png}
+
+Penjelasan Alur :
+
+Proses penelitian dimulai dengan mahasiswa mengurus surat permohonan
+penelitian dan menyerahkannya kepada bagian administrasi hingga
+diterbitkan surat rekomendasi yang dikirimkan ke lokasi penelitian.
+Setelah memperoleh izin, mahasiswa melaksanakan penelitian lapangan,
+mengisi logbook, dan mengumpulkan data secara sistematis. Selama
+penelitian berlangsung, mahasiswa melakukan konsultasi berkala dengan
+Dosen Pembimbing Utama untuk pemantauan progres dan arahan teknis.
+Setelah data terkumpul, mahasiswa melakukan analisis dan menyusun draf
+hasil penelitian yang kemudian ditelaah oleh dosen. Tahap ini berlanjut
+secara berulang hingga dosen memberikan persetujuan. Setelah memperoleh
+persetujuan akhir, mahasiswa melanjutkan penyusunan laporan penelitian
+secara lengkap sebagai output akhir dari proses penelitian.
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{6}
+\item
+  \begin{quote}
+  Penyusunan Laporan Akhir
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+\includegraphics[width=5.90625in,height=3.31322in]{vertopal_2a30972654494b6c8109b03ffcf3066f/media/image9.png}Penjelasan
+Alur :
+
+Proses penyusunan laporan akhir dimulai dengan mahasiswa menyusun draf
+laporan secara lengkap berdasarkan hasil penelitian. Draf tersebut
+diserahkan kepada Dosen Pembimbing Utama untuk ditelaah; apabila
+terdapat kekurangan, mahasiswa melakukan revisi hingga mendapat
+persetujuan (ACC). Setelah itu, draf diserahkan kepada Dosen Pembimbing
+Anggota untuk validasi kelengkapan dan kesesuaian laporan, dengan revisi
+dilakukan jika diperlukan. Proses bimbingan dinyatakan selesai ketika
+kedua pembimbing memberikan tanda tangan persetujuan. Dokumen laporan
+akhir yang telah disahkan ini kemudian menjadi syarat utama bagi
+mahasiswa untuk mendaftar Seminar Hasil.
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{7}
+\item
+  \begin{quote}
+  Seminar Hasil
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+\includegraphics[width=5.13542in,height=2.37572in]{vertopal_2a30972654494b6c8109b03ffcf3066f/media/image7.png}Penjelasan
+Alur :
+
+Proses seminar hasil dimulai dengan mahasiswa mendaftar dengan
+menyerahkan draf laporan penelitian beserta dokumen pendukung kepada
+bagian administrasi, yang kemudian memverifikasi kelengkapan berkas.
+Setelah berkas dinyatakan lengkap, program studi menetapkan jadwal
+seminar, menunjuk dosen penguji dan pembimbing, serta mengirimkan
+undangan resmi kepada pihak terkait. Mahasiswa mempresentasikan hasil
+penelitiannya di hadapan forum seminar, diikuti sesi tanya jawab dan
+diskusi. Dosen penguji dan pembimbing menilai presentasi, dengan
+keputusan berupa lulus tanpa revisi, lulus dengan revisi, atau
+pengulangan seminar. Apabila revisi diperlukan, mahasiswa melakukan
+perbaikan sesuai catatan penguji. Setelah disetujui, berita acara
+seminar disahkan dan mahasiswa siap melanjutkan ke Sidang Skripsi.
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{8}
+\item
+  \begin{quote}
+  Ujian Akhir (Sidang)
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+\includegraphics[width=6.00452in,height=2.625in]{vertopal_2a30972654494b6c8109b03ffcf3066f/media/image18.png}Penjelasan
+Alur :
+
+Proses sidang skripsi dimulai dengan mahasiswa mendaftar dengan
+menyerahkan berkas lengkap, meliputi laporan skripsi final yang telah
+disetujui pembimbing, transkrip nilai, bukti bebas tanggungan, dan
+persyaratan administrasi lainnya. Bagian administrasi memverifikasi
+kelayakan berkas; jika lengkap, berkas diproses lebih lanjut, jika
+tidak, dikembalikan untuk dilengkapi. Selanjutnya, Ketua Program Studi
+menetapkan jadwal sidang dan menunjuk Majelis Penguji, kemudian
+mengirimkan undangan resmi kepada mahasiswa dan dosen terkait. Pada hari
+sidang, mahasiswa mempresentasikan hasil penelitiannya diikuti sesi
+tanya jawab dan pembelaan (defense) di hadapan Majelis Penguji. Setelah
+itu, Dewan Penguji mengadakan rapat tertutup untuk menentukan hasil
+sidang berupa status kelulusan dan nilai akhir. Mahasiswa yang lulus,
+dengan atau tanpa catatan revisi, wajib melakukan perbaikan laporan
+sesuai masukan penguji; setelah disetujui dan ditandatangani seluruh
+penguji serta pembimbing, skripsi disahkan dan mahasiswa berhak
+mengikuti yudisium atau wisuda.
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{9}
+\item
+  \begin{quote}
+  Penyerahan Tugas Akhir
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+\includegraphics[width=6in,height=2.59447in]{vertopal_2a30972654494b6c8109b03ffcf3066f/media/image5.png}Penjelasan
+Alur :
+
+Proses penyerahan tugas akhir dimulai dengan mahasiswa memfinalisasi
+laporan, mencetak lima eksemplar jilid hardcover, dan menyiapkan
+softcopy dalam bentuk CD/DVD, yang kemudian diserahkan ke bagian
+administrasi. Dokumen diteruskan ke perpustakaan untuk proses
+pengarsipan dan katalogisasi, setelah itu konfirmasi pengarsipan dikirim
+kembali ke administrasi untuk pemutakhiran data sistem. Mahasiswa
+mengecek dan memverifikasi status data tugas akhir; apabila data belum
+ada atau perlu perbaikan, administrasi melakukan update ulang. Setelah
+validitas data dikonfirmasi, mahasiswa menyelesaikan administrasi
+kelulusan, termasuk bebas pustaka, laboratorium, dan administrasi
+keuangan. Proses dinyatakan selesai ketika semua kewajiban terpenuhi,
+dan mahasiswa tinggal menunggu pengumuman tanggal wisuda.
+
+Sembilan tahapan yang telah kami uraikan merupakan hasil pemodelan
+proses bisnis awal yang disusun oleh kelompok kami sebagai landasan
+dalam perancangan sistem tugas akhir. Pemodelan ini memberikan gambaran
+menyeluruh mengenai alur kegiatan mahasiswa, dosen pembimbing, penguji,
+serta pihak administrasi mulai dari perencanaan penelitian hingga
+penyerahan tugas akhir dan kelulusan, sehingga setiap tahapan akademik
+dapat dilaksanakan secara sistematis dan sesuai prosedur yang berlaku.
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Pemodelan BPI}
+\end{enumerate}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \begin{quote}
+  Main
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+\includegraphics[width=6in,height=1.0482in]{vertopal_2a30972654494b6c8109b03ffcf3066f/media/image15.png}
+
+Penjelasan Alur: Melalui analisis \emph{Business Process Improvement}
+(BPI), alur Tugas Akhir diringkas dari 9 tahap menjadi 7 tahap.
+Efisiensi ini dicapai dengan menghapus aktivitas redundan,
+mengintegrasikan administrasi manual ke sistem SISRI, dan mempersingkat
+validasi, sehingga penyelesaian Tugas Akhir menjadi lebih cepat dan
+efisien
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\item
+  \begin{quote}
+  Pengajuan Skripsi dan Penentuan Pembimbing
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+\includegraphics[width=6in,height=2.77778in]{vertopal_2a30972654494b6c8109b03ffcf3066f/media/image12.png}
+
+Penjelasan Alur: Perbedaan terletak pada transformasi proses dari
+sebagian manual menjadi sepenuhnya berbasis sistem, model awal
+(\emph{As-Is}) mengharuskan mahasiswa mengakses SIAKAD terlebih dahulu
+untuk validasi KRS secara terpisah dan Kaprodi masih mencari dosen
+pembimbing secara manual, sedangkan model BPI (\emph{To-Be})
+mengintegrasikan validasi tersebut sehingga mahasiswa dapat langsung
+mengakses SISRI untuk mengajukan topik serta memilih dosen pembimbing
+secara mandiri, yang menjadikan alur kerja jauh lebih ringkas dan
+efisien secara waktu.
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\item
+  \begin{quote}
+  Penyusunan Proposal
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+\includegraphics[width=6in,height=1.98343in]{vertopal_2a30972654494b6c8109b03ffcf3066f/media/image17.png}
+
+Penjelasan Alur: Perbedaan terletak pada digitalisasi interaksi
+bimbingan, model awal (\emph{As-Is}) mengandalkan konsultasi dan
+pertukaran revisi dokumen secara manual atau tatap muka, sedangkan model
+BPI (\emph{To-Be}) memfasilitasi seluruh proses tersebut melalui menu
+Bimbingan Proposal di dalam sistem SISRI. Fitur ini memungkinkan dosen
+untuk memberikan evaluasi dan catatan revisi secara daring, serta
+didukung oleh fitur notifikasi antara mahasiswa dan dosen, sehingga
+proses perbaikan dan pengunggahan proposal dapat dilakukan secara lebih
+cepat.
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\item
+  \begin{quote}
+  Seminar Proposal
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+\includegraphics[width=6in,height=2.09532in]{vertopal_2a30972654494b6c8109b03ffcf3066f/media/image11.png}
+
+Penjelasan Alur: Perubahan signifikan terjadi di mana proses manual yang
+sebelumnya mengharuskan Kaprodi menghubungi dosen satu per satu untuk
+menyusun jadwal dan menyerahkannya ke bagian administrasi, kini telah
+digantikan oleh sistem yang terintegrasi. Jika pada model awal
+(\emph{As-Is}) catatan revisi, administrasi dan konsultasi dilakukan
+secara fisik atau tatap muka, maka pada model BPI (\emph{To-Be}),
+seluruh alur kerja terpusat di SISRI, memungkinkan mahasiswa mengakses
+perizinan sidang secara daring, memfasilitasi Kaprodi dalam melakukan
+penjadwalan dan publikasi otomatis, serta mendukung proses \emph{review}
+berita acara, input revisi, hingga penggunaan tanda tangan digital.
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{4}
+\item
+  \begin{quote}
+  Pelaksanaan Penelitian
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+\includegraphics[width=6in,height=2.27778in]{vertopal_2a30972654494b6c8109b03ffcf3066f/media/image6.png}
+
+Penjelasan Alur: Perbedaan terletak pada pergeseran dari administrasi
+manual menuju integrasi sistem digital. Pada model awal (\emph{As-Is}),
+mahasiswa harus mengurus surat perizinan dan rekomendasi penelitian
+secara fisik melalui bagian administrasi serta melakukan konsultasi
+\emph{logbook} harian. Pada model BPI (\emph{To-Be}) memfasilitasi
+seluruh alur tersebut termasuk revisi pasca-seminar melalui sistem SISRI
+yang memungkinkan pengunggahan dokumen, validasi daring oleh dosen,
+serta notifikasi, sehingga proses monitoring dan administrasi menjadi
+lebih efisien.
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{5}
+\item
+  \begin{quote}
+  Penyusunan Laporan Akhir
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+\includegraphics[width=6in,height=2.53551in]{vertopal_2a30972654494b6c8109b03ffcf3066f/media/image1.png}
+
+Penjelasan Alur: Perbedaan terletak pada integrasi sistem bimbingan.
+Pada model awal (\emph{As-Is}), proses penyusunan laporan dan revisi Bab
+1-5 dilakukan secara manual dengan interaksi berulang antara mahasiswa
+dan dosen pembimbing tanpa sistem terpusat, sedangkan pada model BPI
+(\emph{To-Be}), seluruh alur bimbingan, mulai dari pengunggahan
+\emph{draft}, pemberian \emph{feedback} revisi oleh pembimbing, hingga
+validasi final, difasilitasi oleh sistem SISRI yang memungkinkan
+pelacakan riwayat bimbingan secara digital dan notifikasi
+\emph{real-time}, sehingga proses menjadi lebih terstruktur dan efisien.
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{6}
+\item
+  \begin{quote}
+  Ujian Akhir (Sidang)
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+\includegraphics[width=6in,height=1.57449in]{vertopal_2a30972654494b6c8109b03ffcf3066f/media/image10.png}
+
+Penjelasan Alur: Perubahan terletak pada transformasi administrasi dari
+manual ke sistem terpusat. Pada model awal (\emph{As-Is}), proses
+pendaftaran, penyebaran undangan, konfirmasi jadwal dosen, hingga
+pengisian berita acara, penilaian dan pengumuman kelulusan dilakukan
+secara manual. Sebaliknya, pada model BPI (\emph{To-Be}), seluruh
+rangkaian aktivitas tersebut mulai dari pendaftaran sidang, validasi
+persyaratan, penjadwalan dan undangan otomatis, input nilai dan revisi,
+hingga penilaian serta publikasi hasil kelulusan terintegrasi penuh di
+dalam sistem SISRI, sehingga dapat diakses secara \emph{real-time} oleh
+semua pihak terkait.
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{7}
+\item
+  \begin{quote}
+  Penyerahan Tugas Akhir
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+\includegraphics[width=6in,height=2.67361in]{vertopal_2a30972654494b6c8109b03ffcf3066f/media/image19.png}
+
+Penjelasan Alur: Perbedaan utama pada tahap Penyerahan Tugas Akhir
+terletak pada integrasi notifikasi dan konfirmasi sistem. Pada model
+awal (\emph{As-Is}), proses komunikasi seperti pemberitahuan
+penyelesaian revisi dan status kelulusan masih dilakukan secara manual
+melalui interaksi langsung antara mahasiswa dan administrasi. Sedangkan
+pada model BPI (\emph{To-Be}), seluruh alur penyerahan dokumen,
+katalogisasi perpustakaan, hingga konfirmasi bebas pustaka dan keuangan
+terintegrasi dengan sistem yang memberikan notifikasi kepada mahasiswa
+mengenai status \emph{update} data dan kelulusan, sehingga mempercepat
+proses administratif menuju wisuda.
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Permasalahan}
+\end{enumerate}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \begin{quote}
+  Kompleksitas dan redundansi pada siakad
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+Dikarenakan pada model proses bisnis awal, terdapat ketergantungan yang
+tinggi terhadap sistem siakad dalam setiap verifikasi data mahasiswa.
+pada alur ini mengharuskan sinkronisasi data dua arah yang
+berulang-ulang antara data akademik umum dengan data yang lebih spesifik
+seperti tugas akhir. Nah hal ini mengakibatkan 2 hal yaitu:\\
+\strut \\
+1) Alur proses yang terlalu panjang yaitu pada saat proses validasi
+menjadi berbelit dikarenakan mahasiswa dan admin harus menunggu
+konfirmasi dari sistem siakad sebelum melangkah ke tahap pengajuan judul
+skripsi.
+
+2) Bottleneck yaitu saat terjadi gangguan teknis atau keterlambatan
+update data yang terdapat di siakad maka, seluruh proses pengajuan tugas
+akhir akan terhenti dikarenakan hal tersebut.
+
+Solusi BPI yaitu fokus sistem dialihkan sepenuhnya pada manajemen
+internal SISRI untuk mempercepat waktu siklus pengajuan tanpa harus
+melewati birokrasi sistem siakad yang berlebih.
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\item
+  \begin{quote}
+  Inefesiensi alur validasi dan persetujuan
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+Proses persetujan topik dan pembimbing seringkali memakan waktu yang
+lama dikarenakan alur yang tidak terpusat. Sebelum adanya BPI, dokumen
+pengajuan seringkali harus melewati rantai birokrasi manual atau semi
+digital yang tidak memiliki notifikasi secara real-time. Salah satu
+contohnya yaitu:
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi})}
+\item
+  \begin{quote}
+  Kaprodi sering kali kesulitan memantau tumpukan pengajuan yang masuk,
+  sehingga respons terhadap pengajuan mahasiswa menjadi lambat.
+  \end{quote}
+\item
+  \begin{quote}
+  tidak adanya otomisasi untuk mendeteksi beban kerja atau kuota dosen
+  pembimbing, sehingga sering terjadi penolakan ditahap akhir hanya
+  karena kuota dosen penuh, yang meharuskan mahasiswa mengulang proses
+  dari awal.
+  \end{quote}
+\end{enumerate}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\item
+  \begin{quote}
+  Keterbatasan visibalitas status pengajuan
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+Mahasiswa seringkali mengalami kebingungan menegenai posisi dokumen atau
+status pengajuan mereka saat ini. Pada proses lama, seperti minimnya
+fitur pelacakan atau tracking yang menyebabkan 2 hal yaitu:\\
+\strut \\
+1) Tingginya frekuensi pertanyaan berulang dari mahasiwa kepada staf
+admin atau prodi hanya untuk menayakan ``sampai dimana berkas Saya?''
+
+2) Ketidakpastian informasi mengenai jadwal seminar ataupun sidang, yang
+dimana informasi sering kali tersebar melalui saluran yang tidak resmi
+seperti pesan singkat.
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Analisis dan Perancangan Sistem}
+\end{enumerate}
+
+\begin{quote}
+Tahap analisis dan perancangan sistem dilakukan untuk menerjemahkan
+perbaikan proses bisnis (BPI) yang telah dirancang sebelumnya ke dalam
+spesifikasi teknis aplikasi SISRI. Fokus utama perancangan ini adalah
+memfasilitasi alur kerja yang lebih ringkas (dari 9 tahap menjadi 7
+tahap), menerapkan digitalisasi dokumen, serta mengintegrasikan
+notifikasi \emph{real-time}.
+\end{quote}
+
+\hypertarget{analisis-kebutuhan-sistem}{%
+\paragraph{2.4.1 Analisis Kebutuhan
+Sistem}\label{analisis-kebutuhan-sistem}}
+
+\begin{quote}
+Berdasarkan analisis permasalahan pada Bab 2.3, sistem baru dirancang
+untuk mengurangi ketergantungan pada sinkronisasi SIAKAD yang berulang
+dan menghilangkan inefisiensi validasi manual. Kebutuhan sistem dibagi
+menjadi dua kategori:
+
+\textbf{A. Kebutuhan Fungsional (Functional Requirements)} Sistem harus
+mampu melayani empat aktor utama, yaitu Mahasiswa, Dosen (Pembimbing \&
+Penguji), Koordinator Program Studi (Kaprodi), dan Admin.
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \begin{quote}
+  \textbf{Aktor Mahasiswa:}
+  \end{quote}
+
+  \begin{itemize}
+  \item
+    \begin{quote}
+    Dapat melakukan pengajuan topik skripsi dan memilih dosen pembimbing
+    secara mandiri di dalam sistem tanpa menunggu validasi eksternal
+    SIAKAD.
+    \end{quote}
+  \item
+    \begin{quote}
+    Dapat melakukan bimbingan proposal dan skripsi secara daring
+    (mengunggah \emph{draft} dan menerima revisi) melalui menu
+    "Bimbingan Proposal" dan "Bimbingan Skripsi".
+    \end{quote}
+  \item
+    \begin{quote}
+    Dapat melihat jadwal seminar/sidang dan status kelulusan secara
+    \emph{real-time}.
+    \end{quote}
+  \item
+    \begin{quote}
+    Menerima notifikasi otomatis terkait status validasi atau revisi
+    dari dosen.
+    \end{quote}
+  \end{itemize}
+\item
+  \begin{quote}
+  \textbf{Aktor Dosen (Pembimbing \& Penguji):}
+  \end{quote}
+
+  \begin{itemize}
+  \item
+    \begin{quote}
+    Dapat memvalidasi pengajuan judul dan \emph{draft} proposal
+    mahasiswa.
+    \end{quote}
+  \item
+    \begin{quote}
+    Memberikan catatan revisi dan melakukan persetujuan (ACC) digital
+    pada logbook atau dokumen skripsi.
+    \end{quote}
+  \item
+    \begin{quote}
+    Menginput nilai seminar dan sidang secara langsung ke dalam sistem.
+    \end{quote}
+  \end{itemize}
+\item
+  \begin{quote}
+  \textbf{Aktor Koorprodi:}
+  \end{quote}
+
+  \begin{itemize}
+  \item
+    \begin{quote}
+    Memverifikasi kelayakan judul dan menetapkan dosen pembimbing jika
+    kuota mencukupi.
+    \end{quote}
+  \item
+    \begin{quote}
+    Menentukan jadwal seminar/sidang dan menunjuk dosen penguji secara
+    terintegrasi.
+    \end{quote}
+  \item
+    \begin{quote}
+    Menerbitkan SK Pembimbing secara digital.
+    \end{quote}
+  \end{itemize}
+\item
+  \begin{quote}
+  \textbf{Aktor Admin:}
+  \end{quote}
+
+  \begin{itemize}
+  \item
+    \begin{quote}
+    Memverifikasi kelengkapan berkas administratif (bebas tanggungan,
+    transkrip) sebelum sidang.
+    \end{quote}
+  \item
+    \begin{quote}
+    Melakukan pemutakhiran data status tugas akhir setelah proses
+    penyerahan jilid dan CD.
+    \end{quote}
+  \end{itemize}
+\end{enumerate}
+
+\textbf{B. Kebutuhan Non-Fungsional}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \begin{quote}
+  \textbf{Ketersediaan (Availability):} Sistem berbasis web yang dapat
+  diakses kapan saja oleh pengguna.
+  \end{quote}
+\item
+  \begin{quote}
+  \textbf{Keamanan (Security):} Sistem membatasi hak akses berdasarkan
+  level \emph{user} (Mahasiswa, Dosen, Admin).
+  \end{quote}
+\item
+  \begin{quote}
+  \textbf{Efisiensi:} Sistem harus mampu mengirimkan notifikasi
+  perubahan status secara langsung (real-time) untuk mengurangi waktu
+  tunggu mahasiswa.
+  \end{quote}
+\end{enumerate}
+
+\hypertarget{perancangan-alur-sistem-system-flow}{%
+\paragraph{2.4.2 Perancangan Alur Sistem (System
+Flow)}\label{perancangan-alur-sistem-system-flow}}
+
+Perancangan alur sistem disesuaikan dengan model BPI \emph{To-Be} yang
+telah didefinisikan pada Bab 2.2, yang meliputi:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \begin{quote}
+  \textbf{Modul Pengajuan \& Penetapan:} Menggantikan proses manual
+  dengan formulir digital terpusat di SISRI, di mana mahasiswa langsung
+  memilih dosen dan Kaprodi melakukan persetujuan tanpa perpindahan
+  dokumen fisik.
+  \end{quote}
+\item
+  \begin{quote}
+  \textbf{Modul Bimbingan Terintegrasi:} Menyediakan kolom komentar pada
+  dokumen yang diunggah untuk menggantikan kartu bimbingan fisik dan
+  pertemuan tatap muka yang tidak tercatat sistem.
+  \end{quote}
+\item
+  \begin{quote}
+  \textbf{Modul Seminar \& Sidang:} Mengotomatisasi pembuatan jadwal dan
+  berita acara. Sistem akan secara otomatis menggenerate \emph{draft}
+  berita acara yang dapat pasca-sidang.
+  \end{quote}
+\end{enumerate}
+
+\hypertarget{perancangan-basis-data-database-design}{%
+\paragraph{2.4.3 Perancangan Basis Data (Database
+Design)}\label{perancangan-basis-data-database-design}}
+
+Untuk mendukung proses bisnis di atas, perancangan basis data difokuskan
+pada entitas-entitas utama berikut:
+
+\begin{itemize}
+\item
+  \begin{quote}
+  \textbf{Tabel User:} Menyimpan data Mahasiswa, Dosen, dan Admin.
+  \end{quote}
+\item
+  \begin{quote}
+  \textbf{Tabel Skripsi:} Menyimpan data judul, deskripsi, dan status
+  persetujuan Kaprodi.
+  \end{quote}
+\item
+  \begin{quote}
+  \textbf{Tabel Bimbingan:} Menyimpan riwayat \emph{logbook},
+  \emph{file} revisi, dan catatan dari dosen pembimbing.
+  \end{quote}
+\item
+  \begin{quote}
+  \textbf{Tabel Jadwal:} Menyimpan data waktu, tempat, dan penguji untuk
+  Seminar Proposal dan Sidang Skripsi.
+  \end{quote}
+\item
+  \begin{quote}
+  \textbf{Tabel Penilaian:} Menyimpan nilai yang diinput oleh dosen
+  penguji dan hasil keputusan kelulusan.
+  \end{quote}
+\end{itemize}
+
+Perancangan ini bertujuan untuk memastikan seluruh data tersentralisasi,
+sehingga masalah redundansi data dan kesulitan pelacakan berkas
+(tracking) yang terjadi pada sistem lama dapat diatasi.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Implementasi Sistem}
+\end{enumerate}
+
+\textbf{BAB III}
+
+\textbf{PENUTUP}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Kesimpulan}
+\end{enumerate}
+
+disimpulkan bahwa proses bisnis SISRI yang berjalan saat ini masih
+mengandung beberapa inefisiensi, terutama pada validasi manual dan
+pengelolaan dokumen. Perancangan model BPI berhasil menawarkan alur yang
+lebih terintegrasi melalui digitalisasi dokumen, penyempurnaan alur
+validasi, serta otomatisasi notifikasi. Model tersebut kemudian
+diimplementasikan dalam bentuk aplikasi web SISRI yang baru, dan
+terbukti dapat menjalankan alur proses yang telah diperbaiki secara
+fungsional serta meningkatkan efisiensi dan transparansi bagi seluruh
+aktor yang terlibat.
+
+\end{document}
