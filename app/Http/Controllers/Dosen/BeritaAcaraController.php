@@ -162,7 +162,7 @@ class BeritaAcaraController extends Controller
 
         $pelaksanaan->load([
             'pendaftaranSidang.topik.mahasiswa.user',
-            'pendaftaranSidang.topik.mahasiswa.prodi',
+            'pendaftaranSidang.topik.mahasiswa.prodi.parent.parent', // prodi -> jurusan -> fakultas
             'pendaftaranSidang.topik.usulanPembimbing.dosen.user',
             'pendaftaranSidang.jadwalSidang',
             'pengujiSidang.dosen.user',
@@ -178,7 +178,8 @@ class BeritaAcaraController extends Controller
             return str_starts_with($p->role, 'penguji_');
         })->sortBy('role');
 
-        $jenis = $pelaksanaan->pendaftaranSidang->jenis === 'seminar_proposal' ? 'Seminar Proposal' : 'Sidang Skripsi';
+        $jenis = $pelaksanaan->pendaftaranSidang->jenis === 'seminar_proposal' ? 'sempro' : 'sidang';
+        $jenisLabel = $jenis === 'sempro' ? 'Seminar Proposal' : 'Sidang Skripsi';
         $mahasiswa = $pelaksanaan->pendaftaranSidang->topik->mahasiswa;
 
         $pdf = Pdf::loadView('dosen.berita-acara.pdf', compact(
@@ -189,7 +190,7 @@ class BeritaAcaraController extends Controller
             'mahasiswa'
         ));
 
-        $filename = 'Berita_Acara_' . str_replace(' ', '_', $jenis) . '_' . $mahasiswa->nim . '.pdf';
+        $filename = 'Berita_Acara_' . str_replace(' ', '_', $jenisLabel) . '_' . $mahasiswa->nim . '.pdf';
 
         return $pdf->download($filename);
     }

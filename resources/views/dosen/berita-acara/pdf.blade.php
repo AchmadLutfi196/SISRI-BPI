@@ -159,12 +159,18 @@
     </style>
 </head>
 <body>
+    @php
+        $mahasiswa = $pelaksanaan->pendaftaranSidang->topik->mahasiswa ?? null;
+        $prodi = $mahasiswa?->prodi;
+        $jurusan = $prodi?->parent;
+        $fakultas = $jurusan?->parent;
+    @endphp
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>UNIVERSITAS</h1>
-            <h2>FAKULTAS TEKNIK</h2>
-            <h2>PROGRAM STUDI SISTEM INFORMASI</h2>
+            <h1>UNIVERSITAS TRUNOJOYO MADURA</h1>
+            <h2>{{ strtoupper($fakultas->nama ?? 'FAKULTAS') }}</h2>
+            <h2>{{ strtoupper($prodi->nama ?? '-') }}</h2>
         </div>
         
         <!-- Title -->
