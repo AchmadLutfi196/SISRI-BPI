@@ -213,17 +213,27 @@
                     <tr>
                         <th style="width: 40px;">No</th>
                         <th>Nama Dosen</th>
-                        <th style="width: 120px;">Jabatan</th>
-                        <th style="width: 100px;">Status TTD</th>
-                        <th style="width: 120px;">Tanggal TTD</th>
+                        <th style="width: 100px;">Jabatan</th>
+                        <th style="width: 60px;">Nilai</th>
+                        <th style="width: 80px;">Status TTD</th>
+                        <th style="width: 100px;">Tanggal TTD</th>
                     </tr>
                 </thead>
                 <tbody>
+                    @php $totalNilaiPembimbing = 0; $countNilaiPembimbing = 0; @endphp
                     @foreach($pembimbingList as $index => $pembimbing)
+                    @php
+                        $nilaiPembimbing = $pelaksanaan->nilai->where('dosen_id', $pembimbing->dosen_id)->first();
+                        if ($nilaiPembimbing) {
+                            $totalNilaiPembimbing += $nilaiPembimbing->nilai;
+                            $countNilaiPembimbing++;
+                        }
+                    @endphp
                     <tr>
                         <td class="center">{{ $index + 1 }}</td>
                         <td>{{ $pembimbing->dosen->user->name ?? '-' }}</td>
                         <td class="center">{{ ucwords(str_replace('_', ' ', $pembimbing->role)) }}</td>
+                        <td class="center"><strong>{{ $nilaiPembimbing ? $nilaiPembimbing->nilai : '-' }}</strong></td>
                         <td class="center">
                             @if($pembimbing->ttd_berita_acara)
                                 <span class="ttd-status ttd-signed">✓ Sudah TTD</span>
@@ -246,17 +256,27 @@
                     <tr>
                         <th style="width: 40px;">No</th>
                         <th>Nama Dosen</th>
-                        <th style="width: 120px;">Jabatan</th>
-                        <th style="width: 100px;">Status TTD</th>
-                        <th style="width: 120px;">Tanggal TTD</th>
+                        <th style="width: 100px;">Jabatan</th>
+                        <th style="width: 60px;">Nilai</th>
+                        <th style="width: 80px;">Status TTD</th>
+                        <th style="width: 100px;">Tanggal TTD</th>
                     </tr>
                 </thead>
                 <tbody>
+                    @php $totalNilaiPenguji = 0; $countNilaiPenguji = 0; @endphp
                     @foreach($pengujiList as $index => $pnguji)
+                    @php
+                        $nilaiPenguji = $pelaksanaan->nilai->where('dosen_id', $pnguji->dosen_id)->first();
+                        if ($nilaiPenguji) {
+                            $totalNilaiPenguji += $nilaiPenguji->nilai;
+                            $countNilaiPenguji++;
+                        }
+                    @endphp
                     <tr>
                         <td class="center">{{ $index + 1 }}</td>
                         <td>{{ $pnguji->dosen->user->name ?? '-' }}</td>
                         <td class="center">{{ ucwords(str_replace('_', ' ', $pnguji->role)) }}</td>
+                        <td class="center"><strong>{{ $nilaiPenguji ? $nilaiPenguji->nilai : '-' }}</strong></td>
                         <td class="center">
                             @if($pnguji->ttd_berita_acara)
                                 <span class="ttd-status ttd-signed">✓ Sudah TTD</span>
@@ -271,6 +291,64 @@
                     @endforeach
                 </tbody>
             </table>
+            
+            <!-- Ringkasan Nilai -->
+            @php
+                $totalNilai = $totalNilaiPembimbing + $totalNilaiPenguji;
+                $countNilai = $countNilaiPembimbing + $countNilaiPenguji;
+                $rataRata = $countNilai > 0 ? round($totalNilai / $countNilai, 2) : 0;
+                
+                // Tentukan grade
+                if ($rataRata >= 85) {
+                    $grade = 'A';
+                } elseif ($rataRata >= 70) {
+                    $grade = 'B';
+                } elseif ($rataRata >= 55) {
+                    $grade = 'C';
+                } elseif ($rataRata >= 40) {
+                    $grade = 'D';
+                } else {
+                    $grade = 'E';
+                }
+                
+                // Tentukan kelulusan
+                $lulus = in_array($grade, ['A', 'B', 'C']);
+            @endphp
+            
+            <div style="margin-top: 25px; border: 2px solid #000; padding: 15px;">
+                <p class="section-title" style="margin-top: 0; text-align: center; font-size: 13pt;">HASIL PENILAIAN {{ $jenis === 'sempro' ? 'SEMINAR PROPOSAL' : 'SIDANG SKRIPSI' }}</p>
+                <table style="width: 100%; margin-top: 10px;">
+                    <tr>
+                        <td style="width: 200px;">Jumlah Penilai</td>
+                        <td style="width: 10px;">:</td>
+                        <td><strong>{{ $countNilai }} Dosen</strong> ({{ $countNilaiPembimbing }} Pembimbing, {{ $countNilaiPenguji }} Penguji)</td>
+                    </tr>
+                    <tr>
+                        <td>Rata-rata Nilai</td>
+                        <td>:</td>
+                        <td><strong style="font-size: 14pt;">{{ $rataRata }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Grade</td>
+                        <td>:</td>
+                        <td><strong style="font-size: 14pt;">{{ $grade }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Status Kelulusan</td>
+                        <td>:</td>
+                        <td>
+                            @if($countNilai == 0)
+                                <strong style="color: gray;">BELUM ADA NILAI</strong>
+                            @elseif($lulus)
+                                <strong style="color: green; font-size: 14pt;">✓ LULUS</strong>
+                            @else
+                                <strong style="color: red; font-size: 14pt;">✗ TIDAK LULUS</strong>
+                                <br><span style="font-size: 10pt; color: red;">(Harus mengulang {{ $jenis === 'sempro' ? 'Seminar Proposal' : 'Sidang Skripsi' }})</span>
+                            @endif
+                        </td>
+                    </tr>
+                </table>
+            </div>
             
             <!-- Status Keputusan -->
             <p style="margin-top: 20px;">
