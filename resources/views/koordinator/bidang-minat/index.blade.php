@@ -76,7 +76,7 @@
                                                           id="delete-bidang-{{ $bidang->id }}">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="button" onclick="confirmDelete('delete-bidang-{{ $bidang->id }}', '{{ $bidang->nama }}')" class="text-red-600 hover:text-red-900">Hapus</button>
+                                                        <button type="button" onclick="confirmDelete('delete-bidang-{{ $bidang->id }}', 'Hapus Bidang Minat', 'Yakin ingin menghapus bidang minat {{ $bidang->nama }}?')" class="text-red-600 hover:text-red-900">Hapus</button>
                                                     </form>
                                                 </div>
                                             </td>

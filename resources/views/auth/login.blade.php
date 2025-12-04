@@ -15,72 +15,8 @@
             </div>
 
             <!-- Illustration -->
-            <div class="relative w-full max-w-xs">
-                <!-- Computer Frame -->
-                <div class="bg-white rounded-lg shadow-lg p-2 border-4 border-gray-300">
-                    <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded aspect-video flex items-center justify-center relative overflow-hidden">
-                        <!-- Building Illustration -->
-                        <svg class="w-full h-full" viewBox="0 0 200 120" fill="none">
-                            <!-- Sky -->
-                            <rect width="200" height="120" fill="url(#skyGradient)"/>
-                            <!-- Building -->
-                            <rect x="40" y="30" width="120" height="80" fill="#E5E7EB"/>
-                            <rect x="45" y="35" width="110" height="70" fill="#F3F4F6"/>
-                            <!-- Windows Grid -->
-                            <g fill="#60A5FA">
-                                <rect x="50" y="40" width="12" height="10"/>
-                                <rect x="67" y="40" width="12" height="10"/>
-                                <rect x="84" y="40" width="12" height="10"/>
-                                <rect x="101" y="40" width="12" height="10"/>
-                                <rect x="118" y="40" width="12" height="10"/>
-                                <rect x="135" y="40" width="12" height="10"/>
-                                
-                                <rect x="50" y="55" width="12" height="10"/>
-                                <rect x="67" y="55" width="12" height="10"/>
-                                <rect x="84" y="55" width="12" height="10"/>
-                                <rect x="101" y="55" width="12" height="10"/>
-                                <rect x="118" y="55" width="12" height="10"/>
-                                <rect x="135" y="55" width="12" height="10"/>
-                                
-                                <rect x="50" y="70" width="12" height="10"/>
-                                <rect x="67" y="70" width="12" height="10"/>
-                                <rect x="84" y="70" width="12" height="10"/>
-                                <rect x="101" y="70" width="12" height="10"/>
-                                <rect x="118" y="70" width="12" height="10"/>
-                                <rect x="135" y="70" width="12" height="10"/>
-                            </g>
-                            <!-- Door -->
-                            <rect x="90" y="85" width="20" height="25" fill="#1E40AF"/>
-                            <!-- Ground -->
-                            <rect y="110" width="200" height="10" fill="#059669"/>
-                            <defs>
-                                <linearGradient id="skyGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stop-color="#60A5FA"/>
-                                    <stop offset="100%" stop-color="#93C5FD"/>
-                                </linearGradient>
-                            </defs>
-                        </svg>
-                    </div>
-                </div>
-                <!-- Monitor Stand -->
-                <div class="w-16 h-4 bg-gray-400 mx-auto rounded-b-lg"></div>
-                <div class="w-24 h-2 bg-gray-500 mx-auto rounded-b-lg"></div>
-                
-                <!-- Decorative Elements -->
-                <div class="absolute -left-4 top-1/2 transform -translate-y-1/2">
-                    <svg class="w-16 h-16 text-blue-300 opacity-50" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="2"/>
-                        <circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" stroke-width="2"/>
-                        <circle cx="50" cy="50" r="15" fill="currentColor"/>
-                    </svg>
-                </div>
-                <div class="absolute -right-4 bottom-0">
-                    <svg class="w-12 h-12 text-yellow-400" viewBox="0 0 100 100">
-                        <circle cx="30" cy="30" r="25" fill="currentColor" opacity="0.6"/>
-                        <circle cx="70" cy="50" r="20" fill="currentColor" opacity="0.4"/>
-                        <circle cx="40" cy="70" r="15" fill="currentColor" opacity="0.3"/>
-                    </svg>
-                </div>
+            <div class="relative w-full max-w-sm">
+                <img src="{{ asset('images/college campus-rafiki.svg') }}" alt="Campus Illustration" class="w-full h-auto">
             </div>
         </div>
 
