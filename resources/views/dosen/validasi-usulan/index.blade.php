@@ -5,6 +5,67 @@
             <h1 class="text-2xl font-bold text-gray-800">Validasi Usulan Pembimbingan</h1>
         </div>
 
+        <!-- Kuota Info Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <!-- Kuota Pembimbing 1 -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Kuota Pembimbing 1</p>
+                        <div class="mt-1 flex items-baseline">
+                            <p class="text-2xl font-bold text-blue-600">{{ $kuotaInfo['sisa_1'] }}</p>
+                            <p class="ml-2 text-sm text-gray-500">/ {{ $kuotaInfo['kuota_1'] }}</p>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Terpakai: {{ $kuotaInfo['terpakai_1'] }} mahasiswa</p>
+                    </div>
+                    <div class="p-3 bg-blue-50 rounded-full">
+                        <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <!-- Progress bar -->
+                <div class="mt-3">
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        @php
+                            $percent1 = $kuotaInfo['kuota_1'] > 0 ? ($kuotaInfo['terpakai_1'] / $kuotaInfo['kuota_1']) * 100 : 0;
+                            $barColor1 = $percent1 >= 90 ? 'bg-red-500' : ($percent1 >= 70 ? 'bg-yellow-500' : 'bg-blue-500');
+                        @endphp
+                        <div class="{{ $barColor1 }} h-2 rounded-full transition-all duration-300" style="width: {{ min($percent1, 100) }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kuota Pembimbing 2 -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Kuota Pembimbing 2</p>
+                        <div class="mt-1 flex items-baseline">
+                            <p class="text-2xl font-bold text-purple-600">{{ $kuotaInfo['sisa_2'] }}</p>
+                            <p class="ml-2 text-sm text-gray-500">/ {{ $kuotaInfo['kuota_2'] }}</p>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Terpakai: {{ $kuotaInfo['terpakai_2'] }} mahasiswa</p>
+                    </div>
+                    <div class="p-3 bg-purple-50 rounded-full">
+                        <svg class="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <!-- Progress bar -->
+                <div class="mt-3">
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        @php
+                            $percent2 = $kuotaInfo['kuota_2'] > 0 ? ($kuotaInfo['terpakai_2'] / $kuotaInfo['kuota_2']) * 100 : 0;
+                            $barColor2 = $percent2 >= 90 ? 'bg-red-500' : ($percent2 >= 70 ? 'bg-yellow-500' : 'bg-purple-500');
+                        @endphp
+                        <div class="{{ $barColor2 }} h-2 rounded-full transition-all duration-300" style="width: {{ min($percent2, 100) }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Info Card -->
         <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
             <div class="flex">

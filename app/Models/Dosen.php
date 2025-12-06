@@ -24,6 +24,8 @@ class Dosen extends Model
         'email',
         'no_hp',
         'foto',
+        'kuota_pembimbing_1',
+        'kuota_pembimbing_2',
     ];
 
     /**
@@ -125,5 +127,73 @@ class Dosen extends Model
         }
         
         return $initials ?: 'D';
+    }
+
+    /**
+     * Get jumlah mahasiswa bimbingan aktif sebagai pembimbing 1.
+     */
+    public function getJumlahBimbingan1Attribute(): int
+    {
+        return $this->usulanPembimbing()
+            ->where('urutan', 1)
+            ->where('status', 'diterima')
+            ->whereHas('topik', function ($query) {
+                $query->whereNotIn('status', ['selesai', 'ditolak']);
+            })
+            ->count();
+    }
+
+    /**
+     * Get jumlah mahasiswa bimbingan aktif sebagai pembimbing 2.
+     */
+    public function getJumlahBimbingan2Attribute(): int
+    {
+        return $this->usulanPembimbing()
+            ->where('urutan', 2)
+            ->where('status', 'diterima')
+            ->whereHas('topik', function ($query) {
+                $query->whereNotIn('status', ['selesai', 'ditolak']);
+            })
+            ->count();
+    }
+
+    /**
+     * Get sisa kuota pembimbing 1.
+     */
+    public function getSisaKuota1Attribute(): int
+    {
+        return max(0, $this->kuota_pembimbing_1 - $this->jumlah_bimbingan_1);
+    }
+
+    /**
+     * Get sisa kuota pembimbing 2.
+     */
+    public function getSisaKuota2Attribute(): int
+    {
+        return max(0, $this->kuota_pembimbing_2 - $this->jumlah_bimbingan_2);
+    }
+
+    /**
+     * Cek apakah kuota pembimbing 1 masih tersedia.
+     */
+    public function hasKuota1Available(): bool
+    {
+        return $this->sisa_kuota_1 > 0;
+    }
+
+    /**
+     * Cek apakah kuota pembimbing 2 masih tersedia.
+     */
+    public function hasKuota2Available(): bool
+    {
+        return $this->sisa_kuota_2 > 0;
+    }
+
+    /**
+     * Cek apakah kuota tersedia berdasarkan urutan.
+     */
+    public function hasKuotaAvailable(int $urutan): bool
+    {
+        return $urutan == 1 ? $this->hasKuota1Available() : $this->hasKuota2Available();
     }
 }

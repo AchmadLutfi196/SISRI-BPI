@@ -112,6 +112,55 @@
             </div>
         </div>
 
+        <!-- Kuota Info -->
+        @if($usulan->status == 'menunggu')
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Informasi Kuota Pembimbing {{ $usulan->urutan }}</h3>
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <p class="text-sm text-gray-500">Sisa Kuota</p>
+                            <p class="text-2xl font-bold {{ $kuotaInfo['sisa'] > 0 ? ($usulan->urutan == 1 ? 'text-blue-600' : 'text-purple-600') : 'text-red-600' }}">
+                                {{ $kuotaInfo['sisa'] }} <span class="text-sm font-normal text-gray-500">/ {{ $kuotaInfo['kuota'] }}</span>
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-gray-500">Terpakai</p>
+                            <p class="text-lg font-semibold text-gray-700">{{ $kuotaInfo['terpakai'] }} mahasiswa</p>
+                        </div>
+                    </div>
+                    <!-- Progress bar -->
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        @php
+                            $percent = $kuotaInfo['kuota'] > 0 ? ($kuotaInfo['terpakai'] / $kuotaInfo['kuota']) * 100 : 0;
+                            $barColor = $percent >= 90 ? 'bg-red-500' : ($percent >= 70 ? 'bg-yellow-500' : ($usulan->urutan == 1 ? 'bg-blue-500' : 'bg-purple-500'));
+                        @endphp
+                        <div class="{{ $barColor }} h-3 rounded-full transition-all duration-300" style="width: {{ min($percent, 100) }}%"></div>
+                    </div>
+
+                    @if(!$kuotaInfo['available'])
+                        <div class="mt-4 bg-red-50 border-l-4 border-red-500 p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-red-700 font-medium">
+                                        Kuota pembimbing {{ $usulan->urutan }} Anda sudah penuh!
+                                    </p>
+                                    <p class="text-sm text-red-600 mt-1">
+                                        Anda tidak dapat menyetujui usulan ini sampai ada slot kuota yang tersedia.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @endif
+
         <!-- Action Form -->
         @if($usulan->status == 'menunggu')
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -121,16 +170,29 @@
                     <div x-data="{ action: '' }">
                         <!-- Action Buttons -->
                         <div class="flex space-x-4 mb-6">
-                            <button type="button" @click="action = 'approve'"
-                                    class="flex-1 px-4 py-3 rounded-lg border-2 transition-all"
-                                    :class="action === 'approve' ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-300 hover:border-green-300'">
-                                <div class="flex items-center justify-center">
-                                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                    Setujui
-                                </div>
-                            </button>
+                            @if($kuotaInfo['available'])
+                                <button type="button" @click="action = 'approve'"
+                                        class="flex-1 px-4 py-3 rounded-lg border-2 transition-all"
+                                        :class="action === 'approve' ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-300 hover:border-green-300'">
+                                    <div class="flex items-center justify-center">
+                                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        Setujui
+                                    </div>
+                                </button>
+                            @else
+                                <button type="button" disabled
+                                        class="flex-1 px-4 py-3 rounded-lg border-2 border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                                        title="Kuota pembimbing {{ $usulan->urutan }} sudah penuh">
+                                    <div class="flex items-center justify-center">
+                                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        Setujui (Kuota Penuh)
+                                    </div>
+                                </button>
+                            @endif
                             <button type="button" @click="action = 'reject'"
                                     class="flex-1 px-4 py-3 rounded-lg border-2 transition-all"
                                     :class="action === 'reject' ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-300 hover:border-red-300'">
@@ -144,6 +206,7 @@
                         </div>
 
                         <!-- Approve Form -->
+                        @if($kuotaInfo['available'])
                         <form x-show="action === 'approve'" x-cloak method="POST" action="{{ route('dosen.validasi-usulan.approve', $usulan) }}" id="approve-usulan-form">
                             @csrf
                             <div class="space-y-4">
@@ -171,6 +234,7 @@
                                 </div>
                             </div>
                         </form>
+                        @endif
 
                         <!-- Reject Form -->
                         <form x-show="action === 'reject'" x-cloak method="POST" action="{{ route('dosen.validasi-usulan.reject', $usulan) }}" id="reject-usulan-form">

@@ -43,6 +43,16 @@ class DashboardController extends Controller
             'sidang_menunggu' => $sidangMenunggu,
         ];
 
+        // Kuota info
+        $kuotaInfo = [
+            'kuota_1' => $dosen->kuota_pembimbing_1,
+            'kuota_2' => $dosen->kuota_pembimbing_2,
+            'terpakai_1' => $dosen->jumlah_bimbingan_1,
+            'terpakai_2' => $dosen->jumlah_bimbingan_2,
+            'sisa_1' => $dosen->sisa_kuota_1,
+            'sisa_2' => $dosen->sisa_kuota_2,
+        ];
+
         $recentUsulan = UsulanPembimbing::where('dosen_id', $dosen->id)
             ->pending()
             ->with('topik.mahasiswa')
@@ -57,6 +67,6 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        return view('dosen.dashboard', compact('dosen', 'stats', 'recentUsulan', 'recentBimbingan'));
+        return view('dosen.dashboard', compact('dosen', 'stats', 'kuotaInfo', 'recentUsulan', 'recentBimbingan'));
     }
 }

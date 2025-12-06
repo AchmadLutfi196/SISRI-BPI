@@ -18,7 +18,17 @@ class ValidasiUsulanController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
-        return view('dosen.validasi-usulan.index', compact('usulans'));
+        // Kuota info
+        $kuotaInfo = [
+            'kuota_1' => $dosen->kuota_pembimbing_1,
+            'kuota_2' => $dosen->kuota_pembimbing_2,
+            'terpakai_1' => $dosen->jumlah_bimbingan_1,
+            'terpakai_2' => $dosen->jumlah_bimbingan_2,
+            'sisa_1' => $dosen->sisa_kuota_1,
+            'sisa_2' => $dosen->sisa_kuota_2,
+        ];
+
+        return view('dosen.validasi-usulan.index', compact('usulans', 'kuotaInfo'));
     }
 
     public function show(UsulanPembimbing $usulan)
@@ -31,7 +41,15 @@ class ValidasiUsulanController extends Controller
 
         $usulan->load(['topik.mahasiswa', 'topik.bidangMinat']);
 
-        return view('dosen.validasi-usulan.show', compact('usulan'));
+        // Kuota info for this position
+        $kuotaInfo = [
+            'kuota' => $usulan->urutan == 1 ? $dosen->kuota_pembimbing_1 : $dosen->kuota_pembimbing_2,
+            'terpakai' => $usulan->urutan == 1 ? $dosen->jumlah_bimbingan_1 : $dosen->jumlah_bimbingan_2,
+            'sisa' => $usulan->urutan == 1 ? $dosen->sisa_kuota_1 : $dosen->sisa_kuota_2,
+            'available' => $dosen->hasKuotaAvailable($usulan->urutan),
+        ];
+
+        return view('dosen.validasi-usulan.show', compact('usulan', 'kuotaInfo'));
     }
 
     public function approve(Request $request, UsulanPembimbing $usulan)
@@ -44,6 +62,12 @@ class ValidasiUsulanController extends Controller
 
         if ($usulan->status !== 'menunggu') {
             return back()->with('error', 'Usulan sudah divalidasi sebelumnya.');
+        }
+
+        // Cek kuota sebelum menyetujui
+        if (!$dosen->hasKuotaAvailable($usulan->urutan)) {
+            $posisi = $usulan->urutan == 1 ? 'Pembimbing 1' : 'Pembimbing 2';
+            return back()->with('error', "Kuota {$posisi} Anda sudah penuh. Tidak dapat menyetujui usulan ini.");
         }
 
         $request->validate([

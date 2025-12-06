@@ -21,7 +21,17 @@ class BimbinganController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
-        return view('dosen.bimbingan.index', compact('bimbingans', 'jenis'));
+        // Kuota info
+        $kuotaInfo = [
+            'kuota_1' => $dosen->kuota_pembimbing_1,
+            'kuota_2' => $dosen->kuota_pembimbing_2,
+            'terpakai_1' => $dosen->jumlah_bimbingan_1,
+            'terpakai_2' => $dosen->jumlah_bimbingan_2,
+            'sisa_1' => $dosen->sisa_kuota_1,
+            'sisa_2' => $dosen->sisa_kuota_2,
+        ];
+
+        return view('dosen.bimbingan.index', compact('bimbingans', 'jenis', 'kuotaInfo'));
     }
 
     public function show(Bimbingan $bimbingan)
