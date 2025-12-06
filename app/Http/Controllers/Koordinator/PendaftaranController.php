@@ -483,8 +483,8 @@ class PendaftaranController extends Controller
         $currentDate = $startDate->copy();
         
         while ($currentDate->lte($endDate)) {
-            // Skip weekends
-            if (!$currentDate->isWeekend()) {
+            // Only schedule on Wednesday (3) and Friday (5)
+            if ($currentDate->dayOfWeek === \Carbon\Carbon::WEDNESDAY || $currentDate->dayOfWeek === \Carbon\Carbon::FRIDAY) {
                 foreach ($timeSlots as $time) {
                     $datetime = $currentDate->format('Y-m-d') . ' ' . $time . ':00';
                     

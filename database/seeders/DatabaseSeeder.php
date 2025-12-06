@@ -343,9 +343,13 @@ class DatabaseSeeder extends Seeder
     
     private function createJadwalSidang(array $units): void
     {
+        // Get active periode (Semester Ganjil 2024/2025)
+        $periodeAktif = Periode::where('is_active', true)->first();
+        
         // Jadwal Seminar Proposal - Active Now (November 2025)
         JadwalSidang::create([
             'prodi_id' => $units['prodi']->id,
+            'periode_id' => $periodeAktif->id,
             'nama' => 'Seminar Proposal Periode November 2025',
             'jenis' => 'seminar_proposal',
             'tanggal_buka' => '2025-11-01',
@@ -356,6 +360,7 @@ class DatabaseSeeder extends Seeder
         
         JadwalSidang::create([
             'prodi_id' => $units['prodi']->id,
+            'periode_id' => $periodeAktif->id,
             'nama' => 'Seminar Proposal Periode Desember 2025',
             'jenis' => 'seminar_proposal',
             'tanggal_buka' => '2025-12-01',
@@ -367,6 +372,7 @@ class DatabaseSeeder extends Seeder
         // Jadwal Sidang Skripsi - Active Now (November 2025)
         JadwalSidang::create([
             'prodi_id' => $units['prodi']->id,
+            'periode_id' => $periodeAktif->id,
             'nama' => 'Sidang Skripsi Periode November 2025',
             'jenis' => 'sidang_skripsi',
             'tanggal_buka' => '2025-11-01',
@@ -377,6 +383,7 @@ class DatabaseSeeder extends Seeder
         
         JadwalSidang::create([
             'prodi_id' => $units['prodi']->id,
+            'periode_id' => $periodeAktif->id,
             'nama' => 'Sidang Skripsi Periode Desember 2025',
             'jenis' => 'sidang_skripsi',
             'tanggal_buka' => '2025-12-01',
