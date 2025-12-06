@@ -14,12 +14,25 @@ class BimbinganController extends Controller
         $dosen = auth()->user()->dosen;
         $jenis = $request->get('jenis', 'proposal');
 
-        $bimbingans = Bimbingan::where('dosen_id', $dosen->id)
+        // Group bimbingan by mahasiswa
+        $mahasiswaList = Bimbingan::where('dosen_id', $dosen->id)
             ->where('jenis', $jenis)
-            ->with('topik.mahasiswa')
-            ->orderByRaw("CASE WHEN status = 'menunggu' THEN 0 ELSE 1 END")
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+            ->with(['topik.mahasiswa'])
+            ->get()
+            ->groupBy('topik.mahasiswa_id')
+            ->map(function ($bimbingans) {
+                $mahasiswa = $bimbingans->first()->topik->mahasiswa;
+                return [
+                    'mahasiswa' => $mahasiswa,
+                    'topik' => $bimbingans->first()->topik,
+                    'total_bimbingan' => $bimbingans->count(),
+                    'menunggu' => $bimbingans->where('status', 'menunggu')->count(),
+                    'direvisi' => $bimbingans->where('status', 'direvisi')->count(),
+                    'disetujui' => $bimbingans->where('status', 'disetujui')->count(),
+                    'last_bimbingan' => $bimbingans->sortByDesc('created_at')->first(),
+                ];
+            })
+            ->values();
 
         // Kuota info
         $kuotaInfo = [
@@ -31,7 +44,32 @@ class BimbinganController extends Controller
             'sisa_2' => $dosen->sisa_kuota_2,
         ];
 
-        return view('dosen.bimbingan.index', compact('bimbingans', 'jenis', 'kuotaInfo'));
+        return view('dosen.bimbingan.index', compact('mahasiswaList', 'jenis', 'kuotaInfo'));
+    }
+
+    public function mahasiswaDetail(Request $request, $mahasiswaId)
+    {
+        $dosen = auth()->user()->dosen;
+        $jenis = $request->get('jenis', 'proposal');
+
+        // Get all bimbingan for this mahasiswa
+        $bimbingans = Bimbingan::where('dosen_id', $dosen->id)
+            ->where('jenis', $jenis)
+            ->whereHas('topik', function($q) use ($mahasiswaId) {
+                $q->where('mahasiswa_id', $mahasiswaId);
+            })
+            ->with(['topik.mahasiswa'])
+            ->orderBy('bimbingan_ke', 'asc')
+            ->get();
+
+        if ($bimbingans->isEmpty()) {
+            abort(404);
+        }
+
+        $mahasiswa = $bimbingans->first()->topik->mahasiswa;
+        $topik = $bimbingans->first()->topik;
+
+        return view('dosen.bimbingan.mahasiswa-detail', compact('bimbingans', 'mahasiswa', 'topik', 'jenis'));
     }
 
     public function show(Bimbingan $bimbingan)

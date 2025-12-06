@@ -17,6 +17,7 @@ class Bimbingan extends Model
         'topik_id',
         'dosen_id',
         'jenis',
+        'bimbingan_ke',
         'pokok_bimbingan',
         'file_bimbingan',
         'pesan_mahasiswa',
