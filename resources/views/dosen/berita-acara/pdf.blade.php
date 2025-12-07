@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Berita Acara {{ $jenis === 'sempro' ? 'Seminar Proposal' : 'Sidang Skripsi' }}</title>
     <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -13,47 +18,52 @@
         
         body {
             font-family: 'Times New Roman', Times, serif;
-            font-size: 12pt;
-            line-height: 1.5;
+            font-size: 9pt;
+            line-height: 1.2;
             color: #000;
+            margin: 0;
+            padding: 0;
         }
         
         .container {
-            padding: 20px 40px;
+            padding: 35px 45px;
+            max-width: 100%;
+            min-height: 100vh;
         }
         
         .header {
             text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 3px double #000;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #000;
             padding-bottom: 15px;
         }
         
         .header h1 {
-            font-size: 14pt;
+            font-size: 12pt;
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
         
         .header h2 {
-            font-size: 12pt;
+            font-size: 10pt;
             font-weight: normal;
+            margin-bottom: 3px;
         }
         
         .title {
             text-align: center;
-            margin: 30px 0;
+            margin: 25px 0;
         }
         
         .title h3 {
-            font-size: 14pt;
+            font-size: 12pt;
             font-weight: bold;
             text-decoration: underline;
             margin-bottom: 5px;
         }
         
         .title p {
-            font-size: 12pt;
+            font-size: 10pt;
         }
         
         .content {
@@ -62,7 +72,8 @@
         
         .info-table {
             width: 100%;
-            margin: 20px 0;
+            margin: 18px 0;
+            font-size: 10pt;
         }
         
         .info-table td {
@@ -71,7 +82,7 @@
         }
         
         .info-table td:first-child {
-            width: 150px;
+            width: 130px;
         }
         
         .info-table td:nth-child(2) {
@@ -79,22 +90,29 @@
             text-align: center;
         }
         
+        .info-table td:nth-child(3) {
+            word-wrap: break-word;
+        }
+        
         .section-title {
             font-weight: bold;
-            margin: 20px 0 10px 0;
+            margin: 18px 0 10px 0;
+            font-size: 10pt;
         }
         
         .table-ttd {
             width: 100%;
             border-collapse: collapse;
             margin: 15px 0;
+            font-size: 9pt;
         }
         
         .table-ttd th,
         .table-ttd td {
             border: 1px solid #000;
-            padding: 8px 12px;
+            padding: 6px 7px;
             text-align: left;
+            word-wrap: break-word;
         }
         
         .table-ttd th {
@@ -108,7 +126,7 @@
         }
         
         .ttd-status {
-            font-size: 10pt;
+            font-size: 8pt;
         }
         
         .ttd-signed {
@@ -120,7 +138,7 @@
         }
         
         .footer {
-            margin-top: 40px;
+            margin-top: 30px;
             page-break-inside: avoid;
         }
         
@@ -145,8 +163,8 @@
         }
         
         .note {
-            margin-top: 30px;
-            font-size: 10pt;
+            margin-top: 18px;
+            font-size: 9pt;
             font-style: italic;
         }
         
@@ -211,12 +229,12 @@
             <table class="table-ttd">
                 <thead>
                     <tr>
-                        <th style="width: 40px;">No</th>
-                        <th>Nama Dosen</th>
-                        <th style="width: 100px;">Jabatan</th>
-                        <th style="width: 60px;">Nilai</th>
-                        <th style="width: 80px;">Status TTD</th>
-                        <th style="width: 100px;">Tanggal TTD</th>
+                        <th style="width: 30px;">No</th>
+                        <th style="width: 35%;">Nama Dosen</th>
+                        <th style="width: 80px;">Jabatan</th>
+                        <th style="width: 50px;">Nilai</th>
+                        <th style="width: 65px;">Status TTD</th>
+                        <th style="width: 85px;">Tanggal TTD</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -254,12 +272,12 @@
             <table class="table-ttd">
                 <thead>
                     <tr>
-                        <th style="width: 40px;">No</th>
-                        <th>Nama Dosen</th>
-                        <th style="width: 100px;">Jabatan</th>
-                        <th style="width: 60px;">Nilai</th>
-                        <th style="width: 80px;">Status TTD</th>
-                        <th style="width: 100px;">Tanggal TTD</th>
+                        <th style="width: 30px;">No</th>
+                        <th style="width: 35%;">Nama Dosen</th>
+                        <th style="width: 80px;">Jabatan</th>
+                        <th style="width: 50px;">Nilai</th>
+                        <th style="width: 65px;">Status TTD</th>
+                        <th style="width: 85px;">Tanggal TTD</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -315,23 +333,23 @@
                 $lulus = in_array($grade, ['A', 'B', 'C']);
             @endphp
             
-            <div style="margin-top: 25px; border: 2px solid #000; padding: 15px;">
-                <p class="section-title" style="margin-top: 0; text-align: center; font-size: 13pt;">HASIL PENILAIAN {{ $jenis === 'sempro' ? 'SEMINAR PROPOSAL' : 'SIDANG SKRIPSI' }}</p>
-                <table style="width: 100%; margin-top: 10px;">
+            <div style="margin-top: 25px; border: 1px solid #000; padding: 15px;">
+                <p class="section-title" style="margin-top: 0; text-align: center; font-size: 11pt;">HASIL PENILAIAN {{ $jenis === 'sempro' ? 'SEMINAR PROPOSAL' : 'SIDANG SKRIPSI' }}</p>
+                <table style="width: 100%; margin-top: 10px; font-size: 10pt;">
                     <tr>
-                        <td style="width: 200px;">Jumlah Penilai</td>
+                        <td style="width: 150px;">Jumlah Penilai</td>
                         <td style="width: 10px;">:</td>
                         <td><strong>{{ $countNilai }} Dosen</strong> ({{ $countNilaiPembimbing }} Pembimbing, {{ $countNilaiPenguji }} Penguji)</td>
                     </tr>
                     <tr>
                         <td>Rata-rata Nilai</td>
                         <td>:</td>
-                        <td><strong style="font-size: 14pt;">{{ $rataRata }}</strong></td>
+                        <td><strong style="font-size: 11pt;">{{ $rataRata }}</strong></td>
                     </tr>
                     <tr>
                         <td>Grade</td>
                         <td>:</td>
-                        <td><strong style="font-size: 14pt;">{{ $grade }}</strong></td>
+                        <td><strong style="font-size: 11pt;">{{ $grade }}</strong></td>
                     </tr>
                     <tr>
                         <td>Status Kelulusan</td>
@@ -340,10 +358,10 @@
                             @if($countNilai == 0)
                                 <strong style="color: gray;">BELUM ADA NILAI</strong>
                             @elseif($lulus)
-                                <strong style="color: green; font-size: 14pt;">✓ LULUS</strong>
+                                <strong style="color: green; font-size: 10pt;">✓ LULUS</strong>
                             @else
-                                <strong style="color: red; font-size: 14pt;">✗ TIDAK LULUS</strong>
-                                <br><span style="font-size: 10pt; color: red;">(Harus mengulang {{ $jenis === 'sempro' ? 'Seminar Proposal' : 'Sidang Skripsi' }})</span>
+                                <strong style="color: red; font-size: 10pt;">✗ TIDAK LULUS</strong>
+                                <br><span style="font-size: 8pt; color: red;">(Harus mengulang {{ $jenis === 'sempro' ? 'Seminar Proposal' : 'Sidang Skripsi' }})</span>
                             @endif
                         </td>
                     </tr>
@@ -358,7 +376,7 @@
         
         <!-- Footer -->
         <div class="footer">
-            <p style="text-align: right; margin-bottom: 20px;">
+            <p style="text-align: right; margin-bottom: 15px; font-size: 10pt;">
                 Dibuat di : -<br>
                 Tanggal : {{ now()->locale('id')->isoFormat('D MMMM Y') }}
             </p>
