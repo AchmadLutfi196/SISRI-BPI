@@ -106,8 +106,11 @@
                     Bimbingan Skripsi
                 </x-sidebar-dropdown-link>
             </x-sidebar-dropdown>
-            <x-sidebar-link :href="route('mahasiswa.sidang.index')" :active="request()->routeIs('mahasiswa.sidang.*')" icon="presentation">
+            <x-sidebar-link :href="route('mahasiswa.sidang.index')" :active="request()->routeIs('mahasiswa.sidang.*')" icon="presentation-chart-bar">
                 Sidang
+            </x-sidebar-link>
+            <x-sidebar-link :href="route('mahasiswa.revisi.index')" :active="request()->routeIs('mahasiswa.revisi.*')" icon="clipboard-check">
+                Revisi Pasca Sidang
             </x-sidebar-link>
         @endif
 
@@ -159,6 +162,9 @@
                     Sidang Skripsi
                 </x-sidebar-dropdown-link>
             </x-sidebar-dropdown>
+            <x-sidebar-link :href="route('dosen.validasi-revisi.index')" :active="request()->routeIs('dosen.validasi-revisi.*')" icon="clipboard-check">
+                Validasi Revisi (Pasca ujian)
+            </x-sidebar-link>
         @endif
 
         {{-- Koordinator Menu --}}
@@ -251,6 +257,9 @@
                     Sidang Skripsi
                 </x-sidebar-dropdown-link>
             </x-sidebar-dropdown>
+            <x-sidebar-link :href="route('dosen.validasi-revisi.index')" :active="request()->routeIs('dosen.validasi-revisi.*')" icon="clipboard-check">
+                Validasi Revisi (Pasca ujian)
+            </x-sidebar-link>
         @endif
     </nav>
 </aside>

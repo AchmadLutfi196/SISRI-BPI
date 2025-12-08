@@ -69,6 +69,7 @@ class NilaiController extends Controller
             'jenis_nilai' => 'required|in:bimbingan,ujian',
             'nilai' => 'required|numeric|min:0|max:100',
             'catatan' => 'nullable',
+            'catatan_revisi' => 'nullable|string',
         ]);
 
         // Cek apakah sudah memberi nilai dengan jenis yang sama
@@ -89,6 +90,13 @@ class NilaiController extends Controller
             'catatan' => $request->catatan,
         ]);
 
+        // Update catatan revisi di penguji_sidang
+        if ($request->filled('catatan_revisi')) {
+            $penguji->update([
+                'catatan_revisi' => $request->catatan_revisi,
+            ]);
+        }
+
         return redirect()->route('dosen.nilai.index')
             ->with('success', 'Nilai berhasil disimpan.');
     }
@@ -104,12 +112,27 @@ class NilaiController extends Controller
         $request->validate([
             'nilai' => 'required|numeric|min:0|max:100',
             'catatan' => 'nullable',
+            'catatan_revisi' => 'nullable|string',
         ]);
 
         $nilai->update([
             'nilai' => $request->nilai,
             'catatan' => $request->catatan,
         ]);
+
+        // Update catatan revisi di penguji_sidang
+        if ($request->has('catatan_revisi')) {
+            $penguji = PengujiSidang::where('pelaksanaan_sidang_id', $nilai->pelaksanaan_sidang_id)
+                ->where('dosen_id', $dosen->id)
+                ->where('role', 'like', 'penguji_%')
+                ->first();
+
+            if ($penguji) {
+                $penguji->update([
+                    'catatan_revisi' => $request->catatan_revisi,
+                ]);
+            }
+        }
 
         return redirect()->route('dosen.nilai.index')
             ->with('success', 'Nilai berhasil diperbarui.');

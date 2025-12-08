@@ -17,6 +17,7 @@ use App\Http\Controllers\Mahasiswa\DashboardController as MahasiswaDashboardCont
 use App\Http\Controllers\Mahasiswa\TopikController;
 use App\Http\Controllers\Mahasiswa\BimbinganController as MahasiswaBimbinganController;
 use App\Http\Controllers\Mahasiswa\SidangController;
+use App\Http\Controllers\Mahasiswa\RevisiSidangController as MahasiswaRevisiSidangController;
 
 // Dosen Controllers
 use App\Http\Controllers\Dosen\DashboardController as DosenDashboardController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\Dosen\NilaiSidangController;
 use App\Http\Controllers\Dosen\PersetujuanSidangController;
 use App\Http\Controllers\Dosen\JadwalUjianController;
 use App\Http\Controllers\Dosen\BeritaAcaraController;
+use App\Http\Controllers\Dosen\ValidasiRevisiController;
 
 // Koordinator Controllers
 use App\Http\Controllers\Koordinator\DashboardController as KoordinatorDashboardController;
@@ -123,6 +125,12 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasi
     Route::get('/sidang/{pendaftaran}', [SidangController::class, 'show'])->name('sidang.show');
     Route::get('/sidang/{pendaftaran}/download-dokumen', [SidangController::class, 'downloadDokumen'])->name('sidang.download-dokumen');
     Route::get('/sidang/{pendaftaran}/download-berita-acara', [SidangController::class, 'downloadBeritaAcara'])->name('sidang.download-berita-acara');
+    
+    // Revisi Pasca Sidang
+    Route::get('/revisi', [MahasiswaRevisiSidangController::class, 'index'])->name('revisi.index');
+    Route::get('/revisi/{pelaksanaan}', [MahasiswaRevisiSidangController::class, 'show'])->name('revisi.show');
+    Route::post('/revisi/{pelaksanaan}/submit/{dosenId}', [MahasiswaRevisiSidangController::class, 'submitRevisi'])->name('revisi.submit');
+    Route::get('/revisi-file/{revisi}/download', [MahasiswaRevisiSidangController::class, 'downloadRevisi'])->name('revisi.download');
 });
 
 // ==================== DOSEN ROUTES ====================
@@ -174,6 +182,13 @@ Route::middleware(['auth', 'role:dosen|koordinator'])->prefix('dosen')->name('do
     Route::post('/berita-acara/{pelaksanaan}/tanda-tangan', [BeritaAcaraController::class, 'tandaTangan'])->name('berita-acara.tanda-tangan');
     Route::get('/berita-acara/{pelaksanaan}/download-pdf', [BeritaAcaraController::class, 'downloadPdf'])->name('berita-acara.download-pdf');
     Route::get('/berita-acara/{pelaksanaan}/download-dokumen', [BeritaAcaraController::class, 'downloadDokumen'])->name('berita-acara.download-dokumen');
+    
+    // Validasi Revisi Pasca Sidang
+    Route::get('/validasi-revisi', [ValidasiRevisiController::class, 'index'])->name('validasi-revisi.index');
+    Route::get('/validasi-revisi/{revisi}', [ValidasiRevisiController::class, 'show'])->name('validasi-revisi.show');
+    Route::post('/validasi-revisi/{revisi}/approve', [ValidasiRevisiController::class, 'approve'])->name('validasi-revisi.approve');
+    Route::post('/validasi-revisi/{revisi}/reject', [ValidasiRevisiController::class, 'reject'])->name('validasi-revisi.reject');
+    Route::get('/validasi-revisi/{revisi}/download', [ValidasiRevisiController::class, 'downloadRevisi'])->name('validasi-revisi.download');
 });
 
 // ==================== KOORDINATOR ROUTES ====================

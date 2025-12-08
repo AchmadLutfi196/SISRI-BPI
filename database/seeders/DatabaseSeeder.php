@@ -559,6 +559,7 @@ class DatabaseSeeder extends Seeder
             'role' => 'penguji_1',
             'ttd_berita_acara' => true,
             'tanggal_ttd' => now()->subDays(3),
+            'catatan_revisi' => "1. Perbaiki abstrak, tambahkan hasil penelitian secara ringkas\n2. Lengkapi referensi pada Bab 2, minimal 15 referensi terbaru (5 tahun terakhir)\n3. Perbaiki metodologi penelitian pada Bab 3, jelaskan tahapan lebih detail\n4. Tambahkan analisis pembahasan yang lebih mendalam pada Bab 4",
         ]);
     }
     
@@ -1113,6 +1114,7 @@ class DatabaseSeeder extends Seeder
             'role' => 'penguji_1',
             'ttd_berita_acara' => true,
             'tanggal_ttd' => now()->subDays(20),
+            'catatan_revisi' => "1. Perbaiki latar belakang, tambahkan gap penelitian yang lebih spesifik\n2. Lengkapi tinjauan pustaka dengan teori yang relevan\n3. Perjelas rumusan masalah dan tujuan penelitian",
         ]);
         
         PengujiSidang::create([
@@ -1121,6 +1123,7 @@ class DatabaseSeeder extends Seeder
             'role' => 'penguji_2',
             'ttd_berita_acara' => true,
             'tanggal_ttd' => now()->subDays(20),
+            'catatan_revisi' => "1. Metodologi penelitian perlu diperbaiki, tambahkan diagram alur penelitian\n2. Jelaskan teknik pengumpulan data dengan lebih detail\n3. Perbaiki format penulisan daftar pustaka sesuai APA Style",
         ]);
         
         PengujiSidang::create([

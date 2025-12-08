@@ -92,6 +92,19 @@
                             <p class="text-gray-900 bg-gray-50 p-4 rounded-lg mt-1">{{ $existingNilai->catatan }}</p>
                         </div>
                     @endif
+                    @if($penguji->catatan_revisi)
+                        <div class="mt-4 border-t pt-4">
+                            <p class="text-sm text-gray-500 mb-2 flex items-center">
+                                <svg class="w-4 h-4 mr-1 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                </svg>
+                                Catatan Revisi Pasca Sidang
+                            </p>
+                            <div class="text-gray-900 bg-orange-50 p-4 rounded-lg mt-1 border border-orange-200">
+                                <p class="whitespace-pre-line">{{ $penguji->catatan_revisi }}</p>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -118,6 +131,22 @@
                                 <textarea name="catatan" id="catatan" rows="3"
                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                           placeholder="Tambahkan catatan untuk nilai...">{{ old('catatan', $existingNilai->catatan) }}</textarea>
+                            </div>
+
+                            <div class="border-t pt-6">
+                                <label for="catatan_revisi" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Catatan Revisi Pasca Sidang (Opsional)
+                                    <span class="text-xs text-gray-500 block mt-1">Tuliskan poin-poin yang perlu direvisi oleh mahasiswa setelah {{ $pelaksanaan->pendaftaranSidang->jenis_sidang == 'proposal' ? 'sempro' : 'sidang' }}.</span>
+                                </label>
+                                <textarea name="catatan_revisi" id="catatan_revisi" rows="4"
+                                          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                          placeholder="Contoh:&#10;1. Perbaiki metodologi penelitian pada Bab 3&#10;2. Tambahkan referensi terbaru (5 tahun terakhir)&#10;3. Perbaiki format penulisan sesuai template">{{ old('catatan_revisi', $penguji->catatan_revisi) }}</textarea>
+                                <p class="mt-2 text-xs text-gray-500">
+                                    <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Catatan revisi akan dikirim ke mahasiswa untuk diperbaiki dan dikumpulkan kembali.
+                                </p>
                             </div>
 
                             <div class="flex justify-end">
@@ -187,6 +216,22 @@
                                 <textarea name="catatan" id="catatan" rows="3"
                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                           placeholder="Tambahkan catatan untuk nilai...">{{ old('catatan') }}</textarea>
+                            </div>
+
+                            <div class="border-t pt-6">
+                                <label for="catatan_revisi" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Catatan Revisi Pasca Sidang (Opsional)
+                                    <span class="text-xs text-gray-500 block mt-1">Tuliskan poin-poin yang perlu direvisi oleh mahasiswa setelah {{ $pelaksanaan->pendaftaranSidang->jenis_sidang == 'proposal' ? 'sempro' : 'sidang' }}.</span>
+                                </label>
+                                <textarea name="catatan_revisi" id="catatan_revisi" rows="4"
+                                          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                          placeholder="Contoh:&#10;1. Perbaiki metodologi penelitian pada Bab 3&#10;2. Tambahkan referensi terbaru (5 tahun terakhir)&#10;3. Perbaiki format penulisan sesuai template">{{ old('catatan_revisi', $penguji->catatan_revisi) }}</textarea>
+                                <p class="mt-2 text-xs text-gray-500">
+                                    <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Catatan revisi akan dikirim ke mahasiswa untuk diperbaiki dan dikumpulkan kembali.
+                                </p>
                             </div>
 
                             <div class="flex justify-end">
