@@ -13,12 +13,21 @@ class ValidasiRevisiController extends Controller
     /**
      * Display list of revisi yang perlu divalidasi
      */
-    public function index()
+    public function index(Request $request)
     {
         $dosen = auth()->user()->dosen;
+        $jenis = $request->get('jenis', 'sempro'); // default sempro
         
-        // Get all revisi yang perlu divalidasi oleh dosen ini
+        // Determine jenis values for query
+        $jenisValues = $jenis === 'sempro' 
+            ? ['proposal', 'seminar_proposal'] 
+            : ['sidang_skripsi'];
+        
+        // Get revisi for selected jenis
         $revisiList = RevisiSidang::where('dosen_id', $dosen->id)
+            ->whereHas('pelaksanaanSidang.pendaftaranSidang', function($query) use ($jenisValues) {
+                $query->whereIn('jenis', $jenisValues);
+            })
             ->with([
                 'pelaksanaanSidang.pendaftaranSidang.topik.mahasiswa.user',
             ])
@@ -27,18 +36,27 @@ class ValidasiRevisiController extends Controller
         
         // Count status
         $menunggu = RevisiSidang::where('dosen_id', $dosen->id)
+            ->whereHas('pelaksanaanSidang.pendaftaranSidang', function($query) use ($jenisValues) {
+                $query->whereIn('jenis', $jenisValues);
+            })
             ->where('status', 'menunggu')
             ->count();
         
         $disetujui = RevisiSidang::where('dosen_id', $dosen->id)
+            ->whereHas('pelaksanaanSidang.pendaftaranSidang', function($query) use ($jenisValues) {
+                $query->whereIn('jenis', $jenisValues);
+            })
             ->where('status', 'disetujui')
             ->count();
         
         $revisiUlang = RevisiSidang::where('dosen_id', $dosen->id)
+            ->whereHas('pelaksanaanSidang.pendaftaranSidang', function($query) use ($jenisValues) {
+                $query->whereIn('jenis', $jenisValues);
+            })
             ->where('status', 'revisi_ulang')
             ->count();
         
-        return view('dosen.validasi-revisi.index', compact('revisiList', 'menunggu', 'disetujui', 'revisiUlang'));
+        return view('dosen.validasi-revisi.index', compact('revisiList', 'menunggu', 'disetujui', 'revisiUlang', 'jenis'));
     }
 
     /**

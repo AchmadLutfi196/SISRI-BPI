@@ -2,7 +2,7 @@
     <div class="max-w-7xl mx-auto">
         <!-- Header -->
         <div class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Revisi Pasca Sidang</h1>
+            <h1 class="text-2xl font-bold text-gray-800">Revisi Pasca {{ $jenis === 'sempro' ? 'Seminar Proposal' : 'Sidang Skripsi' }}</h1>
             <p class="text-gray-600 mt-1">Daftar sidang yang memerlukan revisi</p>
         </div>
 
@@ -23,10 +23,10 @@
                 @foreach($pelaksanaanList as $pelaksanaan)
                     @php
                         $topik = $pelaksanaan->pendaftaranSidang->topik;
-                        $jenis = $pelaksanaan->pendaftaranSidang->jenis;
+                        $jenisSidang = $pelaksanaan->pendaftaranSidang->jenis;
                         
-                        // Count penguji yang kasih catatan revisi
-                        $jumlahPengujiRevisi = $pelaksanaan->pengujiSidang ? $pelaksanaan->pengujiSidang->count() : 0;
+                        // Count dosen (penguji + pembimbing) yang kasih catatan revisi
+                        $jumlahDosenRevisi = $pelaksanaan->pengujiSidang ? $pelaksanaan->pengujiSidang->count() : 0;
                         
                         // Count revisi status (yang sudah disubmit)
                         $totalRevisi = $pelaksanaan->revisiSidang->count();
@@ -39,14 +39,8 @@
                         <div class="p-6">
                             <div class="flex items-start justify-between">
                                 <div class="flex-1">
-                                    <!-- Type Badge -->
-                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                        {{ in_array($jenis, ['proposal', 'seminar_proposal']) ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800' }}">
-                                        {{ in_array($jenis, ['proposal', 'seminar_proposal']) ? 'Seminar Proposal' : 'Sidang Skripsi' }}
-                                    </span>
-                                    
                                     <!-- Title -->
-                                    <h3 class="text-lg font-semibold text-gray-900 mt-3">{{ $topik->judul }}</h3>
+                                    <h3 class="text-lg font-semibold text-gray-900">{{ $topik->judul }}</h3>
                                     
                                     <!-- Date -->
                                     <p class="text-sm text-gray-500 mt-2">
@@ -58,9 +52,9 @@
                                     
                                     <!-- Status Revisi -->
                                     <div class="mt-4 flex items-center gap-4">
-                                        @if($jumlahPengujiRevisi > 0)
+                                        @if($jumlahDosenRevisi > 0)
                                             <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
-                                                {{ $jumlahPengujiRevisi }} Penguji Beri Revisi
+                                                {{ $jumlahDosenRevisi }} Dosen Beri Revisi
                                             </span>
                                         @endif
                                         
@@ -80,9 +74,9 @@
                                                     {{ $revisiUlang }} Perlu Diperbaiki
                                                 </span>
                                             @endif
-                                        @elseif($jumlahPengujiRevisi == 0)
-                                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                                Belum Submit Revisi
+                                        @elseif($jumlahDosenRevisi == 0)
+                                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                ✓ Tidak Ada Revisi
                                             </span>
                                         @endif
                                     </div>
@@ -90,7 +84,7 @@
                                 
                                 <!-- Action Button -->
                                 <a href="{{ route('mahasiswa.revisi.show', $pelaksanaan) }}" 
-                                   class="ml-4 inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700">
+                                   class="ml-4 inline-flex items-center px-4 py-2 bg-{{ $jenis === 'sempro' ? 'blue' : 'purple' }}-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-{{ $jenis === 'sempro' ? 'blue' : 'purple' }}-700">
                                     Lihat Detail
                                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>

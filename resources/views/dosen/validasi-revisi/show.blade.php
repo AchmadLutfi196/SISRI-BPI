@@ -70,16 +70,30 @@
             </div>
         </div>
 
-        <!-- Catatan Revisi dari Dosen Penguji -->
+        <!-- Catatan Revisi dari Dosen -->
         @php
             $penguji = \App\Models\PengujiSidang::where('pelaksanaan_sidang_id', $revisi->pelaksanaan_sidang_id)
                 ->where('dosen_id', $revisi->dosen_id)
                 ->first();
+            
+            $roleLabel = 'Anda';
+            $roleColor = 'orange';
+            if ($penguji) {
+                $roleLabel = match($penguji->role) {
+                    'pembimbing_1' => 'Anda (Pembimbing 1)',
+                    'pembimbing_2' => 'Anda (Pembimbing 2)',
+                    'penguji_1' => 'Anda (Penguji 1)',
+                    'penguji_2' => 'Anda (Penguji 2)',
+                    'penguji_3' => 'Anda (Penguji 3)',
+                    default => 'Anda'
+                };
+                $roleColor = str_starts_with($penguji->role, 'pembimbing') ? 'purple' : 'blue';
+            }
         @endphp
         @if($penguji && $penguji->catatan_revisi)
-            <div class="bg-orange-50 border-l-4 border-orange-400 overflow-hidden shadow-sm sm:rounded-lg mb-6">
+            <div class="bg-{{ $roleColor }}-50 border-l-4 border-{{ $roleColor }}-400 overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6">
-                    <h3 class="text-lg font-semibold text-orange-800 mb-3">Catatan Revisi dari Anda (Penguji)</h3>
+                    <h3 class="text-lg font-semibold text-{{ $roleColor }}-800 mb-3">Catatan Revisi dari {{ $roleLabel }}</h3>
                     <div class="text-gray-700 whitespace-pre-line">{{ $penguji->catatan_revisi }}</div>
                 </div>
             </div>

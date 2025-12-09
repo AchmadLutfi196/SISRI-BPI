@@ -125,6 +125,13 @@ class NilaiSidangController extends Controller
             'catatan' => $request->catatan,
         ]);
 
+        // Update catatan_revisi di penguji_sidang jika ada catatan
+        if ($request->filled('catatan')) {
+            $penugasan->update([
+                'catatan_revisi' => $request->catatan,
+            ]);
+        }
+
         return redirect()->route('dosen.nilai-sidang.index')->with('success', 'Nilai sidang skripsi berhasil disimpan.');
     }
 
@@ -154,6 +161,17 @@ class NilaiSidangController extends Controller
             'nilai' => $request->nilai,
             'catatan' => $request->catatan,
         ]);
+
+        // Update catatan_revisi di penguji_sidang
+        $penugasan = PengujiSidang::where('pelaksanaan_sidang_id', $nilai->pelaksanaan_sidang_id)
+            ->where('dosen_id', $dosen->id)
+            ->first();
+        
+        if ($penugasan) {
+            $penugasan->update([
+                'catatan_revisi' => $request->catatan,
+            ]);
+        }
 
         return redirect()->route('dosen.nilai-sidang.index')->with('success', 'Nilai sidang skripsi berhasil diperbarui.');
     }

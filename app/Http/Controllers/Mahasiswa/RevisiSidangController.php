@@ -14,30 +14,37 @@ class RevisiSidangController extends Controller
     /**
      * Display list of revisi for mahasiswa
      */
-    public function index()
+    public function index(Request $request)
     {
         $mahasiswa = auth()->user()->mahasiswa;
+        $jenis = $request->get('jenis', 'sempro'); // default sempro
         
-        // Get all pelaksanaan sidang untuk mahasiswa ini
-        // Status bisa: terjadwal, berlangsung, selesai
+        // Determine jenis values for query
+        $jenisValues = $jenis === 'sempro' 
+            ? ['proposal', 'seminar_proposal'] 
+            : ['sidang_skripsi'];
+        
+        // Get pelaksanaan sidang untuk mahasiswa ini berdasarkan jenis
         $pelaksanaanList = PelaksanaanSidang::whereHas('pendaftaranSidang.topik', function($query) use ($mahasiswa) {
                 $query->where('mahasiswa_id', $mahasiswa->id);
             })
-            ->whereIn('status', ['selesai', 'berlangsung']) // Include berlangsung status
+            ->whereHas('pendaftaranSidang', function($query) use ($jenisValues) {
+                $query->whereIn('jenis', $jenisValues);
+            })
+            ->whereIn('status', ['selesai', 'berlangsung'])
             ->with([
                 'pendaftaranSidang.topik',
                 'pendaftaranSidang',
                 'revisiSidang.dosen.user',
                 'pengujiSidang' => function($query) {
-                    $query->where('role', 'like', 'penguji_%')
-                          ->whereNotNull('catatan_revisi')
+                    $query->whereNotNull('catatan_revisi')
                           ->where('catatan_revisi', '!=', '');
                 }
             ])
             ->latest()
             ->get();
         
-        return view('mahasiswa.revisi.index', compact('pelaksanaanList'));
+        return view('mahasiswa.revisi.index', compact('pelaksanaanList', 'jenis'));
     }
 
     /**
@@ -51,13 +58,13 @@ class RevisiSidangController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        // Check if sidang sudah selesai
-        if ($pelaksanaan->status !== 'selesai') {
+        // Check if sidang sudah selesai atau berlangsung
+        if (!in_array($pelaksanaan->status, ['selesai', 'berlangsung'])) {
             return redirect()->route('mahasiswa.revisi.index')
-                ->with('error', 'Sidang belum selesai.');
+                ->with('error', 'Sidang belum dimulai atau selesai.');
         }
 
-        // Get ALL penguji untuk debugging
+        // Get ALL penguji dan pembimbing yang ada catatan revisi
         $allPenguji = PengujiSidang::where('pelaksanaan_sidang_id', $pelaksanaan->id)
             ->with(['dosen.user'])
             ->get();
@@ -65,17 +72,16 @@ class RevisiSidangController extends Controller
         // Debug: Log all penguji info
         \Log::info('=== DEBUG REVISI SIDANG ===');
         \Log::info('Pelaksanaan ID: ' . $pelaksanaan->id);
-        \Log::info('Total Penguji: ' . $allPenguji->count());
+        \Log::info('Total Penguji/Pembimbing: ' . $allPenguji->count());
         foreach($allPenguji as $p) {
-            \Log::info("Penguji: {$p->dosen->user->name}, Role: {$p->role}, Catatan: " . ($p->catatan_revisi ?? 'NULL'));
+            \Log::info("Dosen: {$p->dosen->user->name}, Role: {$p->role}, Catatan: " . ($p->catatan_revisi ?? 'NULL'));
         }
         
-        // Filter ONLY penguji (bukan pembimbing) yang ada catatan revisi
+        // Filter penguji DAN pembimbing yang ada catatan revisi
         $pengujiList = $allPenguji->filter(function($penguji) {
-            $isPenguji = str_starts_with($penguji->role, 'penguji_');
             $hasCatatan = !empty(trim($penguji->catatan_revisi ?? ''));
-            \Log::info("Filter: {$penguji->dosen->user->name} - isPenguji: " . ($isPenguji ? 'YES' : 'NO') . ", hasCatatan: " . ($hasCatatan ? 'YES' : 'NO'));
-            return $isPenguji && $hasCatatan;
+            \Log::info("Filter: {$penguji->dosen->user->name} - Role: {$penguji->role}, hasCatatan: " . ($hasCatatan ? 'YES' : 'NO'));
+            return $hasCatatan;
         });
 
         // Get existing revisi yang sudah disubmit

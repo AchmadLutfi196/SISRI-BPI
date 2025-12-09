@@ -63,16 +63,27 @@
                             <div>
                                 @php
                                     $roleLabel = match($penguji->role) {
+                                        'pembimbing_1' => 'Pembimbing 1',
+                                        'pembimbing_2' => 'Pembimbing 2',
                                         'penguji_1' => 'Penguji 1',
                                         'penguji_2' => 'Penguji 2',
                                         'penguji_3' => 'Penguji 3',
                                         default => ucwords(str_replace('_', ' ', $penguji->role))
                                     };
+                                    
+                                    $roleColor = str_starts_with($penguji->role, 'pembimbing') 
+                                        ? 'bg-purple-100 text-purple-800' 
+                                        : 'bg-blue-100 text-blue-800';
                                 @endphp
                                 <h3 class="text-lg font-semibold text-gray-900">
-                                    {{ $roleLabel }}: {{ $penguji->dosen->user->name }}
+                                    {{ $penguji->dosen->user->name }}
                                 </h3>
-                                <span class="text-sm text-gray-500">{{ $penguji->dosen->nidn ?? '-' }}</span>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $roleColor }}">
+                                        {{ $roleLabel }}
+                                    </span>
+                                    <span class="text-sm text-gray-500">{{ $penguji->dosen->nidn ?? '-' }}</span>
+                                </div>
                             </div>
                             
                             @if($hasRevisi)

@@ -2,7 +2,7 @@
     <div class="max-w-7xl mx-auto">
         <!-- Header -->
         <div class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Validasi Revisi Pasca Sidang</h1>
+            <h1 class="text-2xl font-bold text-gray-800">Validasi Revisi Pasca {{ $jenis === 'sempro' ? 'Seminar Proposal' : 'Sidang Skripsi' }}</h1>
             <p class="text-gray-600 mt-1">Daftar revisi yang perlu divalidasi</p>
         </div>
 
@@ -77,7 +77,6 @@
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mahasiswa</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Judul</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Submit</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
@@ -88,7 +87,6 @@
                                 @php
                                     $mahasiswa = $revisi->pelaksanaanSidang->pendaftaranSidang->topik->mahasiswa;
                                     $topik = $revisi->pelaksanaanSidang->pendaftaranSidang->topik;
-                                    $jenis = $revisi->pelaksanaanSidang->pendaftaranSidang->jenis;
                                     $statusClass = [
                                         'menunggu' => 'bg-yellow-100 text-yellow-800',
                                         'disetujui' => 'bg-green-100 text-green-800',
@@ -115,12 +113,6 @@
                                             {{ $topik->judul }}
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                            {{ in_array($jenis, ['proposal', 'seminar_proposal']) ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800' }}">
-                                            {{ in_array($jenis, ['proposal', 'seminar_proposal']) ? 'Seminar Proposal' : 'Sidang Skripsi' }}
-                                        </span>
-                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ $revisi->tanggal_submit->format('d M Y, H:i') }}
                                     </td>
@@ -137,7 +129,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <a href="{{ route('dosen.validasi-revisi.show', $revisi) }}" 
-                                           class="text-blue-600 hover:text-blue-900">
+                                           class="text-{{ $jenis === 'sempro' ? 'blue' : 'purple' }}-600 hover:text-{{ $jenis === 'sempro' ? 'blue' : 'purple' }}-900">
                                             Lihat Detail
                                         </a>
                                     </td>
