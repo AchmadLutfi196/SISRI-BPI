@@ -75,7 +75,11 @@ class ValidasiRevisiController extends Controller
             'dosen.user',
         ]);
 
-        return view('dosen.validasi-revisi.show', compact('revisi'));
+        // Determine jenis based on pelaksanaan jenis
+        $jenisSidang = $revisi->pelaksanaanSidang->pendaftaranSidang->jenis;
+        $jenis = in_array($jenisSidang, ['proposal', 'seminar_proposal']) ? 'sempro' : 'sidang';
+
+        return view('dosen.validasi-revisi.show', compact('revisi', 'jenis'));
     }
 
     /**
@@ -99,7 +103,11 @@ class ValidasiRevisiController extends Controller
             'tanggal_validasi' => now(),
         ]);
 
-        return redirect()->route('dosen.validasi-revisi.index')
+        // Determine jenis for redirect
+        $jenisSidang = $revisi->pelaksanaanSidang->pendaftaranSidang->jenis;
+        $jenis = in_array($jenisSidang, ['proposal', 'seminar_proposal']) ? 'sempro' : 'sidang';
+
+        return redirect()->route('dosen.validasi-revisi.index', ['jenis' => $jenis])
             ->with('success', 'Revisi berhasil disetujui.');
     }
 
@@ -124,7 +132,11 @@ class ValidasiRevisiController extends Controller
             'tanggal_validasi' => now(),
         ]);
 
-        return redirect()->route('dosen.validasi-revisi.index')
+        // Determine jenis for redirect
+        $jenisSidang = $revisi->pelaksanaanSidang->pendaftaranSidang->jenis;
+        $jenis = in_array($jenisSidang, ['proposal', 'seminar_proposal']) ? 'sempro' : 'sidang';
+
+        return redirect()->route('dosen.validasi-revisi.index', ['jenis' => $jenis])
             ->with('success', 'Revisi dikembalikan untuk diperbaiki mahasiswa.');
     }
 

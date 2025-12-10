@@ -3,7 +3,7 @@
         <!-- Header -->
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-bold text-gray-800">Detail Revisi</h1>
-            <a href="{{ route('dosen.validasi-revisi.index') }}" 
+            <a href="{{ route('dosen.validasi-revisi.index', ['jenis' => $jenis]) }}" 
                class="inline-flex items-center px-4 py-2 bg-gray-100 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-200">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -159,9 +159,9 @@
                             <button type="submit" 
                                     :disabled="submitting"
                                     class="w-full inline-flex justify-center items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 disabled:opacity-50">
-                                <svg class="w-5 h-5 mr-2" :class="{ 'animate-spin': submitting }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                {{-- <svg class="w-5 h-5 mr-2" :class="{ 'animate-spin': submitting }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
+                                </svg> --}}
                                 <span x-show="!submitting">Setujui Revisi</span>
                                 <span x-show="submitting" x-cloak>Memproses...</span>
                             </button>

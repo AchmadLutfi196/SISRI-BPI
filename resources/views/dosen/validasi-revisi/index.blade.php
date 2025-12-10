@@ -128,10 +128,27 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <a href="{{ route('dosen.validasi-revisi.show', $revisi) }}" 
-                                           class="text-{{ $jenis === 'sempro' ? 'blue' : 'purple' }}-600 hover:text-{{ $jenis === 'sempro' ? 'blue' : 'purple' }}-900">
-                                            Lihat Detail
-                                        </a>
+                                        <div class="flex items-center justify-end gap-3">
+                                            <a href="{{ route('dosen.validasi-revisi.show', $revisi) }}" 
+                                               class="text-{{ $jenis === 'sempro' ? 'blue' : 'purple' }}-600 hover:text-{{ $jenis === 'sempro' ? 'blue' : 'purple' }}-900">
+                                                Lihat Detail
+                                            </a>
+                                            
+                                            @if($revisi->status === 'disetujui')
+                                                @php
+                                                    $pelaksanaan = $revisi->pelaksanaanSidang;
+                                                    $jenisSidang = $pelaksanaan->pendaftaranSidang->jenis;
+                                                    $routeName = in_array($jenisSidang, ['proposal', 'seminar_proposal']) 
+                                                        ? 'dosen.nilai-sempro.create' 
+                                                        : 'dosen.nilai-sidang.create';
+                                                @endphp
+                                                <span class="text-gray-300">|</span>
+                                                <a href="{{ route($routeName, $pelaksanaan) }}" 
+                                                   class="text-green-600 hover:text-green-900 font-medium">
+                                                    Update Nilai
+                                                </a>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
