@@ -74,6 +74,22 @@ class TopikController extends Controller
                 ->with('error', 'Anda sudah memiliki topik skripsi.');
         }
 
+        // Validasi kuota pembimbing 1
+        $dosen1 = Dosen::find($request->pembimbing_1_id);
+        if (!$dosen1->hasKuota1Available()) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Kuota pembimbing 1 untuk ' . $dosen1->nama . ' sudah penuh.');
+        }
+
+        // Validasi kuota pembimbing 2
+        $dosen2 = Dosen::find($request->pembimbing_2_id);
+        if (!$dosen2->hasKuota2Available()) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Kuota pembimbing 2 untuk ' . $dosen2->nama . ' sudah penuh.');
+        }
+
         $filePath = null;
         if ($request->hasFile('file_proposal')) {
             $filePath = $request->file('file_proposal')->store('proposals', 'public');
