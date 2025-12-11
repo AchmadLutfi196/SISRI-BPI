@@ -144,10 +144,20 @@ class BimbinganController extends Controller
             $filePath = $request->file('file_bimbingan')->store('bimbingan', 'public');
         }
 
+        // Hitung nomor bimbingan berdasarkan topik, dosen, dan jenis
+        $lastBimbingan = Bimbingan::where('topik_id', $topik->id)
+            ->where('dosen_id', $request->dosen_id)
+            ->where('jenis', $request->jenis)
+            ->orderBy('bimbingan_ke', 'desc')
+            ->first();
+        
+        $bimbinganKe = $lastBimbingan ? $lastBimbingan->bimbingan_ke + 1 : 1;
+
         $bimbingan = Bimbingan::create([
             'topik_id' => $topik->id,
             'dosen_id' => $request->dosen_id,
             'jenis' => $request->jenis,
+            'bimbingan_ke' => $bimbinganKe,
             'pokok_bimbingan' => $request->pokok_bimbingan,
             'file_bimbingan' => $filePath,
             'pesan_mahasiswa' => $request->pesan_mahasiswa,

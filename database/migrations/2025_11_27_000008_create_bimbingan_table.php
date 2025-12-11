@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('topik_id')->constrained('topik_skripsi')->cascadeOnDelete();
             $table->foreignId('dosen_id')->constrained('dosen')->cascadeOnDelete();
             $table->enum('jenis', ['proposal', 'skripsi']);
+            $table->integer('bimbingan_ke')->default(1);
             $table->text('pokok_bimbingan');
             $table->string('file_bimbingan', 255)->nullable();
             $table->text('pesan_mahasiswa')->nullable();

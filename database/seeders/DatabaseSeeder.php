@@ -343,9 +343,13 @@ class DatabaseSeeder extends Seeder
     
     private function createJadwalSidang(array $units): void
     {
+        // Get active periode (Semester Ganjil 2024/2025)
+        $periodeAktif = Periode::where('is_active', true)->first();
+        
         // Jadwal Seminar Proposal - Active Now (November 2025)
         JadwalSidang::create([
             'prodi_id' => $units['prodi']->id,
+            'periode_id' => $periodeAktif->id,
             'nama' => 'Seminar Proposal Periode November 2025',
             'jenis' => 'seminar_proposal',
             'tanggal_buka' => '2025-11-01',
@@ -356,6 +360,7 @@ class DatabaseSeeder extends Seeder
         
         JadwalSidang::create([
             'prodi_id' => $units['prodi']->id,
+            'periode_id' => $periodeAktif->id,
             'nama' => 'Seminar Proposal Periode Desember 2025',
             'jenis' => 'seminar_proposal',
             'tanggal_buka' => '2025-12-01',
@@ -367,6 +372,7 @@ class DatabaseSeeder extends Seeder
         // Jadwal Sidang Skripsi - Active Now (November 2025)
         JadwalSidang::create([
             'prodi_id' => $units['prodi']->id,
+            'periode_id' => $periodeAktif->id,
             'nama' => 'Sidang Skripsi Periode November 2025',
             'jenis' => 'sidang_skripsi',
             'tanggal_buka' => '2025-11-01',
@@ -377,6 +383,7 @@ class DatabaseSeeder extends Seeder
         
         JadwalSidang::create([
             'prodi_id' => $units['prodi']->id,
+            'periode_id' => $periodeAktif->id,
             'nama' => 'Sidang Skripsi Periode Desember 2025',
             'jenis' => 'sidang_skripsi',
             'tanggal_buka' => '2025-12-01',
@@ -453,6 +460,42 @@ class DatabaseSeeder extends Seeder
             'status' => 'menunggu',
             'catatan' => null,
         ]);
+
+        // Topik untuk Ahmad - Status DITOLAK (untuk testing ganti pembimbing)
+        // Pembimbing 1 menerima, Pembimbing 2 menolak
+        $mahasiswaAhmad = Mahasiswa::where('nim', '2020001')->first();
+        $dosenDitolak = Dosen::where('nip', '19750512200501')->first(); // Adhi Kusnadi (akan menolak)
+        
+        if ($mahasiswaAhmad && $dosenDitolak) {
+            $topikAhmad = TopikSkripsi::create([
+                'mahasiswa_id' => $mahasiswaAhmad->id,
+                'bidang_minat_id' => $bidangMinatWeb->id,
+                'judul' => 'Sistem Manajemen Inventory Berbasis Cloud Computing',
+                'file_proposal' => null,
+                'status' => 'ditolak',
+                'catatan' => 'Usulan pembimbing 2 menolak. Silakan pilih pembimbing pengganti.',
+            ]);
+            
+            // Pembimbing 1 - DITERIMA
+            UsulanPembimbing::create([
+                'topik_id' => $topikAhmad->id,
+                'dosen_id' => $dosenPembimbing1->id,
+                'urutan' => 1,
+                'status' => 'diterima',
+                'catatan' => 'Topik menarik, saya bersedia membimbing.',
+                'tanggal_respon' => now()->subDays(2),
+            ]);
+            
+            // Pembimbing 2 - DITOLAK
+            UsulanPembimbing::create([
+                'topik_id' => $topikAhmad->id,
+                'dosen_id' => $dosenDitolak->id,
+                'urutan' => 2,
+                'status' => 'ditolak',
+                'catatan' => 'Maaf, saat ini kuota pembimbing saya sudah penuh. Silakan cari pembimbing lain yang sesuai dengan bidang cloud computing.',
+                'tanggal_respon' => now()->subDays(1),
+            ]);
+        }
     }
     
     private function createSampleSidang(array $units): void
@@ -516,6 +559,7 @@ class DatabaseSeeder extends Seeder
             'role' => 'penguji_1',
             'ttd_berita_acara' => true,
             'tanggal_ttd' => now()->subDays(3),
+            'catatan_revisi' => "1. Perbaiki abstrak, tambahkan hasil penelitian secara ringkas\n2. Lengkapi referensi pada Bab 2, minimal 15 referensi terbaru (5 tahun terakhir)\n3. Perbaiki metodologi penelitian pada Bab 3, jelaskan tahapan lebih detail\n4. Tambahkan analisis pembahasan yang lebih mendalam pada Bab 4",
         ]);
     }
     
@@ -757,6 +801,7 @@ class DatabaseSeeder extends Seeder
             'topik_id' => $topikBudi->id,
             'dosen_id' => $pembimbing1->dosen_id,
             'jenis' => 'proposal',
+            'bimbingan_ke' => 1,
             'pokok_bimbingan' => 'Pembahasan BAB 1 - Latar Belakang dan Rumusan Masalah',
             'file_bimbingan' => null,
             'pesan_mahasiswa' => 'Pak, saya sudah menyusun BAB 1 sesuai template. Mohon koreksinya.',
@@ -788,6 +833,7 @@ class DatabaseSeeder extends Seeder
             'topik_id' => $topikBudi->id,
             'dosen_id' => $pembimbing1->dosen_id,
             'jenis' => 'proposal',
+            'bimbingan_ke' => 2,
             'pokok_bimbingan' => 'Pembahasan BAB 2 - Tinjauan Pustaka dan Landasan Teori',
             'file_bimbingan' => null,
             'pesan_mahasiswa' => 'Pak, BAB 2 sudah selesai. Saya lampirkan jurnal referensi yang digunakan.',
@@ -827,6 +873,7 @@ class DatabaseSeeder extends Seeder
             'topik_id' => $topikBudi->id,
             'dosen_id' => $pembimbing2->dosen_id,
             'jenis' => 'proposal',
+            'bimbingan_ke' => 3,
             'pokok_bimbingan' => 'Konsultasi Metodologi Penelitian',
             'file_bimbingan' => null,
             'pesan_mahasiswa' => 'Bu, mohon arahan untuk metodologi penelitian yang sesuai dengan topik saya.',
@@ -858,6 +905,7 @@ class DatabaseSeeder extends Seeder
             'topik_id' => $topikBudi->id,
             'dosen_id' => $pembimbing1->dosen_id,
             'jenis' => 'proposal',
+            'bimbingan_ke' => 4,
             'pokok_bimbingan' => 'Pembahasan BAB 3 - Analisis dan Perancangan Sistem',
             'file_bimbingan' => null,
             'pesan_mahasiswa' => 'Pak, ini draft BAB 3 tentang analisis kebutuhan dan perancangan sistem.',
@@ -889,6 +937,7 @@ class DatabaseSeeder extends Seeder
             'topik_id' => $topikBudi->id,
             'dosen_id' => $pembimbing2->dosen_id,
             'jenis' => 'proposal',
+            'bimbingan_ke' => 5,
             'pokok_bimbingan' => 'Review Draft Proposal Lengkap',
             'file_bimbingan' => null,
             'pesan_mahasiswa' => 'Bu, mohon review draft proposal lengkap sebelum seminar proposal.',
@@ -922,6 +971,7 @@ class DatabaseSeeder extends Seeder
             'topik_id' => $topikSiti->id,
             'dosen_id' => $pembimbingSiti1->dosen_id,
             'jenis' => 'proposal',
+            'bimbingan_ke' => 1,
             'pokok_bimbingan' => 'Diskusi awal topik dan ruang lingkup penelitian',
             'file_bimbingan' => null,
             'pesan_mahasiswa' => 'Pak, saya ingin mendiskusikan ruang lingkup penelitian untuk sistem informasi akademik.',
@@ -1064,6 +1114,7 @@ class DatabaseSeeder extends Seeder
             'role' => 'penguji_1',
             'ttd_berita_acara' => true,
             'tanggal_ttd' => now()->subDays(20),
+            'catatan_revisi' => "1. Perbaiki latar belakang, tambahkan gap penelitian yang lebih spesifik\n2. Lengkapi tinjauan pustaka dengan teori yang relevan\n3. Perjelas rumusan masalah dan tujuan penelitian",
         ]);
         
         PengujiSidang::create([
@@ -1072,6 +1123,7 @@ class DatabaseSeeder extends Seeder
             'role' => 'penguji_2',
             'ttd_berita_acara' => true,
             'tanggal_ttd' => now()->subDays(20),
+            'catatan_revisi' => "1. Metodologi penelitian perlu diperbaiki, tambahkan diagram alur penelitian\n2. Jelaskan teknik pengumpulan data dengan lebih detail\n3. Perbaiki format penulisan daftar pustaka sesuai APA Style",
         ]);
         
         PengujiSidang::create([

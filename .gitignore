@@ -23,6 +23,10 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 
+# SQLite Database - should not be committed
+database/database.sqlite
+database/database.sqlite-journal
+
 **/caddy
 frankenphp
 frankenphp-worker.php

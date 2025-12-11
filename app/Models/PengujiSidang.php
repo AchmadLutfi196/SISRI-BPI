@@ -19,6 +19,7 @@ class PengujiSidang extends Model
         'role',
         'ttd_berita_acara',
         'tanggal_ttd',
+        'catatan_revisi',
     ];
 
     protected function casts(): array
@@ -77,5 +78,14 @@ class PengujiSidang extends Model
             ->where('dosen_id', $this->dosen_id)
             ->where('jenis_nilai', 'ujian')
             ->first();
+    }
+
+    /**
+     * Get the revisi sidang for this penguji.
+     */
+    public function revisiSidang(): HasOne
+    {
+        return $this->hasOne(RevisiSidang::class, 'dosen_id', 'dosen_id')
+            ->where('pelaksanaan_sidang_id', $this->pelaksanaan_sidang_id);
     }
 }

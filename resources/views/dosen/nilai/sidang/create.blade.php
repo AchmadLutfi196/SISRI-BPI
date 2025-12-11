@@ -91,7 +91,7 @@
 
                             <div>
                                 <label for="catatan" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Catatan/Komentar
+                                    Catatan Revisian (jika ada)
                                 </label>
                                 <textarea name="catatan" 
                                           id="catatan" 

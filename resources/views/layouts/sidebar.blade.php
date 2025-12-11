@@ -106,9 +106,17 @@
                     Bimbingan Skripsi
                 </x-sidebar-dropdown-link>
             </x-sidebar-dropdown>
-            <x-sidebar-link :href="route('mahasiswa.sidang.index')" :active="request()->routeIs('mahasiswa.sidang.*')" icon="presentation">
+            <x-sidebar-link :href="route('mahasiswa.sidang.index')" :active="request()->routeIs('mahasiswa.sidang.*')" icon="presentation-chart-bar">
                 Sidang
             </x-sidebar-link>
+            <x-sidebar-dropdown label="Revisi Pasca Sidang" icon="clipboard-check" :active="request()->routeIs('mahasiswa.revisi.*')">
+                <x-sidebar-dropdown-link :href="route('mahasiswa.revisi.index', ['jenis' => 'sempro'])" :active="request()->routeIs('mahasiswa.revisi.*') && request('jenis') === 'sempro'">
+                    Pasca Sempro
+                </x-sidebar-dropdown-link>
+                <x-sidebar-dropdown-link :href="route('mahasiswa.revisi.index', ['jenis' => 'sidang'])" :active="request()->routeIs('mahasiswa.revisi.*') && request('jenis') === 'sidang'">
+                    Pasca Sidang
+                </x-sidebar-dropdown-link>
+            </x-sidebar-dropdown>
         @endif
 
         {{-- Dosen Menu --}}
@@ -157,6 +165,14 @@
                 </x-sidebar-dropdown-link>
                 <x-sidebar-dropdown-link :href="route('dosen.berita-acara.index', ['jenis' => 'sidang'])" :active="request()->routeIs('dosen.berita-acara.*') && request('jenis') === 'sidang'">
                     Sidang Skripsi
+                </x-sidebar-dropdown-link>
+            </x-sidebar-dropdown>
+            <x-sidebar-dropdown label="Revisi (Pasca Ujian)" icon="clipboard-check" :active="request()->routeIs('dosen.validasi-revisi.*')">
+                <x-sidebar-dropdown-link :href="route('dosen.validasi-revisi.index', ['jenis' => 'sempro'])" :active="request()->routeIs('dosen.validasi-revisi.*') && request('jenis') === 'sempro'">
+                    Pasca Sempro
+                </x-sidebar-dropdown-link>
+                <x-sidebar-dropdown-link :href="route('dosen.validasi-revisi.index', ['jenis' => 'sidang'])" :active="request()->routeIs('dosen.validasi-revisi.*') && request('jenis') === 'sidang'">
+                    Pasca Sidang
                 </x-sidebar-dropdown-link>
             </x-sidebar-dropdown>
         @endif
@@ -249,6 +265,14 @@
                 </x-sidebar-dropdown-link>
                 <x-sidebar-dropdown-link :href="route('dosen.berita-acara.index', ['jenis' => 'sidang'])" :active="request()->routeIs('dosen.berita-acara.*') && request('jenis') === 'sidang'">
                     Sidang Skripsi
+                </x-sidebar-dropdown-link>
+            </x-sidebar-dropdown>
+            <x-sidebar-dropdown label="Revisi (Pasca Ujian)" icon="clipboard-check" :active="request()->routeIs('dosen.validasi-revisi.*')">
+                <x-sidebar-dropdown-link :href="route('dosen.validasi-revisi.index', ['jenis' => 'sempro'])" :active="request()->routeIs('dosen.validasi-revisi.*') && request('jenis') === 'sempro'">
+                    Pasca Sempro
+                </x-sidebar-dropdown-link>
+                <x-sidebar-dropdown-link :href="route('dosen.validasi-revisi.index', ['jenis' => 'sidang'])" :active="request()->routeIs('dosen.validasi-revisi.*') && request('jenis') === 'sidang'">
+                    Pasca Sidang
                 </x-sidebar-dropdown-link>
             </x-sidebar-dropdown>
         @endif

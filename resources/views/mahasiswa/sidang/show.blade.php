@@ -337,9 +337,9 @@
                                     </div>
                                     <p class="text-xl font-bold text-gray-800">{{ number_format($n->nilai, 2) }}</p>
                                 </div>
-                                @if($n->catatan)
+                                {{-- @if($n->catatan)
                                 <p class="text-xs text-gray-600 mt-2">{{ $n->catatan }}</p>
-                                @endif
+                                @endif --}}
                             </div>
                             @endforeach
                         </div>

@@ -126,12 +126,16 @@ class TopikController extends Controller
 
         $topik->load('usulanPembimbing.dosen');
 
+        // Identifikasi pembimbing yang ditolak
+        $pembimbingDitolak = $topik->usulanPembimbing->where('status', 'ditolak');
+        $hasPembimbingDitolak = $pembimbingDitolak->isNotEmpty();
+
         $bidangMinats = BidangMinat::where('prodi_id', $mahasiswa->prodi_id)
             ->active()
             ->get();
         $dosens = Dosen::where('prodi_id', $mahasiswa->prodi_id)->get();
 
-        return view('mahasiswa.topik.edit', compact('topik', 'bidangMinats', 'dosens'));
+        return view('mahasiswa.topik.edit', compact('topik', 'bidangMinats', 'dosens', 'hasPembimbingDitolak'));
     }
 
     public function update(Request $request, TopikSkripsi $topik)
@@ -151,6 +155,8 @@ class TopikController extends Controller
             'judul' => 'required',
             'bidang_minat_id' => 'required|exists:bidang_minat,id',
             'file_proposal' => 'nullable|file|mimes:pdf|max:5120',
+            'pembimbing_1_id' => 'nullable|exists:dosen,id',
+            'pembimbing_2_id' => 'nullable|exists:dosen,id',
         ]);
 
         if ($request->hasFile('file_proposal')) {
@@ -168,8 +174,29 @@ class TopikController extends Controller
             'catatan' => null,
         ]);
 
-        // Reset usulan pembimbing status to menunggu
-        $topik->usulanPembimbing()->update(['status' => 'menunggu', 'catatan' => null]);
+        // Update usulan pembimbing
+        foreach ($topik->usulanPembimbing as $usulan) {
+            $fieldName = 'pembimbing_' . $usulan->urutan . '_id';
+            
+            if ($usulan->status === 'ditolak' && $request->filled($fieldName)) {
+                // Jika pembimbing ditolak dan ada pengganti, update dosen_id
+                $usulan->update([
+                    'dosen_id' => $request->$fieldName,
+                    'status' => 'menunggu',
+                    'catatan' => null,
+                    'tanggal_respon' => null,
+                ]);
+            } elseif ($usulan->status === 'diterima') {
+                // Pembimbing yang sudah menerima tetap dipertahankan
+                // Tidak ada perubahan
+            } else {
+                // Status menunggu, reset ke menunggu
+                $usulan->update([
+                    'status' => 'menunggu',
+                    'catatan' => null,
+                ]);
+            }
+        }
 
         return redirect()->route('mahasiswa.topik.index')
             ->with('success', 'Topik skripsi berhasil diperbarui.');

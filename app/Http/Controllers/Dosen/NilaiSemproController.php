@@ -125,6 +125,13 @@ class NilaiSemproController extends Controller
             'catatan' => $request->catatan,
         ]);
 
+        // Update catatan_revisi di penguji_sidang jika ada catatan
+        if ($request->filled('catatan')) {
+            $penugasan->update([
+                'catatan_revisi' => $request->catatan,
+            ]);
+        }
+
         return redirect()->route('dosen.nilai-sempro.index')->with('success', 'Nilai seminar proposal berhasil disimpan.');
     }
 
@@ -154,6 +161,17 @@ class NilaiSemproController extends Controller
             'nilai' => $request->nilai,
             'catatan' => $request->catatan,
         ]);
+
+        // Update catatan_revisi di penguji_sidang
+        $penugasan = PengujiSidang::where('pelaksanaan_sidang_id', $nilai->pelaksanaan_sidang_id)
+            ->where('dosen_id', $dosen->id)
+            ->first();
+        
+        if ($penugasan) {
+            $penugasan->update([
+                'catatan_revisi' => $request->catatan,
+            ]);
+        }
 
         return redirect()->route('dosen.nilai-sempro.index')->with('success', 'Nilai seminar proposal berhasil diperbarui.');
     }

@@ -135,4 +135,28 @@ class ValidasiUsulanController extends Controller
             ]);
         }
     }
+
+    public function downloadProposal(UsulanPembimbing $usulan)
+    {
+        $dosen = auth()->user()->dosen;
+
+        // Pastikan dosen yang login adalah dosen yang diusulkan
+        if ($usulan->dosen_id !== $dosen->id) {
+            abort(403, 'Anda tidak memiliki akses untuk mengunduh file ini.');
+        }
+
+        // Cek apakah file proposal ada
+        if (!$usulan->topik->file_proposal) {
+            return back()->with('error', 'File proposal tidak ditemukan.');
+        }
+
+        $filePath = storage_path('app/public/' . $usulan->topik->file_proposal);
+
+        // Cek apakah file fisik ada
+        if (!file_exists($filePath)) {
+            return back()->with('error', 'File tidak ditemukan di server.');
+        }
+
+        return response()->download($filePath);
+    }
 }

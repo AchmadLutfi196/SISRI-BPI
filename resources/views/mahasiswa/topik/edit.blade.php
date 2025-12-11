@@ -162,36 +162,109 @@
                         </div>
                     </div>
 
-                    <!-- Section: Pembimbing (Read Only) -->
+                    <!-- Section: Pembimbing -->
                     <div class="mb-8">
                         <h2 class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b">
                             Dosen Pembimbing
                         </h2>
 
+                        @if($hasPembimbingDitolak)
+                        <div class="mb-4 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-lg">
+                            <div class="flex">
+                                <svg class="w-5 h-5 text-yellow-400 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                                <div>
+                                    <p class="text-sm text-yellow-800 font-medium">Ada pembimbing yang menolak usulan Anda!</p>
+                                    <p class="text-sm text-yellow-700 mt-1">Silakan pilih dosen pembimbing pengganti untuk pembimbing yang menolak.</p>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             @foreach($topik->usulanPembimbing->sortBy('urutan') as $usulan)
-                            <div class="p-4 bg-gray-50 rounded-lg border">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                                        <span class="text-lg font-bold text-blue-600">{{ substr($usulan->dosen->nama, 0, 1) }}</span>
-                                    </div>
-                                    <div>
-                                        <p class="font-medium text-gray-800">{{ $usulan->dosen->nama }}</p>
-                                        <p class="text-sm text-gray-500">Pembimbing {{ $usulan->urutan }}</p>
-                                    </div>
-                                </div>
-                                <div class="mt-3 pt-3 border-t">
+                            <div class="p-4 bg-gray-50 rounded-lg border {{ $usulan->status === 'ditolak' ? 'border-red-300 bg-red-50' : '' }}">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-sm font-medium text-gray-700">Pembimbing {{ $usulan->urutan }}</span>
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
-                                        {{ $usulan->status === 'disetujui' ? 'bg-green-100 text-green-800' : '' }}
+                                        {{ $usulan->status === 'diterima' ? 'bg-green-100 text-green-800' : '' }}
                                         {{ $usulan->status === 'ditolak' ? 'bg-red-100 text-red-800' : '' }}
                                         {{ $usulan->status === 'menunggu' ? 'bg-yellow-100 text-yellow-800' : '' }}">
                                         {{ ucfirst($usulan->status) }}
                                     </span>
                                 </div>
+
+                                @if($usulan->status === 'ditolak')
+                                    <!-- Form Ganti Pembimbing -->
+                                    <div class="mb-3">
+                                        <div class="p-3 bg-white rounded border border-red-200 mb-3">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                                                    <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <p class="font-medium text-gray-800 line-through">{{ $usulan->dosen->nama }}</p>
+                                                    <p class="text-xs text-red-600">Menolak usulan</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Pilih Pembimbing Pengganti <span class="text-red-500">*</span>
+                                    </label>
+                                    <select name="pembimbing_{{ $usulan->urutan }}_id" required
+                                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 border-gray-300">
+                                        <option value="">-- Pilih Dosen Pembimbing {{ $usulan->urutan }} --</option>
+                                        @foreach($dosens as $dosen)
+                                            @if($dosen->id !== $usulan->dosen_id)
+                                            <option value="{{ $dosen->id }}" {{ old('pembimbing_' . $usulan->urutan . '_id') == $dosen->id ? 'selected' : '' }}>
+                                                {{ $dosen->nama }} ({{ $dosen->nip ?? $dosen->nidn ?? '-' }})
+                                            </option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                    @error('pembimbing_' . $usulan->urutan . '_id')
+                                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                    @enderror
+                                @elseif($usulan->status === 'diterima')
+                                    <!-- Pembimbing yang Sudah Menerima -->
+                                    <div class="p-3 bg-white rounded border border-green-200">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                                                <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium text-gray-800">{{ $usulan->dosen->nama }}</p>
+                                                <p class="text-xs text-green-600">Sudah menyetujui</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2 italic">Pembimbing ini akan tetap dipertahankan</p>
+                                @else
+                                    <!-- Status Menunggu -->
+                                    <div class="p-3 bg-white rounded border">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                                <span class="text-lg font-bold text-blue-600">{{ substr($usulan->dosen->nama, 0, 1) }}</span>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium text-gray-800">{{ $usulan->dosen->nama }}</p>
+                                                <p class="text-xs text-gray-500">{{ $usulan->dosen->nip ?? $usulan->dosen->nidn ?? '-' }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                             @endforeach
                         </div>
 
+                        @if(!$hasPembimbingDitolak)
                         <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                             <div class="flex">
                                 <svg class="w-5 h-5 text-blue-400 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -199,11 +272,12 @@
                                 </svg>
                                 <div>
                                     <p class="text-sm text-blue-800">
-                                        <strong>Info:</strong> Anda tidak dapat mengubah pembimbing yang sudah dipilih. Jika perlu mengganti pembimbing, silakan hubungi koordinator prodi.
+                                        <strong>Info:</strong> Pembimbing yang sudah menyetujui akan tetap dipertahankan.
                                     </p>
                                 </div>
                             </div>
                         </div>
+                        @endif
                     </div>
 
                     <!-- Submit Button -->

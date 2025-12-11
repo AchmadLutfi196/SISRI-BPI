@@ -101,88 +101,91 @@
         <!-- Bimbingan List -->
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6">
-                @if($bimbingans->count() > 0)
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mahasiswa</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Topik</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pokok Bimbingan</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ke-</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach($bimbingans as $bimbingan)
-                                    <tr class="hover:bg-gray-50 {{ $bimbingan->status == 'menunggu' ? 'bg-yellow-50' : '' }}">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center">
-                                                <x-avatar 
-                                                    :src="$bimbingan->topik->mahasiswa->foto_url" 
-                                                    :initials="$bimbingan->topik->mahasiswa->initials" 
-                                                    size="md" 
-                                                />
-                                                <div class="ml-3">
-                                                    <div class="text-sm font-medium text-gray-900">{{ $bimbingan->topik->mahasiswa->nama }}</div>
-                                                    <div class="text-sm text-gray-500">{{ $bimbingan->topik->mahasiswa->nim }}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm text-gray-900 max-w-xs truncate">{{ $bimbingan->topik->judul }}</div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm text-gray-900 max-w-xs truncate">{{ $bimbingan->pokok_bimbingan }}</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                                {{ $bimbingan->bimbingan_ke }}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $bimbingan->created_at->format('d/m/Y H:i') }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            @if($bimbingan->status == 'menunggu')
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                    Menunggu
-                                                </span>
-                                            @elseif($bimbingan->status == 'direvisi')
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
-                                                    Perlu Revisi
-                                                </span>
-                                            @else
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                    Disetujui
-                                                </span>
-                                            @endif
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <a href="{{ route('dosen.bimbingan.show', $bimbingan) }}" 
-                                               class="text-blue-600 hover:text-blue-900">
-                                                {{ $bimbingan->status == 'menunggu' ? 'Respon' : 'Detail' }}
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                @if($mahasiswaList->count() > 0)
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @foreach($mahasiswaList as $item)
+                            <div class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+                                <!-- Header Card -->
+                                <div class="p-5 border-b border-gray-100">
+                                    <div class="flex items-center gap-4">
+                                        <x-avatar 
+                                            :src="$item['mahasiswa']->foto_url" 
+                                            :initials="$item['mahasiswa']->initials" 
+                                            size="lg" 
+                                        />
+                                        <div class="flex-1 min-w-0">
+                                            <h3 class="text-base font-semibold text-gray-900 truncate">
+                                                {{ $item['mahasiswa']->nama }}
+                                            </h3>
+                                            <p class="text-sm text-gray-500">{{ $item['mahasiswa']->nim }}</p>
+                                        </div>
+                                    </div>
+                                </div>
 
-                    <!-- Pagination -->
-                    <div class="mt-6">
-                        {{ $bimbingans->appends(['jenis' => $jenis])->links() }}
+                                <!-- Body Card -->
+                                <div class="p-5 space-y-3">
+                                    <!-- Topik -->
+                                    <div>
+                                        <p class="text-xs text-gray-500 mb-1">Topik Skripsi:</p>
+                                        <p class="text-sm text-gray-900 line-clamp-2">{{ $item['topik']->judul }}</p>
+                                    </div>
+
+                                    <!-- Statistics -->
+                                    <div class="grid grid-cols-3 gap-2 pt-3 border-t">
+                                        <div class="text-center">
+                                            <p class="text-xl font-bold text-gray-900">{{ $item['total_bimbingan'] }}</p>
+                                            <p class="text-xs text-gray-500">Total</p>
+                                        </div>
+                                        <div class="text-center">
+                                            <p class="text-xl font-bold text-yellow-600">{{ $item['menunggu'] }}</p>
+                                            <p class="text-xs text-gray-500">Menunggu</p>
+                                        </div>
+                                        <div class="text-center">
+                                            <p class="text-xl font-bold text-green-600">{{ $item['disetujui'] }}</p>
+                                            <p class="text-xs text-gray-500">Disetujui</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Last Activity -->
+                                    <div class="pt-3 border-t">
+                                        <div class="flex items-center justify-between text-xs">
+                                            <span class="text-gray-500">Terakhir:</span>
+                                            <span class="text-gray-700 font-medium">
+                                                {{ $item['last_bimbingan']->created_at->diffForHumans() }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Footer Card -->
+                                <div class="px-5 pb-5">
+                                    <a href="{{ route('dosen.bimbingan.mahasiswa', ['mahasiswa' => $item['mahasiswa']->id, 'jenis' => $jenis]) }}" 
+                                       class="block w-full text-center px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                            </svg>
+                                            Lihat Detail Bimbingan
+                                        </div>
+                                    </a>
+                                    
+                                    @if($item['menunggu'] > 0)
+                                        <p class="text-xs text-center text-yellow-600 mt-2 font-medium">
+                                            {{ $item['menunggu'] }} bimbingan perlu direspon
+                                        </p>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 @else
                     <div class="text-center py-12">
                         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada bimbingan</h3>
-                        <p class="mt-1 text-sm text-gray-500">Belum ada bimbingan {{ $jenis }} dari mahasiswa.</p>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada mahasiswa</h3>
+                        <p class="mt-1 text-sm text-gray-500">Belum ada mahasiswa yang mengajukan bimbingan {{ $jenis }}.</p>
                     </div>
                 @endif
             </div>
