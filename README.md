@@ -90,12 +90,12 @@ SISRI-BPI/
 
 6. **Jalankan migrasi database**
    ```bash
-   php artisan migrate
+   php artisan migrate --seed
    ```
 
 7. **Build assets**
    ```bash
-   npm run build
+   npm run dev
    ```
 
 8. **Jalankan aplikasi**
@@ -112,16 +112,10 @@ Setelah menjalankan seeder, gunakan akun berikut untuk login:
 | Role | Email | Password |
 |------|-------|----------|
 | Admin | admin@sisri.test | password |
-| Koordinator | rina@sisri.test | password |
-| Dosen | agus@sisri.test | password |
-| Mahasiswa | budi@sisri.test | password |
+| Koordinator | fika@trunojoyo.ac.id | password |
+| Dosen | liat di file seeder | password |
 
 catatan : jika ingin login menggunakan email dan password sendiri, bisa di tambah di halaman admin. (harus login dengan role : Admin agar bisa menambahkan user/mahasiswa/dosen/koordinator)
-
-## 📖 Dokumentasi
-
-- 📄 **Dokumentasi Teknis**: Lihat `tech doc sisri.md`
-- 📄 **Logika Sistem**: Lihat `logic sisri.md`
 
 
 ## 🧪 Testing
