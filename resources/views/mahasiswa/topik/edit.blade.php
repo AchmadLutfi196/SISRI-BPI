@@ -221,8 +221,13 @@
                                         <option value="">-- Pilih Dosen Pembimbing {{ $usulan->urutan }} --</option>
                                         @foreach($dosens as $dosen)
                                             @if($dosen->id !== $usulan->dosen_id)
-                                            <option value="{{ $dosen->id }}" {{ old('pembimbing_' . $usulan->urutan . '_id') == $dosen->id ? 'selected' : '' }}>
-                                                {{ $dosen->nama }} ({{ $dosen->nip ?? $dosen->nidn ?? '-' }})
+                                            <option value="{{ $dosen->id }}" 
+                                                    {{ old('pembimbing_' . $usulan->urutan . '_id') == $dosen->id ? 'selected' : '' }}>
+                                                {{ $dosen->nama }} ({{ $dosen->nip ?? $dosen->nidn ?? '-' }}) - 
+                                                Kuota: {{ $usulan->urutan == 1 ? $dosen->sisa_kuota_1 : $dosen->sisa_kuota_2 }}/{{ $usulan->urutan == 1 ? $dosen->kuota_pembimbing_1 : $dosen->kuota_pembimbing_2 }}
+                                                @if(!$dosen->hasKuotaAvailable($usulan->urutan))
+                                                    [PENUH]
+                                                @endif
                                             </option>
                                             @endif
                                         @endforeach
@@ -230,6 +235,7 @@
                                     @error('pembimbing_' . $usulan->urutan . '_id')
                                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                                     @enderror
+                                    <p class="text-gray-500 text-xs mt-1">Kuota menunjukkan sisa/total mahasiswa bimbingan</p>
                                 @elseif($usulan->status === 'diterima')
                                     <!-- Pembimbing yang Sudah Menerima -->
                                     <div class="p-3 bg-white rounded border border-green-200">

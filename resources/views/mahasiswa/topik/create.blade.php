@@ -132,14 +132,20 @@
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('pembimbing_1_id') border-red-500 @enderror">
                                     <option value="">-- Pilih Pembimbing 1 --</option>
                                     @foreach($dosens as $dosen)
-                                        <option value="{{ $dosen->id }}" {{ old('pembimbing_1_id') == $dosen->id ? 'selected' : '' }}>
-                                            {{ $dosen->nama }} ({{ $dosen->nidn ?? $dosen->nip ?? '-' }})
+                                        <option value="{{ $dosen->id }}" 
+                                                {{ old('pembimbing_1_id') == $dosen->id ? 'selected' : '' }}>
+                                            {{ $dosen->nama }} ({{ $dosen->nidn ?? $dosen->nip ?? '-' }}) - 
+                                            Kuota: {{ $dosen->sisa_kuota_1 }}/{{ $dosen->kuota_pembimbing_1 }}
+                                            @if(!$dosen->hasKuota1Available())
+                                                [PENUH]
+                                            @endif
                                         </option>
                                     @endforeach
                                 </select>
                                 @error('pembimbing_1_id')
                                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                                 @enderror
+                                <p class="text-gray-500 text-xs mt-1">Kuota menunjukkan sisa/total mahasiswa bimbingan</p>
                             </div>
 
                             <!-- Pembimbing 2 -->
@@ -151,14 +157,20 @@
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('pembimbing_2_id') border-red-500 @enderror">
                                     <option value="">-- Pilih Pembimbing 2 --</option>
                                     @foreach($dosens as $dosen)
-                                        <option value="{{ $dosen->id }}" {{ old('pembimbing_2_id') == $dosen->id ? 'selected' : '' }}>
-                                            {{ $dosen->nama }} ({{ $dosen->nidn ?? $dosen->nip ?? '-' }})
+                                        <option value="{{ $dosen->id }}" 
+                                                {{ old('pembimbing_2_id') == $dosen->id ? 'selected' : '' }}>
+                                            {{ $dosen->nama }} ({{ $dosen->nidn ?? $dosen->nip ?? '-' }}) - 
+                                            Kuota: {{ $dosen->sisa_kuota_2 }}/{{ $dosen->kuota_pembimbing_2 }}
+                                            @if(!$dosen->hasKuota2Available())
+                                                [PENUH]
+                                            @endif
                                         </option>
                                     @endforeach
                                 </select>
                                 @error('pembimbing_2_id')
                                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                                 @enderror
+                                <p class="text-gray-500 text-xs mt-1">Kuota menunjukkan sisa/total mahasiswa bimbingan</p>
                             </div>
                         </div>
 
