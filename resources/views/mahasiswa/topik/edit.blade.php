@@ -221,8 +221,13 @@
                                         <option value="">-- Pilih Dosen Pembimbing {{ $usulan->urutan }} --</option>
                                         @foreach($dosens as $dosen)
                                             @if($dosen->id !== $usulan->dosen_id)
-                                            <option value="{{ $dosen->id }}" {{ old('pembimbing_' . $usulan->urutan . '_id') == $dosen->id ? 'selected' : '' }}>
-                                                {{ $dosen->nama }} ({{ $dosen->nip ?? $dosen->nidn ?? '-' }})
+                                            <option value="{{ $dosen->id }}" 
+                                                    {{ old('pembimbing_' . $usulan->urutan . '_id') == $dosen->id ? 'selected' : '' }}>
+                                                {{ $dosen->nama }} ({{ $dosen->nip ?? $dosen->nidn ?? '-' }}) - 
+                                                Kuota: {{ $usulan->urutan == 1 ? $dosen->sisa_kuota_1 : $dosen->sisa_kuota_2 }}/{{ $usulan->urutan == 1 ? $dosen->kuota_pembimbing_1 : $dosen->kuota_pembimbing_2 }}
+                                                @if(!$dosen->hasKuotaAvailable($usulan->urutan))
+                                                    [PENUH]
+                                                @endif
                                             </option>
                                             @endif
                                         @endforeach
@@ -230,6 +235,7 @@
                                     @error('pembimbing_' . $usulan->urutan . '_id')
                                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                                     @enderror
+                                    <p class="text-gray-500 text-xs mt-1">Kuota menunjukkan sisa/total mahasiswa bimbingan</p>
                                 @elseif($usulan->status === 'diterima')
                                     <!-- Pembimbing yang Sudah Menerima -->
                                     <div class="p-3 bg-white rounded border border-green-200">
@@ -299,6 +305,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // File upload preview
         var fileInput = document.getElementById('file_proposal');
@@ -337,5 +344,137 @@
             uploadArea.classList.remove('hidden');
             filePreview.classList.add('hidden');
         });
+
+        // Validasi kuota pembimbing saat dipilih
+        document.querySelectorAll('select[name^="pembimbing_"]').forEach(function(select) {
+            select.addEventListener('change', function() {
+                var selectElement = this;
+                var selectedOption = this.options[this.selectedIndex];
+                var optionText = selectedOption.text;
+                var selectedValue = this.value;
+                
+                // Check jika ada label [PENUH]
+                if (optionText.includes('[PENUH]')) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Kuota Penuh!',
+                        html: 'Dosen yang Anda pilih memiliki kuota yang sudah penuh.<br><br>' + 
+                              '<strong>Info:</strong> ' + optionText.split(' - ')[1] + '<br><br>' +
+                              '<strong>Silakan pilih dosen lain yang masih memiliki kuota tersedia.</strong>',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#d33',
+                        allowOutsideClick: false
+                    }).then(function() {
+                        // Reset pilihan ke kosong
+                        selectElement.value = '';
+                    });
+                    return;
+                }
+                
+                // Update disabled options di semua select pembimbing lainnya
+                updatePembimbingOptions();
+            });
+        });
+        
+        // Fungsi untuk update disabled options agar pembimbing tidak sama
+        function updatePembimbingOptions() {
+            var allSelects = document.querySelectorAll('select[name^="pembimbing_"]');
+            var selectedValues = {};
+            
+            // Kumpulkan semua nilai yang dipilih beserta urutan pembimbingnya
+            allSelects.forEach(function(select) {
+                if (select.value) {
+                    // Extract urutan dari name (pembimbing_1_id atau pembimbing_2_id)
+                    var matches = select.name.match(/pembimbing_(\d+)_id/);
+                    if (matches) {
+                        var urutan = matches[1];
+                        selectedValues[urutan] = select.value;
+                    }
+                }
+            });
+            
+            // Reset semua options dulu
+            allSelects.forEach(function(select) {
+                Array.from(select.options).forEach(function(option) {
+                    if (option.value !== '') {
+                        option.disabled = false;
+                        // Kembalikan style normal jika bukan [PENUH]
+                        if (!option.text.includes('[PENUH]')) {
+                            option.style.color = '';
+                        }
+                    }
+                });
+            });
+            
+            // Disable options yang sudah dipilih di select lain
+            allSelects.forEach(function(currentSelect) {
+                var currentMatches = currentSelect.name.match(/pembimbing_(\d+)_id/);
+                if (!currentMatches) return;
+                
+                var currentUrutan = currentMatches[1];
+                
+                // Disable options yang dipilih di pembimbing lain
+                Object.keys(selectedValues).forEach(function(urutan) {
+                    if (urutan !== currentUrutan) {
+                        var valueToDisable = selectedValues[urutan];
+                        Array.from(currentSelect.options).forEach(function(option) {
+                            if (option.value === valueToDisable) {
+                                option.disabled = true;
+                                option.style.color = '#999';
+                            }
+                        });
+                    }
+                });
+            });
+        }
+        
+        // Jalankan saat halaman dimuat untuk handle old values
+        document.addEventListener('DOMContentLoaded', function() {
+            updatePembimbingOptions();
+        });
+
+        // Validasi form sebelum submit
+        document.querySelector('form').addEventListener('submit', function(e) {
+            var hasFullQuota = false;
+            var fullQuotaName = '';
+            
+            // Cek semua select pembimbing
+            document.querySelectorAll('select[name^="pembimbing_"]').forEach(function(select) {
+                if (select.value) {
+                    var selectedOption = select.options[select.selectedIndex];
+                    var optionText = selectedOption.text;
+                    
+                    if (optionText.includes('[PENUH]')) {
+                        hasFullQuota = true;
+                        fullQuotaName = optionText.split(' (')[0];
+                    }
+                }
+            });
+            
+            // Jika ada pembimbing dengan kuota penuh, cegah submit
+            if (hasFullQuota) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Tidak Dapat Menyimpan',
+                    html: 'Anda memilih dosen <strong>' + fullQuotaName + '</strong> yang kuotanya sudah penuh.<br><br>' +
+                          'Silakan pilih dosen lain yang masih memiliki kuota tersedia.',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#d33'
+                });
+                return false;
+            }
+        });
+
+        // Alert untuk error message dari server
+        @if(session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: '{{ session('error') }}',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#d33'
+            });
+        @endif
     </script>
 </x-app-layout>
