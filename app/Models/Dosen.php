@@ -134,13 +134,41 @@ class Dosen extends Model
      */
     public function getJumlahBimbingan1Attribute(): int
     {
-        return $this->usulanPembimbing()
+        $count = 0;
+        $usulanPembimbing = $this->usulanPembimbing()
             ->where('urutan', 1)
             ->where('status', 'diterima')
             ->whereHas('topik', function ($query) {
                 $query->whereNotIn('status', ['selesai', 'ditolak']);
             })
-            ->count();
+            ->with(['topik.mahasiswa.pendaftaranSidang.pelaksanaanSidang'])
+            ->get();
+        
+        foreach ($usulanPembimbing as $usulan) {
+            $sudahLulus = false;
+            $mahasiswa = $usulan->topik->mahasiswa ?? null;
+            
+            if ($mahasiswa) {
+                // Cek apakah mahasiswa sudah punya pelaksanaan sidang skripsi yang lulus
+                foreach ($mahasiswa->pendaftaranSidang as $pendaftaran) {
+                    // HANYA CEK SIDANG SKRIPSI, BUKAN SEMINAR PROPOSAL
+                    if ($pendaftaran->jenis === 'sidang_skripsi' &&
+                        $pendaftaran->pelaksanaanSidang && 
+                        $pendaftaran->pelaksanaanSidang->status === 'selesai' &&
+                        $pendaftaran->pelaksanaanSidang->isLulus()) {
+                        $sudahLulus = true;
+                        break;
+                    }
+                }
+            }
+            
+            // Hitung hanya jika belum lulus
+            if (!$sudahLulus) {
+                $count++;
+            }
+        }
+        
+        return $count;
     }
 
     /**
@@ -148,13 +176,41 @@ class Dosen extends Model
      */
     public function getJumlahBimbingan2Attribute(): int
     {
-        return $this->usulanPembimbing()
+        $count = 0;
+        $usulanPembimbing = $this->usulanPembimbing()
             ->where('urutan', 2)
             ->where('status', 'diterima')
             ->whereHas('topik', function ($query) {
                 $query->whereNotIn('status', ['selesai', 'ditolak']);
             })
-            ->count();
+            ->with(['topik.mahasiswa.pendaftaranSidang.pelaksanaanSidang'])
+            ->get();
+        
+        foreach ($usulanPembimbing as $usulan) {
+            $sudahLulus = false;
+            $mahasiswa = $usulan->topik->mahasiswa ?? null;
+            
+            if ($mahasiswa) {
+                // Cek apakah mahasiswa sudah punya pelaksanaan sidang skripsi yang lulus
+                foreach ($mahasiswa->pendaftaranSidang as $pendaftaran) {
+                    // HANYA CEK SIDANG SKRIPSI, BUKAN SEMINAR PROPOSAL
+                    if ($pendaftaran->jenis === 'sidang_skripsi' &&
+                        $pendaftaran->pelaksanaanSidang && 
+                        $pendaftaran->pelaksanaanSidang->status === 'selesai' &&
+                        $pendaftaran->pelaksanaanSidang->isLulus()) {
+                        $sudahLulus = true;
+                        break;
+                    }
+                }
+            }
+            
+            // Hitung hanya jika belum lulus
+            if (!$sudahLulus) {
+                $count++;
+            }
+        }
+        
+        return $count;
     }
 
     /**

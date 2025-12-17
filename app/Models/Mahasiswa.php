@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Facades\Storage;
 
 class Mahasiswa extends Model
@@ -47,6 +48,21 @@ class Mahasiswa extends Model
     public function topikSkripsi(): HasMany
     {
         return $this->hasMany(TopikSkripsi::class);
+    }
+
+    /**
+     * Get pendaftaran sidang through topik skripsi.
+     */
+    public function pendaftaranSidang(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            PendaftaranSidang::class,
+            TopikSkripsi::class,
+            'mahasiswa_id', // Foreign key on TopikSkripsi table
+            'topik_id',     // Foreign key on PendaftaranSidang table
+            'id',           // Local key on Mahasiswa table
+            'id'            // Local key on TopikSkripsi table
+        );
     }
 
     /**

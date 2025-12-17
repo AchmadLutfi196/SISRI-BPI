@@ -141,8 +141,8 @@ class PelaksanaanSidang extends Model
             return false;
         }
         
-        // Lulus jika nilai >= 55 (minimal C)
-        return $nilai >= 55;
+        // Lulus jika nilai >= 55 (minimal C+)
+        return $nilai >= 60;
     }
 
     /**
